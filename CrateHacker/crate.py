@@ -4,12 +4,10 @@
 import os
 from nicegui import app, ui
 from nicegui.events import ValueChangeEventArguments
-import crate_utils as utils
-import spotify_utils as spotify
+import spotify_utils as utils
 import collection_search as search
-import collection_import as imp
-
-collection_entry = "HI"  # Placeholder for collection file entry
+import collection_utils as col
+import shutil
 
 #############################
 # GUI callbacks             #
@@ -24,34 +22,35 @@ async def browse_file():
 
 def preview_playlist():
     """Display playlist title from Spotify playlist entry."""  
-    spotify_link = spotify_entry.get()
-    preview_label.config(text="Checking playlist...", fg="blue")
-    preview_label.update_idletasks()
-    
+    playlist = spotify_entry.value
+    print("Playlist provided: " + playlist)
+
     # Check if the link is provided and contains the words "spotify" and "playlist"
-    if utils.verify_spotify_link(spotify_link):
-        # Extract the playlist ID from the URL
-        playlist_id = utils.get_playlist_id(spotify_link)
-        playlist_name = utils.get_playlist_name(playlist_id)
-        preview_label.config(text=f"Playlist to search: {playlist_name}", fg="blue")  
+    if utils.verify_spotify_link(playlist):
+        playlist_name = utils.get_playlist_name(playlist)
+        preview_label.set_text(f"Preview of playlist title: {playlist_name}")
+        preview_label.classes('text-green-8')  
     else:  
-        preview_label.config(text="Please enter a Spotify playlist link.", fg="red")  
+        preview_label.set_text(f"Not a valid playlist link")
+        preview_label.classes('text-red-12')
+    preview_label.visible = True  # Make the preview label visible
 
 
-def create_playlist():  
+def search_collection():  
     """Callback function for the 'Create Playlist' button."""  
-    # Get the text from the two entry fields  
-    collection_file = collection_entry.get()  
-    spotify_link = spotify_entry.get()  
-  
+    collection_file = collection_entry.value
+    spotify_link = spotify_entry.value
+
     # Check if a collection file was provided  
-    status_text = utils.verify_collection_file(collection_file)
+    status_text = col.verify_collection_file(collection_file)
+    status_label.set_text(status_text)
     if "Success" not in status_text:
-        status_label.config(text=status_text, fg="red")
+        status_label.classes('text-red-12')
         return
     
     if not utils.verify_spotify_link(spotify_link):
-        status_label.config(text="Error: Please enter a valid Spotify playlist link.", fg="red")
+        status_label.set_text("Error: Please enter a valid Spotify playlist link.")
+        status_label.classes('text-red-12')
         return
     
     try:
@@ -60,32 +59,32 @@ def create_playlist():
         shutil.copy(collection_file, destination)  
     except Exception as e:  
         # Handle any errors during the file copy  
+        status_label.set_text("Error copying collection file to working directory.")
+        status_label.classes('text-red-12')
         return f"Error copying file: {e}"
     
     
     # Collection now lives at destination
-    status_label.config(text="Valid collection copied to working directory.\nLoading collection...", fg="blue")
-    status_label.update_idletasks()
-    collection = imp.load_collection(destination)
+    status_text += "Valid collection copied to working directory.\nLoading collection..."
+    status_label.set_text(status_text)
+    status_label.classes('text-blue-8')
+    collection = col.load_collection(destination)
     status_text += f"\nLoaded {len(collection)} tracks from collection."
-    status_label.config(text=status_text, fg="blue")
-    status_label.update_idletasks()
+    status_label.set_text(status_text)
     
     
     # Spotify link already validated. Extract the playlist ID from the URL
-    playlist_id = utils.get_playlist_id(spotify_link)
-    playlist_name = utils.sp.playlist(playlist_id)['name']
-    results = utils.get_playlist_info(playlist_id)
+    playlist_name = utils.get_playlist_name(spotify_link)
+    spotify_results = utils.get_playlist_info(spotify_link)
         
-    fuzzy_ratio = fuzzy_slider.get()  
-    playlist = search.fuzzy_search(results, collection, fuzzy_ratio)
+    search_results = search.fuzzy_search(spotify_results, collection, fuzzy_slider.value)
+    print(search_results)
+    # Write playlist to m3u file
+    #col.write_m3u(playlist, playlist_name)
 
-    # Playlist contains entire entries of found files as dict
-    write_sucess = utils.write_traktor_playlist(playlist_name, playlist)
-
-    if write_sucess:
-        status_text = status_label.cget("text") + f"\nFound {len(playlist)} tracks from playlist in collection with fuzzy ratio {fuzzy_ratio}.\nDone checking playlist tracks in collection."
-        status_label.config(text=status_text, fg="blue")
+    if search_results:
+        status_text += f"\nFound {len(search_results)} tracks from playlist in collection with fuzzy ratio {fuzzy_slider.value}.\nDone checking playlist tracks in collection."
+        status_label.set_text(status_text)
 
 #############################
 # GUI build in main         #
@@ -102,7 +101,7 @@ ui.label('CrateHacker').classes('text-3xl font-bold')
 
 # Collection file input
 ui.label('Traktor Collection File').classes('text-lg')
-collection_found = imp.get_collection_file()
+collection_found = col.get_collection_file()
 print(f"Collection file found: {collection_found}")
 with ui.row().classes('w-full no-wrap'):
     collection_entry = ui.input(value=collection_found, placeholder='Select collection file...').classes('w-5/6')
@@ -112,18 +111,31 @@ with ui.row().classes('w-full no-wrap'):
     ui.button('Browse', on_click=browse_file)
 
 # Spotify playlist input
-spotify_entry = "JI"  # Placeholder for Spotify entry]
 ui.label('Spotify Playlist Link').classes('text-lg')
 with ui.row().classes('w-full no-wrap'):
-    with ui.input(placeholder='Enter Spotify playlist link...').classes('w-5/6') as i:
-        ui.button(color='orange-8', on_click=lambda: i.set_value(None), icon='delete') \
-            .props('flat dense').bind_visibility_from(i, 'value')
-ui.button('Preview Playlist', on_click=preview_playlist).props('fullwidth')
-ui.label('Preview').classes('text-lg')
+    spotify_entry = ui.input(placeholder='Enter Spotify playlist link...').classes('w-5/6')
+    with spotify_entry:
+        ui.button(color='orange-8', on_click=lambda: spotify_entry.set_value(None), icon='delete') \
+            .props('flat dense').bind_visibility_from(spotify_entry, 'value')
+    ui.button('Validate', on_click=preview_playlist)
+# Preview label for playlist
+preview_label = ui.label("Preview of playlist title: None").classes('text-md text-gray-600')
+preview_label.visible = False  # Initially hidden
 
-text_input = ui.input("Enter something", placeholder="start typing")
-ui.button("Set Input Text", on_click=update_input_value)
+with ui.row(align_items='center').classes('w-full justify-end'):
+    ui.label('Fuzzy search level').classes('text-md')
+    fuzzy_slider = ui.slider(min=0, max=100, value=70).classes('w-3/6')
+    ui.label().classes('text-sm text-gray-600').bind_text_from(fuzzy_slider, 'value')
+    ui.space()
+    ui.button("Create playlist", on_click=search_collection)
+    ui.button('Quit', on_click=app.shutdown).props('color=red')
 
+status_label = ui.label("Status: Waiting for input...").classes('text-md text-gray-600')
+ui.separator()
+
+# When clicking Create Playlist button, populate below divider with spotify artist and title, then all possible matches 
+# with check boxes next to them
+'''
 with ui.row():
     ui.checkbox('Checkbox', on_change=show)
     ui.switch('Switch', on_change=show)
@@ -132,5 +144,5 @@ with ui.row():
     ui.input('Text input', on_change=show)
     ui.select(['One', 'Two'], value='One', on_change=show)
 ui.button('Quit', on_click=app.shutdown).props('color=red')
-
-ui.run(native=True, window_size= (1024,768), reload=False)
+'''
+ui.run(native=True, window_size= (1024,768), reload=False, title='2Bays Crate Hacker')

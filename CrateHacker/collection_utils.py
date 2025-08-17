@@ -2,6 +2,7 @@ import xmltodict
 import os
 import json
 import re
+from dotenv import set_key
 
 write_filename = "crate_collection"
 
@@ -40,7 +41,7 @@ def get_latest_version_folder(ni_directory):
 
 def get_collection_file():
     # Get the latest version folder, or set to Documents if not found
-    fallback_directory = os.path.expanduser("~/Documents")  # Fallback to Documents if no version folder found
+    fallback_directory = os.path.expanduser("~\\Documents")  # Fallback to Documents if no version folder found
     ni_base_directory = os.path.expanduser("~\\Documents\\Native Instruments")  # NI base directory
     
     latest_version_folder = get_latest_version_folder(ni_base_directory)  
@@ -72,13 +73,28 @@ def get_collection_file():
     else:
         default_collection_filepath = os.path.join(latest_version_folder, "collection.nml") 
 """
-    return latest_version_folder 
+    return os.path.join(latest_version_folder, "collection.nml") 
 
+def write_collection_file_location(collection_file):
+    # Write last used collection file to .env
+    set_key(".env", "COLLECTION_FILE", os.path.abspath(collection_file))
+
+def verify_collection_file(collection_file) -> str:
+    # Check if a collection file was provided  
+    if collection_file:  
+        # Verify provided file is of .nml type
+        if not collection_file.endswith(".nml"):
+            # Show a error warning the user
+            return "Error: Please select a valid .nml file."
+    else:  
+        # Update the status label if no file was provided  
+        return "Error: Please select a valid collection file."
+    
+    return "Success: Valid collection file provided."
 
 #############################
-# Collection import utils   #
+# Collection utils          #
 #############################
-
 
 def load_collection(file, write_json=False, write_xml=False):
     # Load collection xml into a dictionary
@@ -168,3 +184,18 @@ def write_xml(collection):
             f.write(f"</TRACK>\n")
         f.write("</COLLECTION>\n")
     print("Wrote collection to xml file.\n")
+
+def write_m3u(playlist, playlist_name):
+    filename = playlist_name + ".m3u"
+
+    # Delete the m3u file if it exists
+    if os.path.exists(filename):
+        os.remove(filename)
+    
+    # Write only location from entries to m3u file
+    with open(filename, "w", encoding='utf-8') as f:
+        f.write("#EXTM3U\n")
+        for track in playlist:
+            f.write(f"{track['LOCATION']['@VOLUME']}{clean_location(track['LOCATION']['@DIR'] + track['LOCATION']['@FILE'])}\n")
+    
+    print(f"Wrote playlist to m3u file: {filename}\n")
