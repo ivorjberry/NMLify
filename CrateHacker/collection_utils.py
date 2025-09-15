@@ -5,6 +5,7 @@ import re
 from dotenv import set_key
 
 write_filename = "crate_collection"
+DEV_TEST = False  # Set to True to use test collection file
 
 #############################
 # GUI utils                 #
@@ -40,6 +41,9 @@ def get_latest_version_folder(ni_directory):
 
 
 def get_collection_file():
+    if DEV_TEST:
+        print("DEV TEST: Using test collection file.")
+        return "testfiles/collection.nml"
     # Get the latest version folder, or set to Documents if not found
     fallback_directory = os.path.expanduser("~\\Documents")  # Fallback to Documents if no version folder found
     ni_base_directory = os.path.expanduser("~\\Documents\\Native Instruments")  # NI base directory
@@ -150,8 +154,8 @@ def load_collection(file, write_json=False, write_xml=False):
 def clean_location(location):
     # Remove any leading or trailing whitespace
     location = location.strip()
-    # Replace any backslashes with forward slashes
-    #location = location.replace("/", "\\")
+    # Replace any forward slashes with backslashes
+    location = location.replace("/", "\\")
     # Remove any colons put in by traktor
     location = location.replace(":", "")
     return location
@@ -194,8 +198,8 @@ def write_m3u(playlist, playlist_name):
     
     # Write only location from entries to m3u file
     with open(filename, "w", encoding='utf-8') as f:
-        f.write("#EXTM3U\n")
         for track in playlist:
             f.write(f"{track['LOCATION']['@VOLUME']}{clean_location(track['LOCATION']['@DIR'] + track['LOCATION']['@FILE'])}\n")
+            
     
     print(f"Wrote playlist to m3u file: {filename}\n")
