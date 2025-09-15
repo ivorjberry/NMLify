@@ -1,3 +1,9 @@
+# Requirements for CrateHacker
+# Generated on 2025-09-15
+nicegui==2.24.1
 python-dotenv==1.0.1
+pywebview==6.0
+requests==2.32.3
 spotipy==2.25.1
-nicegui==2.15.0
+thefuzz==0.22.1
+xmltodict==1.0.0
