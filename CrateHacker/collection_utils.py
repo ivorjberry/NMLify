@@ -5,7 +5,7 @@ import re
 from dotenv import set_key
 
 write_filename = "crate_collection"
-DEV_TEST = False  # Set to True to use test collection file
+DEV_TEST = True  # Set to True to use test collection file
 
 #############################
 # GUI utils                 #
