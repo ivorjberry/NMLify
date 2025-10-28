@@ -3,9 +3,11 @@ import os
 import json
 import re
 from dotenv import set_key
+import xml.etree.ElementTree as ET
+from xml.dom import minidom
 
 write_filename = "crate_collection"
-DEV_TEST = True  # Set to True to use test collection file
+DEV_TEST = False  # Set to True to use test collection file
 
 #############################
 # GUI utils                 #
@@ -203,3 +205,96 @@ def write_m3u(playlist, playlist_name):
             
     
     print(f"Wrote playlist to m3u file: {filename}\n")
+
+def write_nml_playlist(playlist_name, tracks, output_dir="."):
+    """
+    Creates a Traktor .nml playlist file from a list of matched track entries,
+    including both the COLLECTION and PLAYLISTS sections.
+
+    Args:
+        playlist_name (str): The desired name for the playlist.
+        tracks (list): A list of track dictionaries, where each dict is a
+                       matched ENTRY from the parsed collection.nml.
+        output_dir (str, optional): The directory to save the .nml file. Defaults to ".".
+    """
+    
+    # 1. Build the list of PRIMARYKEY entries for the <PLAYLISTS> section
+    playlist_key_entries = []
+    for track_entry in tracks:
+        try:
+            # Reconstruct the full file path from the LOCATION attributes
+            location = track_entry['LOCATION']
+            key_path = f"{location['@VOLUME']}{location['@DIR']}{location['@FILE']}"
+            
+            # Check if the track is a STEM file by looking for the 'STEMS' key
+            key_type = "STEM" if 'STEMS' in track_entry else "TRACK"
+            
+            # Create the dictionary structure for the PRIMARYKEY entry
+            playlist_key_entries.append({
+                'PRIMARYKEY': {
+                    '@TYPE': key_type,
+                    '@KEY': key_path
+                }
+            })
+            
+        except KeyError as e:
+            print(f"Skipping track in playlist due to missing key: {e}. Track data: {track_entry}")
+        except Exception as e:
+            print(f"An error occurred while processing track key: {e}. Track data: {track_entry}")
+
+    # 2. Build the final NML dictionary in the correct structure
+    # The 'tracks' list (which is selected_tracks) is used directly for the <COLLECTION>
+    final_nml_dict = {
+        'NML': {
+            '@VERSION': '20',
+            'HEAD': {
+                '@COMPANY': 'www.native-instruments.com',
+                '@PROGRAM': 'Traktor Pro 4'
+            },
+            # This is the missing piece: a <COLLECTION> block with all track metadata
+            'COLLECTION': {
+                '@ENTRIES': str(len(tracks)),
+                'ENTRY': tracks  # 'tracks' is already a list of track entry dicts
+            },
+            # We also include an empty <SETS> block, just like Traktor's export
+            'SETS': {
+                '@ENTRIES': '0'
+            },
+            # This is the <PLAYLISTS> block that references the collection above
+            'PLAYLISTS': {
+                'NODE': {
+                    '@TYPE': 'PLAYLIST',
+                    '@NAME': playlist_name,
+                    'PLAYLIST': {
+                        '@ENTRIES': str(len(playlist_key_entries)),
+                        '@TYPE': 'LIST',
+                        'ENTRY': playlist_key_entries # The list of PRIMARYKEYs
+                    }
+                }
+            }
+        }
+    }
+
+    # 3. Convert the entire dictionary back into an XML string
+    try:
+        # Use xmltodict.unparse to create the full XML document
+        # 'pretty=True' makes it human-readable
+        # REMOVED encoding="UTF-8" to ensure it returns a standard string (str)
+        xml_output = xmltodict.unparse(final_nml_dict, pretty=True, indent="  ")
+    except Exception as e:
+        print(f"Error unparsing XML: {e}")
+        return None
+
+    # 4. Define and write the final output file
+    safe_playlist_name = re.sub(r'[\\/*?:"<>|]', "", playlist_name)
+    file_path = os.path.join(output_dir, f"{safe_playlist_name}.nml")
+    
+    try:
+        # Write the XML string to the file in TEXT mode ("w")
+        # and specify the encoding at the file level.
+        with open(file_path, "w", encoding="utf-8") as f:
+            f.write(xml_output)
+        return file_path
+    except Exception as e:
+        print(f"Error writing .nml file: {e}")
+        return None

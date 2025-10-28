@@ -19,14 +19,40 @@ def show_search_results_dialog(grouped_matches, playlist_name):
     selected_tracks = []
     
     async def create_playlist_from_selected():
-        """Create playlist from selected tracks."""
-        if selected_tracks:
-            # selected_tracks already contains collection entries
-            col.write_m3u(selected_tracks, playlist_name)
-            await update_label(status_label, f"\nPlaylist '{playlist_name}.m3u' created with {len(selected_tracks)} selected tracks.", add_text=True)
-            result_dialog.close()
-        else:
-            await update_label(status_label, "\nNo tracks selected for playlist creation.", add_text=True)
+        """Create .nml playlist from selected tracks."""
+        if not selected_tracks:
+            ui.notify('No tracks selected!', color='negative')
+            return
+
+        try:
+            # --- FIX 1: Remove app.storage.user ---
+            # We will use a simple output_dir, which our nml function defaults to "."
+            # (the current directory) anyway.
+            output_dir = "." 
+            
+            # The write_nml_playlist function in collection_utils.py 
+            # already handles sanitizing the playlist name.
+            
+            # Call our new .nml writing function from collection_utils
+            # The 'col' alias was imported at the top of crate.py
+            file_path = col.write_nml_playlist(playlist_name, selected_tracks, output_dir)
+            
+            if file_path:
+                # Get the actual filename from the returned path for the message
+                safe_playlist_name = os.path.basename(file_path)
+                ui.notify(f'.nml playlist "{safe_playlist_name}" created successfully in {output_dir}', color='positive')
+                print(f"Playlist created at {file_path}")
+            else:
+                ui.notify('Error creating .nml file. Check console.', color='negative')
+
+        except Exception as e:
+            ui.notify(f'An error occurred: {e}', color='negative')
+            print(f"Error in create_playlist_from_selected: {e}")
+            import traceback
+            traceback.print_exc()
+        
+        # --- FIX 2: Use correct dialog variable name ---
+        result_dialog.close()
     
     def select_first_matches():
         """Select the first match for each Spotify track."""
@@ -181,7 +207,10 @@ async def search_collection():
     """Callback function for the 'Create Playlist' button."""  
     collection_file = collection_entry.value
     spotify_link = spotify_entry.value
-
+    #Fix START: Extract file path string from tuple
+    if isinstance(collection_file, tuple):
+        collection_file = collection_file[0]
+    #Fix END
     # Check if a collection file was provided  
     status_text = col.verify_collection_file(collection_file)
     await update_label(status_label, status_text)
