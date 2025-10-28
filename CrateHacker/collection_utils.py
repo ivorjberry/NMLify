@@ -111,48 +111,7 @@ def load_collection(file, write_json=False, write_xml=False):
     entries = collection_dict['NML']['COLLECTION']['ENTRY']
     
     return entries
-"""
-    # Create a dictionary for each track in the collection
-    collection = []
-    total_errors = 0
-    for entry in entries:
-        try:
-            track = {}
-            track['title'] = entry['@TITLE']
-            # Artist might not exist for some tracks
-            if '@ARTIST' in entry:           
-                track['artist'] = entry['@ARTIST']
-            # Clean up location string to standardize
-            location = entry['LOCATION']['@DIR'] + entry['LOCATION']['@FILE']
-            track['location'] = entry['LOCATION']['@VOLUME'] + clean_location(location)
-            collection.append(track)
-        except:
-            if total_errors == 0:
-                print("Error loading tracks from collection.") 
-                # Delete old error file
-                if os.path.exists("error.txt"):
-                    os.remove("error.txt")
-            
-            total_errors += 1
-            # Write to error file
-            with open("error.txt", "a") as ef:
-                ef.write(f"Error writing track to file: " + entry['@TITLE'] + "\n")
-        
-    print(f"Loaded {len(collection)} out of {len(entries)} tracks from collection.\n")
-    if total_errors > 0:
-            print(f"Total errors: {total_errors}")
 
-    print("Done loading collection.\n")
-
-    # Write track title, artist, and location
-    if write_json:
-        write_json(collection)
-    
-    if write_xml:
-        write_xml(collection)    
- 
-    return collection, total_errors
-"""
 def clean_location(location):
     # Remove any leading or trailing whitespace
     location = location.strip()

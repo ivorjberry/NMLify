@@ -25,10 +25,9 @@ def show_search_results_dialog(grouped_matches, playlist_name):
             return
 
         try:
-            # --- FIX 1: Remove app.storage.user ---
-            # We will use a simple output_dir, which our nml function defaults to "."
-            # (the current directory) anyway.
-            output_dir = "." 
+            # Save playlists to the playlists folder
+            output_dir = "playlists"
+            os.makedirs(output_dir, exist_ok=True)
             
             # The write_nml_playlist function in collection_utils.py 
             # already handles sanitizing the playlist name.
