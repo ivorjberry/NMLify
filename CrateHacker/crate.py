@@ -225,10 +225,31 @@ async def search_collection():
     try:
         # Copy the file to the directory where the script is running  
         destination = os.path.join(os.getcwd(), os.path.basename(collection_file))
-        # If the file already exists at the destination, overwrite it
-        if os.path.exists(destination):
-            os.remove(destination)
-        shutil.copy(collection_file, destination)  
+        archive_dir = os.path.join(os.getcwd(), "archive")
+        os.makedirs(archive_dir, exist_ok=True)
+        
+        # Create timestamped filename for the new collection being copied in
+        from datetime import datetime
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        archive_filename = f"collection_{timestamp}.nml"
+        archive_path = os.path.join(archive_dir, archive_filename)
+        
+        # Copy the new collection file to archive with timestamp
+        shutil.copy(collection_file, archive_path)
+        print(f"Archived new collection to {archive_path}")
+        
+        # Also copy to working directory as collection.nml
+        shutil.copy(collection_file, destination)
+        
+        # Clean up old archives - keep only 5 most recent
+        archive_files = [f for f in os.listdir(archive_dir) if f.startswith("collection_") and f.endswith(".nml")]
+        archive_files.sort(reverse=True)  # Most recent first
+        
+        # Remove files beyond the 5 most recent
+        for old_file in archive_files[5:]:
+            old_path = os.path.join(archive_dir, old_file)
+            os.remove(old_path)
+            print(f"Removed old archive: {old_file}")
     except Exception as e:  
         # Handle any errors during the file copy  
         await update_label(status_label, "Error copying collection file to working directory.", classes='text-red-12', add_text=False)   
