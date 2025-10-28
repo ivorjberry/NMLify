@@ -1,37 +1,54 @@
 from thefuzz import fuzz
 
-def fuzzy_search(results, collection, playlist_name, fuzzy_ratio):
-    # Create fuzzy file to write to
-    fuzzy_file = open("fuzzy_" + playlist_name + ".txt", "w")
-    fuzzy_track_count = 0
-    for track in results['items']:
-        artists = ", ".join(item['name'] for item in track['track']['artists'])
+def fuzzy_search(playlist, collection, fuzzy_ratio):
+    # XML entries as dict in collection, tracks to find as dict in playlist
+    grouped_results = {}  # Will store grouped results by Spotify track key
+    not_found_tracks = []
+
+    total_matches = 0
+    for track in playlist['items']:
+        spotify_track = track['track']
+        artists = ", ".join(item['name'] for item in spotify_track['artists'])
+        
+        # Create a unique key using track name and artists (more reliable than ID)
+        spotify_key = f"{spotify_track['name']}||{artists}"
+        
+        track_matches = []  # Store all collection matches for this Spotify track
         
         for entry in collection:
-            track_title = track['track']['name'].lower()
-            entry_title = entry['title'].lower()
-            if (fuzz.ratio(track_title, entry_title) > 80 or 
+            track_title = spotify_track['name'].lower()
+            entry_title = entry['@TITLE'].lower()
+            if (fuzz.ratio(track_title, entry_title) > fuzzy_ratio or 
             track_title in entry_title or
             entry_title in track_title):
                 track_artists = artists.lower()
                 try:
-                    entry_artists = entry['artist'].lower()
+                    entry_artists = entry['@ARTIST'].lower()
                 except:
                     entry_artists = "Unknown"
 
                 if (fuzz.ratio(track_artists, entry_artists) > fuzzy_ratio or
                 track_artists in entry_artists or
                 entry_artists in track_artists):
-                    # Debug print
-                    #print(f"Track: {track['track']['name']}; Artists: {artists} is in collection.")
-                    #print(f"Location: {entry['location']}")
-                    fuzzy_file.write(f"{entry['location']}\n")
-                    fuzzy_track_count += 1
-                
+                    # Store this collection match
+                    track_matches.append(entry)
+        
+        if track_matches:
+            # Store the grouped result for this Spotify track
+            grouped_results[spotify_key] = {
+                'spotify_track': spotify_track,
+                'spotify_artists': artists,
+                'collection_matches': track_matches
+            }
+            total_matches += len(track_matches)
+        else:
+            not_found_tracks.append(f"Track not found: {spotify_track['name']} by {artists}")
 
-    print("Found " + str(fuzzy_track_count) + " tracks from playlist in collection.")
+    print("Found " + str(total_matches) + " matches for " + str(len(grouped_results)) + " Spotify tracks in collection.")
     print("FUZZY: Done checking playlist tracks in collection.")
-    return fuzzy_track_count
+
+    # Return grouped results instead of flat list
+    return grouped_results, not_found_tracks
 
 def strict_search(results, collection, playlist_name):
     # Create strict file to write to
