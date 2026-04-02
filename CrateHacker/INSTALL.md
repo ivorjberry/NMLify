@@ -17,9 +17,8 @@
    - Create a `.env` file in the same folder as `CrateHacker.exe`
    - Add the following lines to the `.env` file:
    ```
-   SPOTIPY_CLIENT_ID=your_client_id_here
-   SPOTIPY_CLIENT_SECRET=your_client_secret_here
-   SPOTIPY_REDIRECT_URI=http://localhost:8888/callback
+   SPOTIFY_CLIENT_ID=your_client_id_here
+   SPOTIFY_CLIENT_SECRET=your_client_secret_here
    ```
    
    To get your Spotify API credentials:
@@ -27,6 +26,8 @@
    - Log in with your Spotify account
    - Click "Create an App"
    - Copy the Client ID and Client Secret to your `.env` file
+   
+   Or just ask Ivor to use his
 
 3. **Locate Your Traktor Collection**
    - Find your `collection.nml` file
@@ -80,54 +81,9 @@
 - Check that the tracks still exist at their original locations
 
 ### Support
-For issues or questions, please visit: [Your GitHub repo or contact info]
+For issues or questions, visit: https://github.com/ivorjberry/dj-projects
 
----
-
-## For Developers (Building from Source)
-
-### Prerequisites
-- Python 3.11 or later
-- Virtual environment recommended
-
-### Setup
-
-1. **Clone the repository**
-   ```bash
-   git clone [your-repo-url]
-   cd CrateHacker
-   ```
-
-2. **Create and activate virtual environment**
-   ```bash
-   python -m venv crateenv
-   # On Windows:
-   crateenv\Scripts\activate
-   ```
-
-3. **Install dependencies**
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-4. **Configure environment**
-   - Copy `.env.example` to `.env` (if provided)
-   - Add your Spotify API credentials
-
-5. **Run from source**
-   ```bash
-   python crate.py
-   ```
-
-### Building the Executable
-
-To create a distributable executable:
-
-```bash
-python build_exe.py
-```
-
-The executable will be created in the `dist/` folder.
+For developer setup, building from source, and testing, see the [README](../README.md).
 
 ### Build Options
 

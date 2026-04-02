@@ -1,5 +1,6 @@
 import spotipy
 import os
+import re
 from dotenv import load_dotenv
 from spotipy.oauth2 import SpotifyClientCredentials
 
@@ -7,8 +8,8 @@ load_dotenv()
 
 # Initialize Spotify API globally
 sp = spotipy.Spotify(
-    auth_manager=SpotifyClientCredentials(client_id=os.getenv("CLIENT_ID"),
-                                            client_secret=os.getenv("CLIENT_SECRET")))
+    auth_manager=SpotifyClientCredentials(client_id=os.getenv("SPOTIFY_CLIENT_ID"),
+                                            client_secret=os.getenv("SPOTIFY_CLIENT_SECRET")))
 
 def get_playlist_id(playlist_link):
     # Extract the playlist ID from the provided link
@@ -23,12 +24,22 @@ def get_playlist_name(playlist):
 
 def get_playlist_info(playlist):
     # Get playlist tracks from provided playlist id or playlist link
-    results = sp.playlist_tracks(playlist, fields="items(name,track(name,artists(name)))")
-    return results
+    results = sp.playlist_tracks(playlist, fields="items(track(name,artists(name)))")
+    tracks = results
+
+    # Paginate through all tracks
+    while results['next']:
+        results = sp.next(results)
+        tracks['items'].extend(results['items'])
+
+    return tracks
 
 def verify_spotify_link(spotify_link):
-    # Check if the link is provided and contains the words "spotify" and "playlist"
-    if spotify_link.strip() and "spotify" in spotify_link and "playlist" in spotify_link:
-        return True
-    else:
+    # Validate that the link is a proper Spotify playlist URL
+    if not spotify_link or not spotify_link.strip():
         return False
+    # Match open.spotify.com/playlist/<id> or spotify:playlist:<id>
+    return bool(re.match(
+        r'^https?://open\.spotify\.com/playlist/[a-zA-Z0-9]+',
+        spotify_link.strip()
+    ))

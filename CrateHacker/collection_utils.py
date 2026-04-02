@@ -1,13 +1,11 @@
 import xmltodict
 import os
-import json
 import re
-from dotenv import set_key
-import xml.etree.ElementTree as ET
-from xml.dom import minidom
+from dotenv import load_dotenv, set_key
 
-write_filename = "crate_collection"
-DEV_TEST = False  # Set to True to use test collection file
+load_dotenv()
+
+DEV_TEST = True  # Set to True to use test collection file
 
 #############################
 # GUI utils                 #
@@ -57,33 +55,40 @@ def get_collection_file():
         ni_base_directory = os.path.expanduser("~\\OneDrive\\Documents\\Native Instruments")
         latest_version_folder = get_latest_version_folder(ni_base_directory)
 
-    if latest_version_folder is None:
-        print("No version folder found. Using fallback directory.")
-        latest_version_folder = fallback_directory
-    """env_collection_directory = os.getenv("COLLECTION_FILE")  # Check if collection file is saved in .env
-    # If env file has a higher version, use that
-    if env_collection_directory:
-        env_collection_directory = os.path.abspath(env_collection_directory)
-        if os.path.exists(env_collection_directory):
-            latest_version_folder = env_collection_directory
-    # If latest version folder is None or does not exist, use fallback directory
-    # This is to ensure that if the latest version folder is not found, we still have a valid path to return.
-    # If the latest version folder is None or does not exist, we will use the fallback  
-    if latest_version_folder is None or not os.path.exists(latest_version_folder):
+    if latest_version_folder is not None:
+        collection_path = os.path.join(latest_version_folder, "collection.nml")
+        if os.path.exists(collection_path):
+            return collection_path
 
-    if env_collection_directory:
-            # Set to filepath from .env
-            default_collection_filepath = os.path.abspath(env_collection_directory)
-        else:
-            default_collection_filepath = fallback_directory  # Fallback to Documents 
-    else:
-        default_collection_filepath = os.path.join(latest_version_folder, "collection.nml") 
-"""
-    return os.path.join(latest_version_folder, "collection.nml") 
+    # Auto-detection failed — try saved location from .env
+    env_collection_file = os.getenv("COLLECTION_FILE")
+    if env_collection_file:
+        env_path = os.path.abspath(env_collection_file)
+        if os.path.exists(env_path):
+            print(f"Using saved collection location from .env: {env_path}")
+            return env_path
+
+    # Last resort fallback
+    print("No version folder found. Using fallback directory.")
+    return os.path.join(fallback_directory, "collection.nml")
 
 def write_collection_file_location(collection_file):
     # Write last used collection file to .env
     set_key(".env", "COLLECTION_FILE", os.path.abspath(collection_file))
+
+def get_search_dirs():
+    """Load saved search directories from .env (pipe-separated)."""
+    raw = os.getenv("SEARCH_DIRS", "")
+    if not raw:
+        return []
+    dirs = [d.strip() for d in raw.split("|") if d.strip()]
+    # Only return dirs that still exist
+    return [d for d in dirs if os.path.isdir(d)]
+
+def save_search_dirs(dirs):
+    """Save search directories to .env as pipe-separated string."""
+    value = "|".join(os.path.abspath(d) for d in dirs if d.strip())
+    set_key(".env", "SEARCH_DIRS", value)
 
 def verify_collection_file(collection_file) -> str:
     # Check if a collection file was provided  
@@ -102,7 +107,7 @@ def verify_collection_file(collection_file) -> str:
 # Collection utils          #
 #############################
 
-def load_collection(file, write_json=False, write_xml=False):
+def load_collection(file):
     # Load collection xml into a dictionary
     with open(file, "r", encoding='utf-8') as f:
         data = f.read()
@@ -120,50 +125,6 @@ def clean_location(location):
     # Remove any colons put in by traktor
     location = location.replace(":", "")
     return location
-
-def write_json(collection):
-    filename = write_filename + ".json"
-
-    # Delete the json file if it exists
-    if os.path.exists(filename):
-        os.remove(filename)
-        
-    # Write track title, artist, and location from entries to json file
-    with open("collection.json", "w") as f:
-        json.dump(collection, f, indent=2)
-    print("Wrote collection to json file.\n")
-
-def write_xml(collection):
-    filename = write_filename + ".xml"
-
-    # Delete the xml file if it exists
-    if os.path.exists(filename):
-        os.remove(filename)
-    
-    # Write track title, artist, and location from entries to xml file
-    with open("collection.xml", "w", encoding='utf-8') as f:
-        f.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")
-        f.write("<COLLECTION>")
-        for track in collection:
-            f.write(f"<TRACK TITLE=\"{track['title']}\" ARTIST=\"{track['artist']}\" LOCATION=\"{track['location']}\">")
-            f.write(f"</TRACK>\n")
-        f.write("</COLLECTION>\n")
-    print("Wrote collection to xml file.\n")
-
-def write_m3u(playlist, playlist_name):
-    filename = playlist_name + ".m3u"
-
-    # Delete the m3u file if it exists
-    if os.path.exists(filename):
-        os.remove(filename)
-    
-    # Write only location from entries to m3u file
-    with open(filename, "w", encoding='utf-8') as f:
-        for track in playlist:
-            f.write(f"{track['LOCATION']['@VOLUME']}{clean_location(track['LOCATION']['@DIR'] + track['LOCATION']['@FILE'])}\n")
-            
-    
-    print(f"Wrote playlist to m3u file: {filename}\n")
 
 def write_nml_playlist(playlist_name, tracks, output_dir="."):
     """

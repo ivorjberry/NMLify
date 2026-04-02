@@ -42,8 +42,11 @@ def build_executable():
         "--hidden-import=spotipy",
         "--hidden-import=thefuzz",
         "--hidden-import=xmltodict",
-        "--hidden-import=pythonnet",
-        "--hidden-import=clr_loader",
+        "--hidden-import=dotenv",
+        "--hidden-import=collection_search",
+        "--hidden-import=collection_utils",
+        "--hidden-import=spotify_utils",
+        "--hidden-import=disk_search",
         "--collect-all=nicegui",
         "--noconfirm",
         "crate.py"
