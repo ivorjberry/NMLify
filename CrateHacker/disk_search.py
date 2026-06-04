@@ -3,6 +3,11 @@ import re
 from collections import defaultdict
 from thefuzz import fuzz
 
+from app_logging import get_logger
+from text_utils import tokenize as _tokenize
+
+log = get_logger(__name__)
+
 AUDIO_EXTENSIONS = frozenset({
     '.mp3', '.m4a', '.flac', '.wav', '.aiff', '.aif',
     '.ogg', '.wma', '.alac', '.opus',
@@ -10,13 +15,6 @@ AUDIO_EXTENSIONS = frozenset({
 
 # Regex to strip leading track numbers like "01 ", "01. ", "01 - ", "1-"
 _TRACK_NUM_RE = re.compile(r'^\d{1,3}[\s.\-]+')
-_MIN_TOKEN_LEN = 2
-_STOP_WORDS = frozenset({
-    'the', 'a', 'an', 'of', 'in', 'on', 'at', 'to', 'for', 'and',
-    'or', 'is', 'it', 'my', 'me', 'no', 'so', 'do', 'up', 'be',
-    'feat', 'ft', 'vs', 'remix', 'mix', 'edit', 'version', 'radio',
-    'original', 'extended',
-})
 
 
 def parse_filename(filepath):
@@ -48,7 +46,7 @@ def scan_directories(directories, extensions=None):
 
     for directory in directories:
         if not os.path.isdir(directory):
-            print(f"Skipping non-existent directory: {directory}")
+            log.warning("Skipping non-existent search directory: %s", directory)
             continue
         for root, _dirs, files in os.walk(directory):
             for filename in files:
@@ -59,10 +57,9 @@ def scan_directories(directories, extensions=None):
                     yield filepath, parsed_name
 
 
-def _tokenize(text):
-    """Split text into lowercase alphanumeric tokens, filtering noise."""
-    tokens = re.findall(r'[a-z0-9]+', text.lower())
-    return {t for t in tokens if len(t) >= _MIN_TOKEN_LEN and t not in _STOP_WORDS}
+def _tokenize_local(text):
+    """Backward-compat shim — call text_utils.tokenize directly in new code."""
+    return _tokenize(text)
 
 
 def build_file_index(file_list):
@@ -92,22 +89,26 @@ def _get_candidates(text, index, total_files):
     return candidates
 
 
-def fuzzy_match_files(not_found_tracks, file_list, fuzzy_ratio, file_index=None):
+def fuzzy_match_files(not_found_tracks, file_list, fuzzy_ratio, file_index=None,
+                      progress_callback=None):
     """Match not-found Spotify tracks against disk files using fuzzy matching.
-    
+
     Args:
         not_found_tracks: List of "Artist - Title" strings from collection search.
         file_list: List of (filepath, parsed_name) tuples from scan_directories.
         fuzzy_ratio: Minimum fuzzy match score (0-100).
         file_index: Optional token index from build_file_index().
-    
+        progress_callback: Optional callable ``progress_callback(done, total)``
+            invoked once per track. Safe to call from worker threads.
+
     Returns:
         Dict mapping track_name -> list of {'filepath': str, 'parsed_name': str, 'score': int}
     """
     results = {}
     total_files = len(file_list)
+    total_tracks = len(not_found_tracks)
 
-    for track_str in not_found_tracks:
+    for i, track_str in enumerate(not_found_tracks):
         # track_str is "Artist - Title" format from the not-found list
         track_lower = track_str.lower()
 
@@ -135,6 +136,12 @@ def fuzzy_match_files(not_found_tracks, file_list, fuzzy_ratio, file_index=None)
         if matches:
             matches.sort(key=lambda m: m['score'], reverse=True)
             results[track_str] = matches
+
+        if progress_callback is not None:
+            try:
+                progress_callback(i + 1, total_tracks)
+            except Exception as cb_err:
+                log.warning("progress_callback raised (ignored): %s", cb_err)
 
     return results
 

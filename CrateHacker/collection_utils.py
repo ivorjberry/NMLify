@@ -3,9 +3,15 @@ import os
 import re
 from dotenv import load_dotenv, set_key
 
-load_dotenv()
+from app_logging import get_logger
 
-DEV_TEST = True  # Set to True to use test collection file
+load_dotenv()
+log = get_logger(__name__)
+
+# Enable dev mode by setting CRATEHACKER_DEV_TEST=1 in your environment or .env.
+# When enabled, get_collection_file() returns the bundled test collection so
+# developers don't accidentally write over their real Traktor library.
+DEV_TEST = os.getenv("CRATEHACKER_DEV_TEST", "").strip().lower() in ("1", "true", "yes", "on")
 
 #############################
 # GUI utils                 #
@@ -25,7 +31,7 @@ def get_latest_version_folder(ni_directory):
             match = re.match(r"Traktor (\d+(\.\d+)*)", folder)  
             if match:  
                 version_folders.append((folder, match.group(1)))  # (folder_name, version_string) 
-        print(f"Found version folders: {version_folders}")
+        log.debug("Found Traktor version folders under %s: %s", ni_directory, version_folders)
         # Find the folder with the highest version (using natural sort for version strings)  
         if version_folders:  
             # Sort by version using a custom key to parse the version string into a tuple of integers  
@@ -33,16 +39,16 @@ def get_latest_version_folder(ni_directory):
             latest_folder = version_folders[0][0]  # Get the folder name with the highest version  
             return os.path.join(ni_directory, latest_folder)  
         else:
-            print("No saved collection location found. Use fallback directory.")
+            log.debug("No Traktor version folder under %s; falling back", ni_directory)
             return None  # No version folder found, return None  
     except Exception as e:  
-        print(f"Error finding latest version folder: {e}")  
+        log.warning("Error finding latest version folder under %s: %s", ni_directory, e)
         return None
 
 
 def get_collection_file():
     if DEV_TEST:
-        print("DEV TEST: Using test collection file.")
+        log.info("DEV_TEST enabled: using bundled test collection file.")
         return "testfiles/collection.nml"
     # Get the latest version folder, or set to Documents if not found
     fallback_directory = os.path.expanduser("~\\Documents")  # Fallback to Documents if no version folder found
@@ -65,11 +71,11 @@ def get_collection_file():
     if env_collection_file:
         env_path = os.path.abspath(env_collection_file)
         if os.path.exists(env_path):
-            print(f"Using saved collection location from .env: {env_path}")
+            log.info("Using saved collection location from .env: %s", env_path)
             return env_path
 
     # Last resort fallback
-    print("No version folder found. Using fallback directory.")
+    log.warning("No Traktor collection auto-detected; using fallback path %s", fallback_directory)
     return os.path.join(fallback_directory, "collection.nml")
 
 def write_collection_file_location(collection_file):
@@ -108,13 +114,21 @@ def verify_collection_file(collection_file) -> str:
 #############################
 
 def load_collection(file):
-    # Load collection xml into a dictionary
-    with open(file, "r", encoding='utf-8') as f:
-        data = f.read()
-    
-    collection_dict = xmltodict.parse(data)
-    entries = collection_dict['NML']['COLLECTION']['ENTRY']
-    
+    """Parse a Traktor collection.nml file and return the list of <ENTRY> dicts.
+
+    Streams the file straight into xmltodict (no double-buffering) and
+    normalizes the result so callers always get a list, even when the
+    collection contains a single entry (xmltodict returns a dict in that case)
+    or no entries at all.
+    """
+    with open(file, "rb") as f:
+        collection_dict = xmltodict.parse(f)
+
+    entries = collection_dict.get('NML', {}).get('COLLECTION', {}).get('ENTRY')
+    if entries is None:
+        return []
+    if isinstance(entries, dict):
+        return [entries]
     return entries
 
 def clean_location(location):
@@ -158,9 +172,9 @@ def write_nml_playlist(playlist_name, tracks, output_dir="."):
             })
             
         except KeyError as e:
-            print(f"Skipping track in playlist due to missing key: {e}. Track data: {track_entry}")
+            log.warning("Skipping track due to missing key %s: %s", e, track_entry)
         except Exception as e:
-            print(f"An error occurred while processing track key: {e}. Track data: {track_entry}")
+            log.warning("Error processing track key %s: %s", e, track_entry)
 
     # 2. Build the final NML dictionary in the correct structure
     # The 'tracks' list (which is selected_tracks) is used directly for the <COLLECTION>
@@ -202,13 +216,23 @@ def write_nml_playlist(playlist_name, tracks, output_dir="."):
         # REMOVED encoding="UTF-8" to ensure it returns a standard string (str)
         xml_output = xmltodict.unparse(final_nml_dict, pretty=True, indent="  ")
     except Exception as e:
-        print(f"Error unparsing XML: {e}")
+        log.error("Error unparsing XML for playlist %r: %s", playlist_name, e)
         return None
 
     # 4. Define and write the final output file
-    safe_playlist_name = re.sub(r'[\\/*?:"<>|]', "", playlist_name)
+    safe_playlist_name = re.sub(r'[\\/*?:"<>|]', "", playlist_name).strip() or "playlist"
     file_path = os.path.join(output_dir, f"{safe_playlist_name}.nml")
-    
+
+    # Avoid silently clobbering an existing playlist with the same name
+    if os.path.exists(file_path):
+        counter = 1
+        while True:
+            candidate = os.path.join(output_dir, f"{safe_playlist_name} ({counter}).nml")
+            if not os.path.exists(candidate):
+                file_path = candidate
+                break
+            counter += 1
+
     try:
         # Write the XML string to the file in TEXT mode ("w")
         # and specify the encoding at the file level.
@@ -216,5 +240,5 @@ def write_nml_playlist(playlist_name, tracks, output_dir="."):
             f.write(xml_output)
         return file_path
     except Exception as e:
-        print(f"Error writing .nml file: {e}")
+        log.error("Error writing .nml file %s: %s", file_path, e)
         return None

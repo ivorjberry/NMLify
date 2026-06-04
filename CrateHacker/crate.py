@@ -3,13 +3,42 @@
 ###
 import os
 import asyncio
+import shutil
+from datetime import datetime
+
 from nicegui import app, ui
 from nicegui.events import ValueChangeEventArguments
+
 import spotify_utils as utils
 import collection_search as search
 import collection_utils as col
 import disk_search
-import shutil
+from app_logging import configure_logging, get_logger
+
+log = get_logger(__name__)
+
+
+#############################
+# Shared UI helpers         #
+#############################
+
+def _score_color(score):
+    """Return a tailwind background class for a fuzzy match score."""
+    if score >= 85:
+        return 'bg-green-1'
+    if score >= 70:
+        return 'bg-yellow-1'
+    return 'bg-red-1'
+
+
+def _score_badge_color(score):
+    """Return a Quasar badge color name for a fuzzy match score."""
+    if score >= 85:
+        return 'green'
+    if score >= 70:
+        return 'orange'
+    return 'red'
+
 
 #############################
 # GUI callbacks             #
@@ -36,27 +65,38 @@ def show_search_results_dialog(grouped_matches, playlist_name):
             if file_path:
                 safe_playlist_name = os.path.basename(file_path)
                 ui.notify(f'.nml playlist "{safe_playlist_name}" created successfully in {output_dir}', color='positive')
-                print(f"Playlist created at {file_path}")
+                log.info("Playlist created at %s", file_path)
             else:
                 ui.notify('Error creating .nml file. Check console.', color='negative')
 
         except Exception as e:
             ui.notify(f'An error occurred: {e}', color='negative')
-            print(f"Error in create_playlist_from_selected: {e}")
-            import traceback
-            traceback.print_exc()
+            log.exception("Error in create_playlist_from_selected: %s", e)
         
         result_dialog.close()
-    
-    def select_first_matches():
-        """Select the first match for each Spotify track."""
+
+    def select_top_n(n):
+        """Select the top ``n`` collection matches for each Spotify track.
+
+        Matches are already sorted by score (highest first) in
+        ``collection_search.fuzzy_search``, so slicing ``[:n]`` picks the
+        best ``n``. ``n=1`` is equivalent to the legacy 'Select First Matches'.
+        """
+        try:
+            n_int = max(1, int(n))
+        except (TypeError, ValueError):
+            n_int = 1
         selected_tracks.clear()
         for group in grouped_matches.values():
-            if group['collection_matches']:
-                selected_tracks.append(group['collection_matches'][0]['entry'])
+            for match in group['collection_matches'][:n_int]:
+                selected_tracks.append(match['entry'])
         for checkboxes in all_checkboxes:
             for i, checkbox in enumerate(checkboxes):
-                checkbox.set_value(i == 0)
+                checkbox.set_value(i < n_int)
+
+    def select_first_matches():
+        """Backwards-compatible shortcut for selecting only the best match."""
+        select_top_n(1)
     
     def select_all():
         """Select all collection matches."""
@@ -84,22 +124,6 @@ def show_search_results_dialog(grouped_matches, playlist_name):
             if collection_entry in selected_tracks:
                 selected_tracks.remove(collection_entry)
 
-    def _score_color(score):
-        """Return tailwind bg class based on match score."""
-        if score >= 85:
-            return 'bg-green-1'
-        elif score >= 70:
-            return 'bg-yellow-1'
-        return 'bg-red-1'
-
-    def _score_badge_color(score):
-        """Return badge color based on match score."""
-        if score >= 85:
-            return 'green'
-        elif score >= 70:
-            return 'orange'
-        return 'red'
-    
     # Create dialog
     with ui.dialog() as result_dialog:
         with ui.card().style('min-width: 900px; max-width: 1200px; max-height: 85vh;'):
@@ -110,9 +134,16 @@ def show_search_results_dialog(grouped_matches, playlist_name):
             
             # Control buttons
             with ui.row().classes('w-full justify-between'):
-                with ui.row():
+                with ui.row().classes('items-center gap-2'):
                     ui.button('Select First Matches', on_click=select_first_matches).props('color=green size=sm')
                     ui.button('Select All Matches', on_click=select_all).props('color=blue size=sm')
+                    ui.separator().props('vertical')
+                    top_n_input = ui.number(label='Top N', value=1, min=1, max=20, format='%d') \
+                        .props('dense outlined size=xs').style('width: 90px;')
+                    ui.button(
+                        'Select Top N',
+                        on_click=lambda: select_top_n(top_n_input.value or 1),
+                    ).props('color=teal size=sm')
                 ui.button('Deselect All', on_click=deselect_all).props('color=gray size=sm')
             
             # Scrollable area for tracks
@@ -167,7 +198,7 @@ def show_search_results_dialog(grouped_matches, playlist_name):
                                         ui.label(filepath).classes('text-xs text-gray-600 font-mono break-all')
                                     
                             except Exception as e:
-                                print(f"Error displaying collection entry: {e}")
+                                log.warning("Error displaying collection entry: %s", e)
                                 continue
                         
                         all_checkboxes.append(track_checkboxes)
@@ -221,20 +252,6 @@ def show_disk_results_dialog(disk_matches, playlist_name):
             if pair in selected_disk_tracks:
                 selected_disk_tracks.remove(pair)
 
-    def _score_color(score):
-        if score >= 85:
-            return 'bg-green-1'
-        elif score >= 70:
-            return 'bg-yellow-1'
-        return 'bg-red-1'
-
-    def _score_badge_color(score):
-        if score >= 85:
-            return 'green'
-        elif score >= 70:
-            return 'orange'
-        return 'red'
-
     with ui.dialog() as disk_dialog:
         with ui.card().style('min-width: 900px; max-width: 1200px; max-height: 85vh;'):
             total_matches = sum(len(m) for m in disk_matches.values())
@@ -277,8 +294,10 @@ async def search_hard_drive():
         ui.notify('No search folders configured. Add folders in the Search Folders section.', color='warning')
         return
 
-    if not hasattr(search_hard_drive, '_not_found') or not search_hard_drive._not_found:
-        ui.notify('No not-found tracks to search for.', color='warning')
+    # Only scan tracks the user actually wants to look for on disk
+    selected = _selected_not_found_tracks()
+    if not selected:
+        ui.notify('Select at least one track from the not-found list first.', color='warning')
         return
 
     disk_spinner.visible = True
@@ -298,10 +317,18 @@ async def search_hard_drive():
 
     # Build index and match
     file_index = disk_search.build_file_index(file_list)
+    disk_threshold = disk_fuzzy_slider.value
+
+    def _on_disk_progress(done, total):
+        text = f'Matching disk files... {done}/{total} tracks'
+        loop.call_soon_threadsafe(disk_status_label.set_text, text)
+        loop.call_soon_threadsafe(disk_status_label.update)
+
     disk_matches = await loop.run_in_executor(
         None,
         lambda: disk_search.fuzzy_match_files(
-            search_hard_drive._not_found, file_list, fuzzy_slider.value, file_index
+            selected, file_list, disk_threshold, file_index,
+            progress_callback=_on_disk_progress,
         )
     )
 
@@ -312,7 +339,7 @@ async def search_hard_drive():
         total = sum(len(m) for m in disk_matches.values())
         disk_status_label.set_text(f'Found {total} file matches for {len(disk_matches)} tracks.')
         disk_status_label.update()
-        playlist_name = search_hard_drive._playlist_name if hasattr(search_hard_drive, '_playlist_name') else 'Disk Search'
+        playlist_name = getattr(search_hard_drive, '_playlist_name', '') or 'Disk Search'
         show_disk_results_dialog(disk_matches, playlist_name)
     else:
         disk_status_label.set_text('No matching files found on disk.')
@@ -323,17 +350,17 @@ async def search_hard_drive():
 search_hard_drive._not_found = []
 search_hard_drive._playlist_name = ''
 
-async def browse_file():  
+async def browse_file():
     # Browse for a collection file
     collection_file = await app.native.main_window.create_file_dialog()
-    print(f"Collection file selected: {collection_file}")
-    collection_entry.set_value(collection_file) 
+    log.debug("Collection file selected: %s", collection_file)
+    collection_entry.set_value(collection_file)
 
 
 def preview_playlist():
-    """Display playlist title from Spotify playlist entry."""  
+    """Display playlist title from Spotify playlist entry."""
     playlist = spotify_entry.value
-    print("Playlist provided: " + playlist)
+    log.debug("Playlist provided: %s", playlist)
 
     # Check if the link is provided and contains the words "spotify" and "playlist"
     if utils.verify_spotify_link(playlist):
@@ -349,80 +376,97 @@ def preview_playlist():
     ui.run_javascript('void(0)')
 
 
-async def search_collection():  
-    """Callback function for the 'Create Playlist' button."""  
+async def search_collection():
+    """Callback function for the 'Create Playlist' button."""
+    playlist_name = ''  # always defined so downstream branches can rely on it
     collection_file = collection_entry.value
     spotify_link = spotify_entry.value
     #Fix START: Extract file path string from tuple
     if isinstance(collection_file, tuple):
         collection_file = collection_file[0]
     #Fix END
-    # Check if a collection file was provided  
+    # Check if a collection file was provided
     status_text = col.verify_collection_file(collection_file)
     await update_label(status_label, status_text)
     if "Success" not in status_text:
         status_label.classes('text-red-12')
         return
-    
+
     if not utils.verify_spotify_link(spotify_link):
         await update_label(status_label, "Error: Please enter a valid Spotify playlist link.", classes='text-red-12', add_text=False)
         return
-    
+
     # Show spinner
     search_spinner.visible = True
     search_spinner.update()
     not_found_card.visible = False
     not_found_card.update()
-    
+
     # Archive a snapshot of the collection — we read from this copy
     # so the original is never held open and we get a consistent view
     working_file = collection_file
     try:
         archive_dir = os.path.join(os.getcwd(), "archive")
         os.makedirs(archive_dir, exist_ok=True)
-        
-        from datetime import datetime
+
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         archive_filename = f"collection_{timestamp}.nml"
         archive_path = os.path.join(archive_dir, archive_filename)
-        
+
         shutil.copy(collection_file, archive_path)
         working_file = archive_path
-        print(f"Archived collection to {archive_path}")
-        
+        log.info("Archived collection to %s", archive_path)
+
         # Clean up old archives - keep only 5 most recent
         archive_files = [f for f in os.listdir(archive_dir) if f.startswith("collection_") and f.endswith(".nml")]
         archive_files.sort(reverse=True)
         for old_file in archive_files[5:]:
             old_path = os.path.join(archive_dir, old_file)
             os.remove(old_path)
-            print(f"Removed old archive: {old_file}")
-    except Exception as e:  
+            log.debug("Removed old archive: %s", old_file)
+    except Exception as e:
         # Archive failure is non-fatal — fall back to reading original
-        print(f"Warning: could not archive collection, reading original: {e}")
-    
+        log.warning("Could not archive collection, reading original: %s", e)
+
     # Save the collection path for next time
     col.write_collection_file_location(collection_file)
-    
+
     await update_label(status_label, "\nLoading collection...", add_text=True)
-    
+
     # Read from the archived snapshot (or original if archive failed)
     collection = col.load_collection(working_file)
-    print(f"Loaded {len(collection)} tracks from collection.")
+    log.info("Loaded %d tracks from collection.", len(collection))
     await update_label(status_label, f"\nLoaded {len(collection)} tracks from collection.", add_text=True)
 
     # Build token index for fast pre-filtering
     title_index, artist_index = search.build_collection_index(collection)
 
     await update_label(status_label, "\nFetching Spotify playlist...", add_text=True)
-    
+
     # Spotify link already validated. Extract the playlist ID from the URL
     playlist_name = utils.get_playlist_name(spotify_link)
     spotify_results = utils.get_playlist_info(spotify_link)
-    
+
     await update_label(status_label, "\nSearching for tracks in collection...", add_text=True)
-       
-    search_results, not_found_tracks = search.fuzzy_search(spotify_results, collection, fuzzy_slider.value, title_index, artist_index)
+
+    # Push the (potentially long) fuzzy match into a worker thread so the UI
+    # stays responsive, and wire a thread-safe progress callback that updates
+    # the status label every 10 tracks.
+    loop = asyncio.get_event_loop()
+    threshold = fuzzy_slider.value
+
+    def _on_progress(done, total):
+        text = f"Searching collection... {done}/{total} tracks"
+        loop.call_soon_threadsafe(status_label.set_text, text)
+        loop.call_soon_threadsafe(status_label.update)
+
+    search_results, not_found_tracks = await loop.run_in_executor(
+        None,
+        lambda: search.fuzzy_search(
+            spotify_results, collection, threshold,
+            title_index, artist_index, progress_callback=_on_progress,
+        ),
+    )
 
     # Hide spinner
     search_spinner.visible = False
@@ -432,32 +476,23 @@ async def search_collection():
         # Count total matches across all Spotify tracks
         total_matches = sum(len(group['collection_matches']) for group in search_results.values())
         unique_spotify_tracks = len(search_results)
-        
-        await update_label(status_label, f"\nFound {total_matches} total matches for {unique_spotify_tracks} of {len(spotify_results['items'])} Spotify tracks (fuzzy ratio {fuzzy_slider.value}).", add_text=True) 
-        
+
+        await update_label(status_label, f"\nFound {total_matches} total matches for {unique_spotify_tracks} of {len(spotify_results['items'])} Spotify tracks (fuzzy ratio {threshold}).", add_text=True)
+
         # Show search results dialog with checkboxes
         show_search_results_dialog(search_results, playlist_name)
-        
-        # Populate the not found tracks list
+
+        # Populate the not-found tracks list (always stash for disk search)
+        search_hard_drive._not_found = not_found_tracks or []
+        search_hard_drive._playlist_name = playlist_name
         if not_found_tracks:
-            # Store for disk search
-            search_hard_drive._not_found = not_found_tracks
-            search_hard_drive._playlist_name = playlist_name
-            not_found_card.visible = True
-            not_found_card.update()
-            not_found_label.set_text('\n'.join(not_found_tracks))
-            not_found_label.update()
-        else:
-            search_hard_drive._not_found = []
+            _render_not_found(not_found_tracks)
     else:
-        search_hard_drive._not_found = not_found_tracks if not_found_tracks else []
-        search_hard_drive._playlist_name = playlist_name if 'playlist_name' in dir() else ''
+        search_hard_drive._not_found = not_found_tracks or []
+        search_hard_drive._playlist_name = playlist_name
         if not_found_tracks:
-            not_found_card.visible = True
-            not_found_card.update()
-            not_found_label.set_text('\n'.join(not_found_tracks))
-            not_found_label.update()
-        await update_label(status_label, "\nNo tracks found from playlist in collection.", classes='text-red-12', add_text=True) 
+            _render_not_found(not_found_tracks)
+        await update_label(status_label, "\nNo tracks found from playlist in collection.", classes='text-red-12', add_text=True)
 
 #############################
 # GUI build in main         #
@@ -470,7 +505,7 @@ async def update_label(label, value: str, add_text=False, classes=""):
         label.set_text(value)
     
     if classes:
-        print(f"Updating label classes to: {classes}")
+        log.debug("Updating label classes to: %s", classes)
         label.classes(classes)
     label.update()
     # Force UI update
@@ -489,7 +524,7 @@ with ui.column().classes('w-full max-w-3xl mx-auto p-6 gap-4'):
     with ui.card().classes('w-full'):
         ui.label('Traktor Collection File').classes('text-lg font-semibold')
         collection_found = col.get_collection_file()
-        print(f"Collection file found: {collection_found}")
+        log.debug("Auto-detected collection file: %s", collection_found)
         with ui.row().classes('w-full no-wrap items-center'):
             collection_entry = ui.input(value=collection_found, placeholder='Select collection file...').classes('flex-grow')
             with collection_entry:
@@ -513,9 +548,13 @@ with ui.column().classes('w-full max-w-3xl mx-auto p-6 gap-4'):
     with ui.card().classes('w-full'):
         ui.label('Search Settings').classes('text-lg font-semibold')
         with ui.row(align_items='center').classes('w-full'):
-            ui.label('Fuzzy Match Threshold').classes('text-md')
+            ui.label('Collection fuzzy threshold').classes('text-md')
             fuzzy_slider = ui.slider(min=0, max=100, value=70).classes('flex-grow')
             ui.label().classes('text-sm text-gray-600 w-12 text-right').bind_text_from(fuzzy_slider, 'value', backward=lambda v: f'{v}%')
+        with ui.row(align_items='center').classes('w-full'):
+            ui.label('Disk fuzzy threshold').classes('text-md')
+            disk_fuzzy_slider = ui.slider(min=0, max=100, value=60).classes('flex-grow')
+            ui.label().classes('text-sm text-gray-600 w-12 text-right').bind_text_from(disk_fuzzy_slider, 'value', backward=lambda v: f'{v}%')
         with ui.row().classes('w-full justify-end'):
             search_spinner = ui.spinner('dots', size='lg', color='indigo')
             search_spinner.visible = False
@@ -577,6 +616,8 @@ with ui.column().classes('w-full max-w-3xl mx-auto p-6 gap-4'):
     # --- Not-found tracks (hidden until search runs) ---
     not_found_card = ui.card().classes('w-full')
     not_found_card.visible = False
+    # Map of "Artist - Title" -> ui.checkbox so we can read selection state on demand
+    _not_found_checkboxes = {}
     with not_found_card:
         with ui.row().classes('w-full items-center justify-between'):
             ui.label('Tracks Not Found in Collection').classes('text-lg font-semibold text-red-700')
@@ -586,7 +627,42 @@ with ui.column().classes('w-full max-w-3xl mx-auto p-6 gap-4'):
                 ui.button('Search Hard Drive', on_click=search_hard_drive, icon='saved_search').props('color=orange')
         disk_status_label = ui.label('').classes('text-sm text-gray-600')
         disk_status_label.visible = False
-        not_found_label = ui.label('').classes('text-md text-gray-600')
-        not_found_label.style('white-space: pre-wrap')
+        # Quick select / deselect controls
+        with ui.row().classes('gap-2'):
+            ui.button('Select all', on_click=lambda: _set_all_not_found(True)).props('flat dense color=red size=sm')
+            ui.button('Clear', on_click=lambda: _set_all_not_found(False)).props('flat dense color=gray size=sm')
+        not_found_list_container = ui.column().classes('w-full gap-0')
 
-ui.run(native=True, window_size=(1024, 768), reload=False, title='CrateHacker')
+
+def _render_not_found(tracks):
+    """Rebuild the not-found checkbox list and make the card visible."""
+    not_found_list_container.clear()
+    _not_found_checkboxes.clear()
+    with not_found_list_container:
+        for track in tracks:
+            cb = ui.checkbox(text=f'Track not found: {track}', value=True).classes('text-md text-red-900')
+            _not_found_checkboxes[track] = cb
+    not_found_card.visible = True
+    not_found_card.update()
+
+
+def _set_all_not_found(value):
+    """Toggle every checkbox in the not-found list."""
+    for cb in _not_found_checkboxes.values():
+        cb.set_value(value)
+
+
+def _selected_not_found_tracks():
+    """Return the subset of not-found tracks currently ticked by the user."""
+    return [track for track, cb in _not_found_checkboxes.items() if cb.value]
+
+
+def main():
+    """Launch the native CrateHacker window. Kept behind a guard so importing
+    this module (e.g. from tests) doesn't spawn a UI process."""
+    configure_logging()
+    ui.run(native=True, window_size=(1024, 768), reload=False, title='CrateHacker')
+
+
+if __name__ in {'__main__', '__mp_main__'}:
+    main()

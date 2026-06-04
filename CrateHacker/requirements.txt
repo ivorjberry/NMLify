@@ -2,4 +2,4 @@ nicegui==2.24.1
 python-dotenv==1.0.1
 spotipy==2.25.1
 thefuzz==0.22.1
-xmltodict==1.0.0
+xmltodict==0.14.2

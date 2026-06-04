@@ -23,16 +23,25 @@ def get_playlist_name(playlist):
     return sp.playlist(playlist)['name']
 
 def get_playlist_info(playlist):
-    # Get playlist tracks from provided playlist id or playlist link
-    results = sp.playlist_tracks(playlist, fields="items(track(name,artists(name)))")
-    tracks = results
+    """Return a dict of the form {'items': [...]} for every track in the playlist.
 
-    # Paginate through all tracks
-    while results['next']:
-        results = sp.next(results)
-        tracks['items'].extend(results['items'])
+    Walks all pages of the playlist (Spotify caps each page at 100 tracks) and
+    filters out items whose track payload is None — these come back for
+    locally-uploaded files, region-restricted tracks, or tracks the owner has
+    since removed, and would otherwise crash downstream consumers.
+    """
+    # 'next' must be included in fields so we can detect more pages
+    fields = "items(track(name,artists(name))),next"
+    page = sp.playlist_tracks(playlist, fields=fields)
+    items = list(page.get('items', []) or [])
 
-    return tracks
+    while page.get('next'):
+        page = sp.next(page)
+        items.extend(page.get('items', []) or [])
+
+    # Drop entries with no track payload (deleted/local/unavailable)
+    items = [item for item in items if item and item.get('track')]
+    return {'items': items}
 
 def verify_spotify_link(spotify_link):
     # Validate that the link is a proper Spotify playlist URL

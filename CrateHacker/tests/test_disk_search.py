@@ -125,6 +125,18 @@ class TestFuzzyMatchFiles:
             scores = [m["score"] for m in results["Song"]]
             assert scores == sorted(scores, reverse=True)
 
+    def test_progress_callback_invoked_per_track(self):
+        file_list = [
+            ("/music/Love Story.mp3", "Love Story"),
+            ("/music/Unrelated.mp3", "Unrelated"),
+        ]
+        calls = []
+        fuzzy_match_files(
+            ["Love Story", "Anything", "Other"], file_list, 70,
+            progress_callback=lambda d, t: calls.append((d, t)),
+        )
+        assert calls == [(1, 3), (2, 3), (3, 3)]
+
 
 class TestFilepathToTraktorLocation:
     def test_basic_path(self):

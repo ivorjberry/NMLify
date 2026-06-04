@@ -128,3 +128,33 @@ class TestFuzzySearch:
         # Should still return or not-found, but not crash
         assert isinstance(results, dict)
         assert isinstance(not_found, list)
+
+    def test_not_found_uses_artist_dash_title_format(self, sample_collection):
+        """Not-found entries are clean 'Artist - Title' so the disk search and
+        disk_match_to_entry can parse them without stripping a prefix."""
+        playlist = _make_playlist([('Imaginary Track', 'Imaginary Artist')])
+        results, not_found = fuzzy_search(playlist, sample_collection, 70)
+        assert len(not_found) == 1
+        assert not_found[0] == 'Imaginary Artist - Imaginary Track'
+        assert not not_found[0].lower().startswith('track not found')
+
+    def test_progress_callback_invoked_per_track(self, sample_collection):
+        playlist = _make_playlist([
+            ('Crazy In Love', 'Beyoncé'),
+            ('Nope', 'Nobody'),
+            ('Mixed Bizness', 'Beck'),
+        ])
+        calls = []
+        fuzzy_search(playlist, sample_collection, 70,
+                     progress_callback=lambda done, total: calls.append((done, total)))
+        assert calls == [(1, 3), (2, 3), (3, 3)]
+
+    def test_progress_callback_errors_are_swallowed(self, sample_collection):
+        playlist = _make_playlist([('Crazy In Love', 'Beyoncé')])
+
+        def boom(done, total):
+            raise RuntimeError("UI thread is grumpy")
+
+        # Should not raise — callback errors must not abort the search
+        results, _ = fuzzy_search(playlist, sample_collection, 70, progress_callback=boom)
+        assert len(results) == 1

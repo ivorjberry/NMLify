@@ -31,13 +31,15 @@ def build_executable():
             print(f"  Removed {dir_name}/")
     
     # Build command
+    # NOTE: We deliberately do NOT bundle the .env file. Doing so would ship
+    # the developer's Spotify client_id/client_secret to every end user.
+    # Users supply their own .env next to the executable at runtime.
     build_cmd = [
         "pyinstaller",
         "--name=CrateHacker",
         "--onefile",
         "--windowed",
         "--icon=NONE",  # Add an icon file path here if you have one
-        "--add-data=.env;.",  # Include .env file if it exists
         "--hidden-import=nicegui",
         "--hidden-import=spotipy",
         "--hidden-import=thefuzz",

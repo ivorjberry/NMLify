@@ -1,21 +1,10 @@
-import re
 from collections import defaultdict
 from thefuzz import fuzz
 
-# Minimum token length to index (skip "a", "of", "the", etc.)
-_MIN_TOKEN_LEN = 2
-# Common words that appear in too many titles to be useful filters
-_STOP_WORDS = frozenset({
-    'the', 'a', 'an', 'of', 'in', 'on', 'at', 'to', 'for', 'and',
-    'or', 'is', 'it', 'my', 'me', 'no', 'so', 'do', 'up', 'be',
-    'feat', 'ft', 'vs', 'remix', 'mix', 'edit', 'version', 'radio',
-    'original', 'extended',
-})
+from app_logging import get_logger
+from text_utils import tokenize as _tokenize
 
-def _tokenize(text):
-    """Split text into lowercase alphanumeric tokens, filtering noise."""
-    tokens = re.findall(r'[a-z0-9]+', text.lower())
-    return {t for t in tokens if len(t) >= _MIN_TOKEN_LEN and t not in _STOP_WORDS}
+log = get_logger(__name__)
 
 
 def build_collection_index(collection):
@@ -48,12 +37,17 @@ def _get_candidates(text, index, collection_size):
     return candidates
 
 
-def fuzzy_search(playlist, collection, fuzzy_ratio, title_index=None, artist_index=None):
+def fuzzy_search(playlist, collection, fuzzy_ratio, title_index=None, artist_index=None,
+                 progress_callback=None):
     """
     Search for playlist tracks in the collection using fuzzy matching.
-    
+
     If title_index/artist_index are provided (from build_collection_index),
     uses token-based pre-filtering to avoid O(n*m) comparisons.
+
+    If progress_callback is provided, it is invoked as
+    ``progress_callback(done, total)`` once per processed track. Safe to call
+    from a worker thread — keep the callback fast and non-blocking.
     """
     grouped_results = {}
     not_found_tracks = []
@@ -61,15 +55,16 @@ def fuzzy_search(playlist, collection, fuzzy_ratio, title_index=None, artist_ind
     use_index = title_index is not None and artist_index is not None
     collection_size = len(collection)
 
+    total_tracks = len(playlist['items'])
     total_matches = 0
-    for track in playlist['items']:
+    for i, track in enumerate(playlist['items']):
         spotify_track = track['track']
         artists = ", ".join(item['name'] for item in spotify_track['artists'])
-        
+
         spotify_key = f"{spotify_track['name']}||{artists}"
         track_title = spotify_track['name'].lower()
         track_artists = artists.lower()
-        
+
         # Pre-filter candidates using token index, or scan all entries
         if use_index:
             title_candidates = _get_candidates(track_title, title_index, collection_size)
@@ -80,12 +75,12 @@ def fuzzy_search(playlist, collection, fuzzy_ratio, title_index=None, artist_ind
             candidate_indices = range(collection_size)
 
         track_matches = []
-        
+
         for idx in candidate_indices:
             entry = collection[idx]
             entry_title = entry.get('@TITLE', '').lower()
             title_score = fuzz.ratio(track_title, entry_title)
-            if (title_score > fuzzy_ratio or 
+            if (title_score > fuzzy_ratio or
             track_title in entry_title or
             entry_title in track_title):
                 try:
@@ -99,7 +94,7 @@ def fuzzy_search(playlist, collection, fuzzy_ratio, title_index=None, artist_ind
                 entry_artists in track_artists):
                     combined_score = (title_score + artist_score) // 2
                     track_matches.append({'entry': entry, 'score': combined_score})
-        
+
         if track_matches:
             track_matches.sort(key=lambda m: m['score'], reverse=True)
             grouped_results[spotify_key] = {
@@ -109,10 +104,20 @@ def fuzzy_search(playlist, collection, fuzzy_ratio, title_index=None, artist_ind
             }
             total_matches += len(track_matches)
         else:
-            not_found_tracks.append(f"Track not found: {spotify_track['name']} by {artists}")
+            # Use a clean "Artist - Title" form so downstream disk-search
+            # fuzzy matching and Traktor ENTRY generation can parse it
+            # without stripping a "Track not found:" prefix.
+            not_found_tracks.append(f"{artists} - {spotify_track['name']}")
 
-    print("Found " + str(total_matches) + " matches for " + str(len(grouped_results)) + " Spotify tracks in collection.")
-    print("FUZZY: Done checking playlist tracks in collection.")
+        if progress_callback is not None:
+            try:
+                progress_callback(i + 1, total_tracks)
+            except Exception as cb_err:
+                # Never let a UI callback take down the search
+                log.warning("progress_callback raised (ignored): %s", cb_err)
+
+    log.info("Fuzzy search complete: %d matches across %d/%d playlist tracks",
+             total_matches, len(grouped_results), total_tracks)
 
     return grouped_results, not_found_tracks
 
