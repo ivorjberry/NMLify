@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CrateHacker (Web)</title>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>CrateHacker Web</h1>
+      <p class="tagline">Convert a Spotify playlist into a Traktor crate (.nml), entirely in your browser.</p>
+    </header>
+
+    <section id="config-section" class="card">
+      <h2>1. Spotify Client ID</h2>
+      <p>
+        Get one from the
+        <a href="https://developer.spotify.com/dashboard" target="_blank" rel="noopener">Spotify Developer Dashboard</a>.
+        Register this exact redirect URI in your app's settings
+        (character-for-character, including the trailing slash):
+      </p>
+      <div class="row redirect-uri-row">
+        <code id="redirect-uri-display"></code>
+        <button id="copy-redirect-uri-btn" class="secondary" type="button">Copy</button>
+      </div>
+      <div class="row">
+        <input id="client-id-input" type="text" placeholder="Paste Client ID here" autocomplete="off" />
+        <button id="save-client-id-btn">Save</button>
+        <button id="clear-client-id-btn" class="secondary">Clear</button>
+      </div>
+      <p id="client-id-status" class="status"></p>
+    </section>
+
+    <section id="auth-section" class="card">
+      <h2>2. Authenticate</h2>
+      <div class="row">
+        <button id="login-btn">Log in with Spotify</button>
+        <button id="logout-btn" class="secondary">Log out</button>
+      </div>
+      <p id="auth-status" class="status"></p>
+    </section>
+
+    <section id="playlist-section" class="card">
+      <h2>3. Fetch a Spotify playlist</h2>
+      <div class="row">
+        <input id="playlist-url-input" type="text" placeholder="https://open.spotify.com/playlist/..." autocomplete="off" />
+        <button id="fetch-btn">Fetch tracks</button>
+      </div>
+      <p id="playlist-status" class="status"></p>
+      <div id="playlist-info"></div>
+      <ol id="tracks-list"></ol>
+    </section>
+
+    <section id="match-section" class="card">
+      <h2>4. Load your Traktor collection and match</h2>
+      <p>
+        Pick your <code>collection.nml</code>. It's read locally in your browser — nothing is uploaded.
+      </p>
+      <div class="row">
+        <input id="collection-file-input" type="file" accept=".nml" />
+      </div>
+      <p id="collection-status" class="status"></p>
+
+      <div class="row">
+        <label for="fuzzy-ratio-input">Fuzzy match threshold (0–100)</label>
+        <input id="fuzzy-ratio-input" type="number" min="0" max="100" step="1" value="70" />
+      </div>
+      <div class="row">
+        <label for="playlist-name-input">Crate name</label>
+        <input id="playlist-name-input" type="text" placeholder="Defaults to the Spotify playlist name" />
+      </div>
+      <div class="row">
+        <button id="match-btn" disabled>Match playlist against collection</button>
+        <button id="download-btn" class="secondary" disabled>Download .nml</button>
+      </div>
+      <p id="match-status" class="status"></p>
+
+      <h3>Matched tracks (top match auto-picked)</h3>
+      <ol id="matched-list"></ol>
+      <h3>Not found</h3>
+      <ol id="not-found-list"></ol>
+    </section>
+  </main>
+
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>

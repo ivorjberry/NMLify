@@ -1,0 +1,1 @@
+{"root":["./src/auth.ts","./src/collectionsearch.test.ts","./src/collectionsearch.ts","./src/main.ts","./src/nml.test.ts","./src/nml.ts","./src/nmlwriter.ts","./src/spotify.ts","./src/tokenize.test.ts","./src/tokenize.ts","./vite.config.ts"],"version":"5.9.3"}
