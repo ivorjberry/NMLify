@@ -1,0 +1,56 @@
+name: NMLify desktop (legacy CrateHacker) tests
+
+# Cost note: this workflow runs on the GitHub-hosted `ubuntu-latest` runner.
+# Public repos: minutes are free and unlimited.
+# Private repos: Free/Pro tiers include 2,000-3,000 free minutes/month and a
+# pytest run completes in well under a minute, so this stays at $0 in practice.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'desktop/**'
+      - '.github/workflows/tests.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'desktop/**'
+      - '.github/workflows/tests.yml'
+  workflow_dispatch:
+
+# Cancel superseded runs on the same ref so we don't burn minutes on stale pushes.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pytest:
+    name: pytest (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.12']
+    defaults:
+      run:
+        working-directory: desktop
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+          cache-dependency-path: desktop/requirements.txt
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest
+
+      - name: Run pytest
+        run: pytest tests/ -v

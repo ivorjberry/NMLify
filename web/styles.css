@@ -1,0 +1,249 @@
+:root {
+  color-scheme: dark light;
+  --bg: #14181f;
+  --panel: #1e2430;
+  --border: #2a3142;
+  --fg: #e6e9ef;
+  --muted: #9aa3b2;
+  --accent: #1db954;
+  --warn: #f3b73a;
+  --err: #f06262;
+  --ok: #6ad28f;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font: 15px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: var(--bg);
+  color: var(--fg);
+}
+
+main {
+  max-width: 780px;
+  margin: 32px auto;
+  padding: 0 16px;
+}
+
+header { margin-bottom: 24px; }
+h1 { margin: 0 0 4px; font-size: 1.6rem; }
+.tagline { color: var(--muted); margin: 0; }
+
+.card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 18px 20px;
+  margin-bottom: 16px;
+}
+.card h2 {
+  margin: 0 0 12px;
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+input[type="text"] {
+  flex: 1 1 240px;
+  background: #11151c;
+  color: inherit;
+  border: 1px solid var(--border);
+  padding: 8px 10px;
+  border-radius: 6px;
+  font: inherit;
+}
+
+button {
+  background: var(--accent);
+  color: #08110b;
+  border: none;
+  padding: 8px 14px;
+  font: inherit;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+}
+button.secondary {
+  background: transparent;
+  color: var(--fg);
+  border: 1px solid var(--border);
+}
+button:hover { filter: brightness(1.05); }
+button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+code {
+  background: #11151c;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.9em;
+  word-break: break-all;
+}
+
+.redirect-uri-row {
+  margin: 4px 0 12px;
+}
+.redirect-uri-row code {
+  flex: 1 1 auto;
+  padding: 8px 10px;
+  font-size: 0.95em;
+  border: 1px solid var(--border);
+  user-select: all;
+}
+
+.status {
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+.status.ok { color: var(--ok); }
+.status.warn { color: var(--warn); }
+.status.err { color: var(--err); }
+
+a { color: var(--accent); }
+
+#playlist-info {
+  margin-top: 12px;
+  color: var(--fg);
+}
+
+#tracks-list {
+  margin-top: 12px;
+  padding-left: 24px;
+  max-height: 50vh;
+  overflow: auto;
+  background: #11151c;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding-block: 8px;
+}
+#tracks-list:empty {
+  display: none;
+}
+#tracks-list li {
+  padding: 2px 0;
+}
+
+/* ---------- Review groups (Step 3) -------------------------------------- */
+
+.hidden { display: none !important; }
+
+.review-toolbar {
+  margin-top: 16px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: #11151c;
+}
+.review-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.review-actions .divider {
+  width: 1px;
+  height: 22px;
+  background: var(--border);
+  margin: 0 4px;
+}
+.review-actions label {
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+.review-actions input[type="number"] {
+  width: 70px;
+}
+.review-summary {
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+#review-groups {
+  margin-top: 12px;
+  max-height: 60vh;
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: #11151c;
+  padding: 6px 0;
+}
+#review-groups:empty {
+  display: none;
+}
+
+.review-group {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+}
+.review-group:last-child {
+  border-bottom: none;
+}
+.review-group-header {
+  font-weight: 600;
+  color: var(--accent);
+  margin-bottom: 6px;
+}
+
+.review-candidates {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.review-candidate {
+  padding: 4px 0;
+}
+.review-candidate label {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  cursor: pointer;
+}
+.review-candidate input[type="checkbox"] {
+  margin-top: 3px;
+}
+.review-candidate-text {
+  flex: 1 1 auto;
+  font-size: 0.92rem;
+}
+.review-candidate-text .score {
+  color: var(--muted);
+  font-weight: 400;
+  margin-left: 6px;
+}
+.review-candidate-text .path {
+  color: var(--muted);
+  font-family: ui-monospace, Menlo, Consolas, monospace;
+  font-size: 0.82rem;
+  word-break: break-all;
+}
+
+.not-found-section {
+  margin-top: 16px;
+}
+.not-found-section h3 {
+  margin: 0 0 6px;
+  font-size: 1rem;
+  color: var(--warn);
+}
+#not-found-list {
+  margin: 0;
+  padding-left: 24px;
+  max-height: 30vh;
+  overflow: auto;
+  background: #11151c;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding-block: 8px;
+}
+#not-found-list li {
+  padding: 2px 0;
+  color: var(--muted);
+}

@@ -1,0 +1,24 @@
+{
+  "name": "nmlify",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "NMLify: convert Spotify playlists into Traktor (.nml) crates, fully in the browser.",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "fast-xml-parser": "^5.8.0",
+    "fuzzball": "^2.2.6"
+  },
+  "devDependencies": {
+    "@types/node": "^25.9.1",
+    "typescript": "^5.6.3",
+    "vite": "^8.0.16",
+    "vitest": "^4.1.8"
+  }
+}

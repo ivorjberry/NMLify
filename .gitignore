@@ -1,3 +1,23 @@
 crateenv/
 .cache/
-__pycache__/ 
+__pycache__/
+
+# Environment variables
+.env
+
+# PyInstaller build artifacts
+build/
+dist/
+*.spec
+
+# Generated playlists and archives
+desktop/playlists/*.nml
+desktop/archive/*.nml
+desktop/collection.nml
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
