@@ -6,10 +6,21 @@ from spotipy.oauth2 import SpotifyClientCredentials
 
 load_dotenv()
 
-# Initialize Spotify API globally
-sp = spotipy.Spotify(
-    auth_manager=SpotifyClientCredentials(client_id=os.getenv("SPOTIFY_CLIENT_ID"),
-                                            client_secret=os.getenv("SPOTIFY_CLIENT_SECRET")))
+# Initialise the Spotify client only when credentials are present. This lets
+# the module import cleanly in environments without a .env (e.g. CI running
+# pytest, where the tests monkeypatch `sp` anyway). Real callers either set
+# the env vars in a .env file or supply their own client via monkeypatch.
+_client_id = os.getenv("SPOTIFY_CLIENT_ID")
+_client_secret = os.getenv("SPOTIFY_CLIENT_SECRET")
+if _client_id and _client_secret:
+    sp = spotipy.Spotify(
+        auth_manager=SpotifyClientCredentials(
+            client_id=_client_id,
+            client_secret=_client_secret,
+        )
+    )
+else:
+    sp = None
 
 def get_playlist_id(playlist_link):
     # Extract the playlist ID from the provided link
