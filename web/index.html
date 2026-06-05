@@ -112,13 +112,12 @@
     </section>
 
     <section id="disk-section" class="card">
-      <h2>5. Search your disk for tracks (optional)</h2>
+      <h2>5. Find missing tracks on disk (optional)</h2>
       <p>
-        Pick the folder that holds your music and we'll fuzzy-match every
-        playlist track against your filenames. Handy when your collection
-        has the wrong file, or just to get candidates for tracks that
-        weren't in your collection at all. Files stay on your machine
-        — the browser only reads filenames, not contents.
+        After step 4, any tracks not found in your collection are listed
+        above. Pick the folder that holds your music and we'll fuzzy-match
+        those tracks against your filenames. Files stay on your machine —
+        the browser only reads filenames, not contents.
       </p>
       <div class="row">
         <label for="disk-root-input">Absolute path of the folder you'll pick</label>
@@ -133,7 +132,7 @@
         <input id="disk-ratio-input" type="number" min="0" max="100" step="1" value="70" />
       </div>
       <div class="row">
-        <button id="disk-match-btn" disabled>Search disk</button>
+        <button id="disk-match-btn" disabled>Search for not-found tracks</button>
       </div>
       <p id="disk-match-status" class="status"></p>
 
