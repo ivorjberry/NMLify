@@ -14,7 +14,10 @@ from disk_search import (
 
 class TestParseFilename:
     def test_basic(self):
-        assert parse_filename("C:\\Music\\Artist - Title.mp3") == "Artist - Title"
+        # Use forward slashes so the test is host-independent: os.path.basename
+        # falls back to POSIX semantics on Linux CI runners and would treat
+        # a backslash-only path as a single filename.
+        assert parse_filename("/music/Artist - Title.mp3") == "Artist - Title"
 
     def test_strip_track_number(self):
         assert parse_filename("/music/01 Artist - Title.mp3") == "Artist - Title"

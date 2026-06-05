@@ -1,5 +1,6 @@
 import os
 import re
+import ntpath
 from collections import defaultdict
 from thefuzz import fuzz
 
@@ -154,18 +155,23 @@ def filepath_to_traktor_location(filepath):
         @DIR = "/:Music/:subfolder/:"  (forward-slash + colon delimited)
         @FILE = "filename.mp3"
     
+    Uses the pure-Python `ntpath` module rather than `os.path` so the splitter
+    is always Windows-flavoured. That keeps the function deterministic on
+    Linux/macOS CI runners (where `os.path` would fall back to POSIX and
+    treat the drive letter as part of the filename), and on Windows the
+    behaviour is identical to before.
+    
     Args:
         filepath: Absolute Windows file path.
     
     Returns:
         Dict with @VOLUME, @DIR, @FILE keys.
     """
-    filepath = os.path.abspath(filepath)
-    drive, tail = os.path.splitdrive(filepath)
+    drive, tail = ntpath.splitdrive(filepath)
     # drive = "D:", tail = "\\Music\\subfolder\\filename.mp3"
     
-    directory = os.path.dirname(tail)
-    filename = os.path.basename(tail)
+    directory = ntpath.dirname(tail)
+    filename = ntpath.basename(tail)
     
     # Convert "\\Music\\subfolder" to "/:Music/:subfolder/:"
     parts = directory.replace('\\', '/').strip('/').split('/')
