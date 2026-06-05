@@ -30,6 +30,25 @@ header { margin-bottom: 24px; }
 h1 { margin: 0 0 4px; font-size: 1.6rem; }
 .tagline { color: var(--muted); margin: 0; }
 
+.hint {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+#byo-client-details {
+  margin-top: 8px;
+  border-top: 1px solid var(--border);
+  padding-top: 12px;
+}
+#byo-client-details > summary {
+  cursor: pointer;
+  color: var(--muted);
+  user-select: none;
+  padding: 4px 0;
+}
+#byo-client-details > summary:hover { color: var(--fg); }
+#byo-client-details[open] > summary { color: var(--fg); margin-bottom: 8px; }
+
 .card {
   background: var(--panel);
   border: 1px solid var(--border);

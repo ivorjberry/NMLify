@@ -13,23 +13,37 @@
     </header>
 
     <section id="config-section" class="card">
-      <h2>1. Spotify Client ID</h2>
+      <h2>1. Spotify access</h2>
       <p>
-        Get one from the
-        <a href="https://developer.spotify.com/dashboard" target="_blank" rel="noopener">Spotify Developer Dashboard</a>.
-        Register this exact redirect URI in your app's settings
-        (character-for-character, including the trailing slash):
+        NMLify ships with a built-in Spotify app, so most users can skip
+        straight to <strong>Log in with Spotify</strong> below.
       </p>
-      <div class="row redirect-uri-row">
-        <code id="redirect-uri-display"></code>
-        <button id="copy-redirect-uri-btn" class="secondary" type="button">Copy</button>
-      </div>
-      <div class="row">
-        <input id="client-id-input" type="text" placeholder="Paste Client ID here" autocomplete="off" />
-        <button id="save-client-id-btn">Save</button>
-        <button id="clear-client-id-btn" class="secondary">Clear</button>
-      </div>
-      <p id="client-id-status" class="status"></p>
+      <p class="hint">
+        Spotify keeps third-party apps in a restricted developer mode unless
+        the developer is an organization with thousands of monthly users. If
+        the login fails for you, register a free Spotify app of your own and
+        paste its Client ID here.
+      </p>
+
+      <details id="byo-client-details">
+        <summary>Use my own Spotify app</summary>
+        <p>
+          Create a free app in the
+          <a href="https://developer.spotify.com/dashboard" target="_blank" rel="noopener">Spotify Developer Dashboard</a>
+          and register this exact Redirect URI in its settings
+          (character-for-character, trailing slash included):
+        </p>
+        <div class="row redirect-uri-row">
+          <code id="redirect-uri-display"></code>
+          <button id="copy-redirect-uri-btn" class="secondary" type="button">Copy</button>
+        </div>
+        <div class="row">
+          <input id="client-id-input" type="text" placeholder="Paste Client ID here" autocomplete="off" />
+          <button id="save-client-id-btn">Save</button>
+          <button id="clear-client-id-btn" class="secondary">Reset to default</button>
+        </div>
+        <p id="client-id-status" class="status"></p>
+      </details>
     </section>
 
     <section id="auth-section" class="card">

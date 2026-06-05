@@ -18,26 +18,37 @@ with Vite + TypeScript + Vitest. Originally shipped as the desktop
 
 ## Prerequisites
 
-- Node.js 20 or newer (CI tests on 20 and 22).
-- A Spotify developer app (free, see below).
+- Node.js 20 or newer (CI runs the build on Node 22).
+- A Spotify account. **No** Spotify developer app required for most users —
+  NMLify ships with a built-in Client ID. See below for when you need your
+  own.
 
-## One-time Spotify dashboard setup
+## Do I need my own Spotify app?
+
+**Probably not.** NMLify ships with a built-in Spotify app and the page
+uses PKCE auth, so the Client ID is safe to bundle in a static page. Just
+click **Log in with Spotify** on the page.
+
+**You will** need your own app if Spotify rejects the login. Spotify keeps
+third-party apps in a restricted developer-mode whitelist (max ~25 users)
+unless the developer is an organization with thousands of monthly users —
+so the built-in app can only ever support a small, hand-picked group.
+
+If you hit that wall, expand the **Use my own Spotify app** disclosure on
+the page and:
 
 1. Go to the [Spotify Developer Dashboard](https://developer.spotify.com/dashboard)
    and create a new app. Any name / description is fine.
-2. In the app's **Settings → Basic Information → Redirect URIs**, add this
-   exact URL:
+2. In the app's **Settings → Basic Information → Redirect URIs**, add the
+   exact URL the page shows (the **Copy** button next to it makes this
+   painless). Spotify requires `127.0.0.1` (not `localhost`) for non-HTTPS
+   redirects, which is what Vite serves on locally.
+3. Copy the **Client ID** from your app's dashboard and paste it into the
+   disclosure on the page, then click **Save**. **Do not copy the Client
+   Secret** — PKCE doesn't need one.
 
-   ```
-   http://127.0.0.1:5173/
-   ```
-
-   (Use `127.0.0.1`, not `localhost` — Spotify only allows the literal
-   loopback IP for non-HTTPS redirects.) When we deploy to GitHub Pages
-   you'll add that URL here too.
-3. Copy the **Client ID** from the dashboard. **Do not copy the Client
-   Secret** — PKCE doesn't need it and shipping one in a static page
-   would be a leak.
+Click **Reset to default** in the same disclosure to revert to the built-in
+Client ID.
 
 ## Develop
 
@@ -64,17 +75,18 @@ npm run preview  # serves the built bundle
 
 ## Try it
 
-1. Paste your **Client ID** into step 1 of the page and click **Save**.
-2. Click **Log in with Spotify**. Spotify will ask you to approve the app,
+1. Click **Log in with Spotify**. Spotify will ask you to approve the app,
    then redirect you back. The auth status should switch to "Signed in".
-3. Paste a Spotify playlist URL (yours or any public one) and click
+   (If Spotify rejects the login, follow the **Use my own Spotify app**
+   steps above first.)
+2. Paste a Spotify playlist URL (yours or any public one) and click
    **Fetch tracks**.
-4. Pick your `collection.nml` (typically in
+3. Pick your `collection.nml` (typically in
    `Documents\Native Instruments\Traktor Pro <version>\`). The file is read
    locally in your browser — nothing is uploaded.
-5. Click **Match playlist against collection**. The top match per track is
+4. Click **Match playlist against collection**. The top match per track is
    auto-picked.
-6. Click **Download .nml** to save the crate, then drop it into Traktor's
+5. Click **Download .nml** to save the crate, then drop it into Traktor's
    Playlists section.
 
 ## Project layout
@@ -108,6 +120,7 @@ web/
   serving over `http://127.0.0.1:5173/` (Vite dev server) and not opening
   `index.html` from the file system.
 - **Stuck signed-in state after changing Client IDs** — click **Log out**,
-  then **Clear** under the Client ID box, then start over.
+  then **Reset to default** under the **Use my own Spotify app** disclosure,
+  then start over.
 - **"Match" button stays disabled** — both a Spotify playlist and a
   `collection.nml` must be loaded before matching can run.

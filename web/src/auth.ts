@@ -19,6 +19,22 @@ export const LS_EXPIRES_AT = 'nmlifyExpiresAt';
 export const LS_CODE_VERIFIER = 'nmlifyCodeVerifier';
 export const LS_AUTH_STATE = 'nmlifyAuthState';
 
+// Built-in Spotify app Client ID. PKCE only needs the (public) Client ID
+// — there is no secret to leak by checking this in. The app it points at
+// is in Spotify Developer Mode, so only users explicitly whitelisted in
+// the dashboard can log in with it. Anyone else can paste their own
+// Client ID via the "Use my own Spotify app" disclosure on the page; that
+// value lives in LS_CLIENT_ID and takes precedence over this default.
+export const DEFAULT_CLIENT_ID = 'faa8d39458f74e8cb5b334d0207c5490';
+
+export function getClientId(): string {
+  return localStorage.getItem(LS_CLIENT_ID) || DEFAULT_CLIENT_ID;
+}
+
+export function isUsingDefaultClientId(): boolean {
+  return !localStorage.getItem(LS_CLIENT_ID);
+}
+
 // ---------- PKCE helpers --------------------------------------------------
 
 export function generateRandomString(length: number): string {
@@ -79,10 +95,7 @@ export function clearAuth(): void {
 // ---------- OAuth steps ---------------------------------------------------
 
 export async function startLogin(): Promise<void> {
-  const clientId = localStorage.getItem(LS_CLIENT_ID);
-  if (!clientId) {
-    throw new Error('Save your Spotify Client ID first.');
-  }
+  const clientId = getClientId();
   const verifier = generateRandomString(64);
   const challenge = await makeCodeChallenge(verifier);
   const state = generateRandomString(16);
@@ -102,9 +115,9 @@ export async function startLogin(): Promise<void> {
 }
 
 export async function exchangeCodeForToken(code: string): Promise<void> {
-  const clientId = localStorage.getItem(LS_CLIENT_ID);
+  const clientId = getClientId();
   const verifier = localStorage.getItem(LS_CODE_VERIFIER);
-  if (!clientId || !verifier) throw new Error('Missing Client ID or PKCE verifier.');
+  if (!verifier) throw new Error('Missing PKCE verifier.');
 
   const body = new URLSearchParams({
     client_id: clientId,
@@ -127,9 +140,9 @@ export async function exchangeCodeForToken(code: string): Promise<void> {
 }
 
 export async function refreshAccessToken(): Promise<string | null> {
-  const clientId = localStorage.getItem(LS_CLIENT_ID);
   const refreshToken = localStorage.getItem(LS_REFRESH_TOKEN);
-  if (!clientId || !refreshToken) return null;
+  if (!refreshToken) return null;
+  const clientId = getClientId();
   const body = new URLSearchParams({
     client_id: clientId,
     grant_type: 'refresh_token',

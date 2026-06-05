@@ -18,13 +18,14 @@ There are two flavours:
 1. Open the hosted app (link will appear here once the first GitHub Pages
    deploy lands — until then, follow the local-dev steps in
    [web/README.md](web/README.md)).
-2. Create a free Spotify dev app, copy the **Client ID**, and add the URL
-   shown on step 1 of the page as a Redirect URI in your Spotify dashboard.
-3. Log in, paste a playlist URL, pick your `collection.nml`, match, and
-   download the `.nml`. Drop the file into Traktor's Playlists section.
+2. Click **Log in with Spotify** and approve the app. NMLify ships with a
+   built-in Client ID, so most users won't need to register anything.
+3. Paste a playlist URL, pick your `collection.nml`, match, and download
+   the `.nml`. Drop the file into Traktor's Playlists section.
 
-For a deeper walk-through (PKCE setup, troubleshooting, project layout) see
-[web/README.md](web/README.md).
+If Spotify rejects your login, the built-in app's developer-mode whitelist
+doesn't include you — expand **Use my own Spotify app** on the page and
+follow the short setup in [web/README.md](web/README.md#do-i-need-my-own-spotify-app).
 
 ## Self-host or hack on the web app
 

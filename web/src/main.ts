@@ -7,10 +7,12 @@ import '../styles.css';
 
 import {
   clearAuth,
+  DEFAULT_CLIENT_ID,
   exchangeCodeForToken,
   getExpiresAtMs,
   getStoredToken,
   getValidAccessToken,
+  isUsingDefaultClientId,
   LS_AUTH_STATE,
   LS_CLIENT_ID,
   REDIRECT_URI,
@@ -137,12 +139,12 @@ function refreshClientIdUI(): void {
   const id = localStorage.getItem(LS_CLIENT_ID);
   if (id) {
     clientIdInput.value = id;
-    clientIdStatus.textContent = `Saved (${id.slice(0, 6)}…).`;
+    clientIdStatus.textContent = `Using your own Client ID (${id.slice(0, 6)}…).`;
     clientIdStatus.className = 'status ok';
   } else {
     clientIdInput.value = '';
-    clientIdStatus.textContent = 'No Client ID saved yet.';
-    clientIdStatus.className = 'status warn';
+    clientIdStatus.textContent = `Using the built-in default (${DEFAULT_CLIENT_ID.slice(0, 6)}…).`;
+    clientIdStatus.className = 'status';
   }
 }
 
@@ -686,7 +688,15 @@ function showError(err: unknown): void {
   const error = params.get('error');
 
   if (error) {
-    authStatus.textContent = `Spotify returned error: ${error}`;
+    let msg = `Spotify returned error: ${error}`;
+    if (isUsingDefaultClientId()) {
+      msg +=
+        '. The built-in app is in Spotify developer mode — only whitelisted users can log in. ' +
+        'Register your own Spotify app below and paste its Client ID to use NMLify.';
+      const byoDetails = document.getElementById('byo-client-details') as HTMLDetailsElement | null;
+      if (byoDetails) byoDetails.open = true;
+    }
+    authStatus.textContent = msg;
     authStatus.className = 'status err';
     history.replaceState({}, '', REDIRECT_URI);
   } else if (code) {
