@@ -1,6 +1,6 @@
 # CrateHacker Web
 
-Static web port of [CrateHacker](../CrateHacker/). Converts a Spotify playlist
+Static web port of [CrateHacker](../desktop/). Converts a Spotify playlist
 into a Traktor crate (`.nml`) entirely in the browser — no Python install, no
 `.env` file, no server. Built with Vite + TypeScript + Vitest.
 
@@ -11,9 +11,9 @@ into a Traktor crate (`.nml`) entirely in the browser — no Python install, no
 | PKCE auth from a static page                                | ✅ shipped   |
 | Paginated playlist read                                     | ✅ shipped   |
 | In-browser `.nml` load + fuzzy match + crate download       | ✅ shipped   |
-| Match-review dialog (pick alternates, "select top N")       | ⏳ next      |
-| Disk search via the File System Access API                  | ⏳ later     |
-| GitHub Pages deploy                                         | ⏳ later     |
+| Match-review UI (pick alternates, "select top N")           | ✅ shipped   |
+| Disk search for tracks not in your collection               | ✅ shipped   |
+| GitHub Pages deploy                                         | ✅ shipped   |
 
 ## Prerequisites
 
@@ -86,8 +86,10 @@ web/
 │   ├── main.ts         # DOM glue + init
 │   ├── auth.ts         # Spotify PKCE flow + token storage
 │   ├── spotify.ts      # playlist fetch (paginated)
-│   ├── tokenize.ts     # ported from CrateHacker/text_utils.py
-│   ├── collectionSearch.ts  # ported from CrateHacker/collection_search.py
+│   ├── tokenize.ts     # ported from desktop/text_utils.py
+│   ├── collectionSearch.ts  # ported from desktop/collection_search.py
+│   ├── review.ts       # selection state (ported from desktop/crate.py)
+│   ├── diskSearch.ts   # ported from desktop/disk_search.py
 │   ├── nml.ts          # load + build .nml (browser-safe)
 │   ├── nmlWriter.ts    # Node-only writer used by tests
 │   └── *.test.ts       # Vitest suites mirroring the pytest suites

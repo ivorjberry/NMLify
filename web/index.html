@@ -76,10 +76,65 @@
       </div>
       <p id="match-status" class="status"></p>
 
-      <h3>Matched tracks (top match auto-picked)</h3>
-      <ol id="matched-list"></ol>
-      <h3>Not found</h3>
-      <ol id="not-found-list"></ol>
+      <div id="review-toolbar" class="review-toolbar hidden">
+        <div class="review-actions">
+          <button id="select-first-btn" type="button">Select first matches</button>
+          <button id="select-all-btn" type="button">Select all matches</button>
+          <button id="deselect-all-btn" type="button" class="secondary">Deselect all</button>
+          <span class="divider" aria-hidden="true"></span>
+          <label for="top-n-input">Top N</label>
+          <input id="top-n-input" type="number" min="1" max="20" step="1" value="1" />
+          <button id="select-top-n-btn" type="button">Select top N</button>
+        </div>
+        <p id="review-summary" class="review-summary"></p>
+      </div>
+
+      <div id="review-groups"></div>
+
+      <div id="not-found-section" class="not-found-section hidden">
+        <h3>Not found in your collection</h3>
+        <ol id="not-found-list"></ol>
+      </div>
+    </section>
+
+    <section id="disk-section" class="card hidden">
+      <h2>5. Find missing tracks on disk (optional)</h2>
+      <p>
+        For tracks not in your collection, pick the folder that holds your music
+        and we'll fuzzy-match by filename. Files stay on your machine — the
+        browser only reads filenames, not contents.
+      </p>
+      <div class="row">
+        <label for="disk-root-input">Absolute path of the folder you'll pick</label>
+        <input id="disk-root-input" type="text" placeholder="D:\Music\Library" />
+      </div>
+      <div class="row">
+        <input id="disk-dir-input" type="file" webkitdirectory directory multiple />
+      </div>
+      <p id="disk-scan-status" class="status"></p>
+      <div class="row">
+        <label for="disk-ratio-input">Fuzzy match threshold (0–100)</label>
+        <input id="disk-ratio-input" type="number" min="0" max="100" step="1" value="70" />
+      </div>
+      <div class="row">
+        <button id="disk-match-btn" disabled>Search for not-found tracks</button>
+      </div>
+      <p id="disk-match-status" class="status"></p>
+
+      <div id="disk-toolbar" class="review-toolbar hidden">
+        <div class="review-actions">
+          <button id="disk-select-first-btn" type="button">Select first matches</button>
+          <button id="disk-select-all-btn" type="button">Select all matches</button>
+          <button id="disk-deselect-all-btn" type="button" class="secondary">Deselect all</button>
+          <span class="divider" aria-hidden="true"></span>
+          <label for="disk-top-n-input">Top N</label>
+          <input id="disk-top-n-input" type="number" min="1" max="20" step="1" value="1" />
+          <button id="disk-select-top-n-btn" type="button">Select top N</button>
+        </div>
+        <p id="disk-summary" class="review-summary"></p>
+      </div>
+
+      <div id="disk-groups"></div>
     </section>
   </main>
 

@@ -22,11 +22,29 @@ import {
   type TokenIndex,
 } from './collectionSearch';
 import {
+  buildFileIndex,
+  type DiskFile,
+  type DiskFileIndex,
+  diskMatchToEntry,
+  fuzzyMatchFiles,
+  scanFileList,
+} from './diskSearch';
+import {
   buildNmlPlaylist,
   loadCollection,
   type NmlEntry,
   sanitizePlaylistFilename,
 } from './nml';
+import {
+  buildReviewGroups,
+  collectSelectedEntries,
+  deselectAll,
+  type ReviewGroup,
+  selectAll,
+  selectTopN,
+  setCandidateSelected,
+  summarize,
+} from './review';
 import {
   extractPlaylistId,
   fetchPlaylist,
@@ -57,16 +75,41 @@ const playlistStatus = el<HTMLElement>('playlist-status');
 const playlistInfo = el<HTMLElement>('playlist-info');
 const tracksList = el<HTMLUListElement>('tracks-list');
 
-// New Step-2 card
+// Step-3 review card
 const collectionFileInput = el<HTMLInputElement>('collection-file-input');
 const collectionStatus = el<HTMLElement>('collection-status');
 const fuzzyRatioInput = el<HTMLInputElement>('fuzzy-ratio-input');
 const matchBtn = el<HTMLButtonElement>('match-btn');
 const matchStatus = el<HTMLElement>('match-status');
-const matchedList = el<HTMLUListElement>('matched-list');
+const reviewToolbar = el<HTMLElement>('review-toolbar');
+const reviewSummary = el<HTMLElement>('review-summary');
+const reviewGroupsContainer = el<HTMLElement>('review-groups');
+const selectFirstBtn = el<HTMLButtonElement>('select-first-btn');
+const selectAllBtn = el<HTMLButtonElement>('select-all-btn');
+const deselectAllBtn = el<HTMLButtonElement>('deselect-all-btn');
+const selectTopNBtn = el<HTMLButtonElement>('select-top-n-btn');
+const topNInput = el<HTMLInputElement>('top-n-input');
+const notFoundSection = el<HTMLElement>('not-found-section');
 const notFoundList = el<HTMLUListElement>('not-found-list');
 const downloadBtn = el<HTMLButtonElement>('download-btn');
 const playlistNameInput = el<HTMLInputElement>('playlist-name-input');
+
+// Step-5 disk search card
+const diskSection = el<HTMLElement>('disk-section');
+const diskRootInput = el<HTMLInputElement>('disk-root-input');
+const diskDirInput = el<HTMLInputElement>('disk-dir-input');
+const diskScanStatus = el<HTMLElement>('disk-scan-status');
+const diskRatioInput = el<HTMLInputElement>('disk-ratio-input');
+const diskMatchBtn = el<HTMLButtonElement>('disk-match-btn');
+const diskMatchStatus = el<HTMLElement>('disk-match-status');
+const diskToolbar = el<HTMLElement>('disk-toolbar');
+const diskSummaryEl = el<HTMLElement>('disk-summary');
+const diskGroupsContainer = el<HTMLElement>('disk-groups');
+const diskSelectFirstBtn = el<HTMLButtonElement>('disk-select-first-btn');
+const diskSelectAllBtn = el<HTMLButtonElement>('disk-select-all-btn');
+const diskDeselectAllBtn = el<HTMLButtonElement>('disk-deselect-all-btn');
+const diskSelectTopNBtn = el<HTMLButtonElement>('disk-select-top-n-btn');
+const diskTopNInput = el<HTMLInputElement>('disk-top-n-input');
 
 redirectUriDisplay.textContent = REDIRECT_URI;
 
@@ -202,7 +245,37 @@ fetchBtn.addEventListener('click', async () => {
 
 let loadedCollection: NmlEntry[] | null = null;
 let collectionIndex: { titleIndex: TokenIndex; artistIndex: TokenIndex } | null = null;
-let matchedEntries: NmlEntry[] = [];
+let notFoundFromMatch: string[] = [];
+let diskFileIndex: DiskFileIndex | null = null;
+
+interface ReviewView {
+  groups: ReviewGroup[];
+  container: HTMLElement;
+  toolbar: HTMLElement;
+  summary: HTMLElement;
+  /** Short unique id used in checkbox data attributes (`data-scope`). */
+  scope: string;
+  /** Optional label fragment for the per-track summary. */
+  summaryNoun: string;
+}
+
+const collectionView: ReviewView = {
+  groups: [],
+  container: reviewGroupsContainer,
+  toolbar: reviewToolbar,
+  summary: reviewSummary,
+  scope: 'col',
+  summaryNoun: 'collection match',
+};
+
+const diskView: ReviewView = {
+  groups: [],
+  container: diskGroupsContainer,
+  toolbar: diskToolbar,
+  summary: diskSummaryEl,
+  scope: 'disk',
+  summaryNoun: 'disk match',
+};
 
 collectionFileInput.addEventListener('change', async () => {
   const file = collectionFileInput.files?.[0];
@@ -229,13 +302,36 @@ collectionFileInput.addEventListener('change', async () => {
 
 function refreshMatchButton(): void {
   matchBtn.disabled = !(loadedCollection && lastPlaylist);
-  downloadBtn.disabled = matchedEntries.length === 0;
+  downloadBtn.disabled = totalSelected() === 0;
+}
+
+function totalSelected(): number {
+  return summarize(collectionView.groups).selected + summarize(diskView.groups).selected;
+}
+
+function resetCollectionReview(): void {
+  collectionView.groups = [];
+  collectionView.container.innerHTML = '';
+  collectionView.toolbar.classList.add('hidden');
+  collectionView.summary.textContent = '';
+  notFoundList.innerHTML = '';
+  notFoundSection.classList.add('hidden');
+  notFoundFromMatch = [];
+}
+
+function resetDiskReview(): void {
+  diskView.groups = [];
+  diskView.container.innerHTML = '';
+  diskView.toolbar.classList.add('hidden');
+  diskView.summary.textContent = '';
+  diskMatchStatus.textContent = '';
+  diskMatchStatus.className = 'status';
 }
 
 matchBtn.addEventListener('click', () => {
-  matchedList.innerHTML = '';
-  notFoundList.innerHTML = '';
-  matchedEntries = [];
+  resetCollectionReview();
+  resetDiskReview();
+  diskSection.classList.add('hidden');
   refreshMatchButton();
 
   if (!loadedCollection || !collectionIndex || !lastPlaylist) {
@@ -265,42 +361,272 @@ matchBtn.addEventListener('click', () => {
       { titleIndex: collectionIndex!.titleIndex, artistIndex: collectionIndex!.artistIndex },
     );
 
-    // For Step 2 we auto-pick the top match per track. Step 3 will swap this
-    // for a review dialog so the user can pick alternates.
-    const matchedFrag = document.createDocumentFragment();
-    for (const group of groupedResults.values()) {
-      const top = group.collection_matches[0];
-      if (!top) continue;
-      matchedEntries.push(top.entry);
-      const li = document.createElement('li');
-      const title = (top.entry['@TITLE'] as string | undefined) ?? '(no title)';
-      const artist = (top.entry['@ARTIST'] as string | undefined) ?? '(unknown)';
-      li.textContent =
-        `${group.spotify_artists} — ${group.spotify_track.name}  →  ` +
-        `${artist} — ${title}  (score ${top.score})`;
-      matchedFrag.appendChild(li);
-    }
-    matchedList.appendChild(matchedFrag);
+    collectionView.groups = buildReviewGroups(groupedResults);
+    selectTopN(collectionView.groups, 1);
+    renderReview(collectionView);
 
-    const nfFrag = document.createDocumentFragment();
-    for (const line of notFoundTracks) {
-      const li = document.createElement('li');
-      li.textContent = line;
-      nfFrag.appendChild(li);
+    notFoundFromMatch = notFoundTracks.slice();
+    if (notFoundFromMatch.length > 0) {
+      const frag = document.createDocumentFragment();
+      for (const line of notFoundFromMatch) {
+        const li = document.createElement('li');
+        li.textContent = line;
+        frag.appendChild(li);
+      }
+      notFoundList.appendChild(frag);
+      notFoundSection.classList.remove('hidden');
+      diskSection.classList.remove('hidden');
+      refreshDiskMatchButton();
     }
-    notFoundList.appendChild(nfFrag);
 
+    const total = collectionView.groups.length + notFoundFromMatch.length;
     matchStatus.textContent =
-      `Matched ${matchedEntries.length} of ${matchedEntries.length + notFoundTracks.length} tracks.`;
-    matchStatus.className = matchedEntries.length > 0 ? 'status ok' : 'status warn';
+      `Matched ${collectionView.groups.length} of ${total} tracks. Review and download below.`;
+    matchStatus.className = collectionView.groups.length > 0 ? 'status ok' : 'status warn';
     refreshMatchButton();
   }, 0);
 });
 
+// ---------- Review rendering (shared between collection + disk views) ----
+
+function renderReview(view: ReviewView): void {
+  view.container.innerHTML = '';
+  if (view.groups.length === 0) {
+    view.toolbar.classList.add('hidden');
+    view.summary.textContent = '';
+    return;
+  }
+  view.toolbar.classList.remove('hidden');
+
+  const frag = document.createDocumentFragment();
+  for (let gi = 0; gi < view.groups.length; gi += 1) {
+    frag.appendChild(renderGroup(view, gi));
+  }
+  view.container.appendChild(frag);
+  updateSummary(view);
+}
+
+function renderGroup(view: ReviewView, groupIndex: number): HTMLElement {
+  const group = view.groups[groupIndex]!;
+  const wrap = document.createElement('div');
+  wrap.className = 'review-group';
+
+  const header = document.createElement('div');
+  header.className = 'review-group-header';
+  header.textContent =
+    `${group.spotifyArtists} — ${group.spotifyTitle}  ` +
+    `(${group.candidates.length} match${group.candidates.length === 1 ? '' : 'es'})`;
+  wrap.appendChild(header);
+
+  const list = document.createElement('ul');
+  list.className = 'review-candidates';
+  for (let ci = 0; ci < group.candidates.length; ci += 1) {
+    list.appendChild(renderCandidate(view, groupIndex, ci));
+  }
+  wrap.appendChild(list);
+  return wrap;
+}
+
+function renderCandidate(view: ReviewView, groupIndex: number, candidateIndex: number): HTMLLIElement {
+  const group = view.groups[groupIndex]!;
+  const match = group.candidates[candidateIndex]!;
+  const entry = match.entry;
+  const title = (entry['@TITLE'] as string | undefined) ?? '(no title)';
+  const artist = (entry['@ARTIST'] as string | undefined) ?? '(unknown)';
+  const loc = entry.LOCATION;
+  const path = `${loc['@VOLUME'] ?? ''}${loc['@DIR'] ?? ''}${loc['@FILE'] ?? ''}`;
+
+  const li = document.createElement('li');
+  li.className = 'review-candidate';
+
+  const label = document.createElement('label');
+  const cb = document.createElement('input');
+  cb.type = 'checkbox';
+  cb.checked = group.selected[candidateIndex] === true;
+  cb.dataset.scope = view.scope;
+  cb.dataset.group = String(groupIndex);
+  cb.dataset.candidate = String(candidateIndex);
+  cb.addEventListener('change', () => {
+    setCandidateSelected(group, candidateIndex, cb.checked);
+    updateSummary(view);
+    refreshMatchButton();
+  });
+  label.appendChild(cb);
+
+  const text = document.createElement('span');
+  text.className = 'review-candidate-text';
+  text.innerHTML =
+    `<strong>${escapeHtml(artist)} — ${escapeHtml(title)}</strong> ` +
+    `<span class="score">score ${match.score}</span>` +
+    `<br><span class="path">${escapeHtml(path)}</span>`;
+  label.appendChild(text);
+
+  li.appendChild(label);
+  return li;
+}
+
+function updateSummary(view: ReviewView): void {
+  const s = summarize(view.groups);
+  const trackNoun = `Spotify track${s.groups === 1 ? '' : 's'}`;
+  view.summary.textContent =
+    `Selected ${s.selected} of ${s.candidates} ${view.summaryNoun}${s.candidates === 1 ? '' : 'es'} ` +
+    `across ${s.groups} ${trackNoun}.`;
+}
+
+function syncCheckboxes(view: ReviewView): void {
+  const boxes = view.container.querySelectorAll<HTMLInputElement>(
+    `input[type="checkbox"][data-scope="${view.scope}"]`,
+  );
+  boxes.forEach((cb) => {
+    const gi = Number(cb.dataset.group);
+    const ci = Number(cb.dataset.candidate);
+    const group = view.groups[gi];
+    if (!group) return;
+    cb.checked = group.selected[ci] === true;
+  });
+  updateSummary(view);
+  refreshMatchButton();
+}
+
+// ---------- Collection-review toolbar -----------------------------------
+
+selectFirstBtn.addEventListener('click', () => {
+  selectTopN(collectionView.groups, 1);
+  syncCheckboxes(collectionView);
+});
+
+selectAllBtn.addEventListener('click', () => {
+  selectAll(collectionView.groups);
+  syncCheckboxes(collectionView);
+});
+
+deselectAllBtn.addEventListener('click', () => {
+  deselectAll(collectionView.groups);
+  syncCheckboxes(collectionView);
+});
+
+selectTopNBtn.addEventListener('click', () => {
+  const n = clampTopN(parseInt(topNInput.value, 10));
+  topNInput.value = String(n);
+  selectTopN(collectionView.groups, n);
+  syncCheckboxes(collectionView);
+});
+
+// ---------- Disk search --------------------------------------------------
+
+function refreshDiskMatchButton(): void {
+  diskMatchBtn.disabled =
+    !diskFileIndex ||
+    diskFileIndex.files.length === 0 ||
+    notFoundFromMatch.length === 0 ||
+    diskRootInput.value.trim().length === 0;
+}
+
+diskRootInput.addEventListener('input', refreshDiskMatchButton);
+
+diskDirInput.addEventListener('change', () => {
+  const files = diskDirInput.files;
+  if (!files || files.length === 0) {
+    diskFileIndex = null;
+    diskScanStatus.textContent = '';
+    diskScanStatus.className = 'status';
+    refreshDiskMatchButton();
+    return;
+  }
+  diskScanStatus.textContent = 'Indexing files…';
+  diskScanStatus.className = 'status';
+  // Browsers expose webkitRelativePath on each File; iterate the FileList.
+  const scannable: DiskFile[] = scanFileList(
+    Array.from(files).map((f) => ({
+      name: f.name,
+      webkitRelativePath: f.webkitRelativePath,
+    })),
+  );
+  diskFileIndex = buildFileIndex(scannable);
+  diskScanStatus.textContent =
+    `Indexed ${scannable.length} audio file${scannable.length === 1 ? '' : 's'} ` +
+    `(of ${files.length} total in folder).`;
+  diskScanStatus.className = scannable.length > 0 ? 'status ok' : 'status warn';
+  refreshDiskMatchButton();
+});
+
+diskMatchBtn.addEventListener('click', () => {
+  diskView.groups = [];
+  diskView.container.innerHTML = '';
+  diskView.toolbar.classList.add('hidden');
+  if (!diskFileIndex || notFoundFromMatch.length === 0) {
+    diskMatchStatus.textContent = 'Scan a folder and run the main match first.';
+    diskMatchStatus.className = 'status warn';
+    return;
+  }
+
+  const ratio = clampRatio(parseInt(diskRatioInput.value, 10));
+  diskRatioInput.value = String(ratio);
+  const rootPrefix = diskRootInput.value.trim();
+
+  diskMatchStatus.textContent = 'Searching disk…';
+  diskMatchStatus.className = 'status';
+
+  setTimeout(() => {
+    const hits = fuzzyMatchFiles(notFoundFromMatch, diskFileIndex!, ratio);
+    const groups: ReviewGroup[] = [];
+    for (const [trackStr, matches] of hits) {
+      const sep = trackStr.indexOf(' - ');
+      const artists = sep > 0 ? trackStr.slice(0, sep).trim() : '';
+      const title = sep > 0 ? trackStr.slice(sep + 3).trim() : trackStr;
+      groups.push({
+        spotifyKey: trackStr,
+        spotifyArtists: artists,
+        spotifyTitle: title,
+        candidates: matches.map((m) => ({
+          entry: diskMatchToEntry(rootPrefix, m.file, trackStr),
+          score: m.score,
+        })),
+        selected: matches.map((_, i) => i === 0),
+      });
+    }
+    diskView.groups = groups;
+    renderReview(diskView);
+
+    diskMatchStatus.textContent =
+      `Found disk matches for ${groups.length} of ${notFoundFromMatch.length} not-found tracks.`;
+    diskMatchStatus.className = groups.length > 0 ? 'status ok' : 'status warn';
+    refreshMatchButton();
+  }, 0);
+});
+
+diskSelectFirstBtn.addEventListener('click', () => {
+  selectTopN(diskView.groups, 1);
+  syncCheckboxes(diskView);
+});
+
+diskSelectAllBtn.addEventListener('click', () => {
+  selectAll(diskView.groups);
+  syncCheckboxes(diskView);
+});
+
+diskDeselectAllBtn.addEventListener('click', () => {
+  deselectAll(diskView.groups);
+  syncCheckboxes(diskView);
+});
+
+diskSelectTopNBtn.addEventListener('click', () => {
+  const n = clampTopN(parseInt(diskTopNInput.value, 10));
+  diskTopNInput.value = String(n);
+  selectTopN(diskView.groups, n);
+  syncCheckboxes(diskView);
+});
+
+// ---------- Download -----------------------------------------------------
+
 downloadBtn.addEventListener('click', () => {
-  if (matchedEntries.length === 0) return;
+  const entries = [
+    ...collectSelectedEntries(collectionView.groups),
+    ...collectSelectedEntries(diskView.groups),
+  ];
+  if (entries.length === 0) return;
   const name = playlistNameInput.value.trim() || 'CrateHacker Playlist';
-  const xml = buildNmlPlaylist(name, matchedEntries);
+  const xml = buildNmlPlaylist(name, entries);
   const safeName = sanitizePlaylistFilename(name);
   triggerDownload(`${safeName}.nml`, xml);
 });
@@ -308,6 +634,11 @@ downloadBtn.addEventListener('click', () => {
 function clampRatio(value: number): number {
   if (!Number.isFinite(value)) return 70;
   return Math.min(100, Math.max(0, Math.round(value)));
+}
+
+function clampTopN(value: number): number {
+  if (!Number.isFinite(value)) return 1;
+  return Math.min(20, Math.max(1, Math.round(value)));
 }
 
 function triggerDownload(filename: string, content: string): void {

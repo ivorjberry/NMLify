@@ -56,3 +56,36 @@ jobs:
 
       - name: Build (vite)
         run: npm run build
+
+      - name: Upload Pages artifact
+        # Only the Node-22 matrix leg uploads — we only need one artifact and
+        # the deploy job below picks this one up.
+        if: matrix.node-version == '22' && github.event_name != 'pull_request'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: web/dist
+
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: build
+    # Only deploy on pushes to main (and on manual dispatch). PRs just build.
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      # Required by actions/deploy-pages to publish + mint the OIDC token.
+      pages: write
+      id-token: write
+    # Recommended by the GitHub Pages docs: serialise deploys so two pushes
+    # in quick succession don't race. We do NOT cancel in-progress deploys —
+    # if one is mid-publish we let it finish before the next one starts.
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

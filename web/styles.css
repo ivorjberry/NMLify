@@ -129,3 +129,121 @@ a { color: var(--accent); }
 #tracks-list li {
   padding: 2px 0;
 }
+
+/* ---------- Review groups (Step 3) -------------------------------------- */
+
+.hidden { display: none !important; }
+
+.review-toolbar {
+  margin-top: 16px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: #11151c;
+}
+.review-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.review-actions .divider {
+  width: 1px;
+  height: 22px;
+  background: var(--border);
+  margin: 0 4px;
+}
+.review-actions label {
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+.review-actions input[type="number"] {
+  width: 70px;
+}
+.review-summary {
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+#review-groups {
+  margin-top: 12px;
+  max-height: 60vh;
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: #11151c;
+  padding: 6px 0;
+}
+#review-groups:empty {
+  display: none;
+}
+
+.review-group {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+}
+.review-group:last-child {
+  border-bottom: none;
+}
+.review-group-header {
+  font-weight: 600;
+  color: var(--accent);
+  margin-bottom: 6px;
+}
+
+.review-candidates {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.review-candidate {
+  padding: 4px 0;
+}
+.review-candidate label {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  cursor: pointer;
+}
+.review-candidate input[type="checkbox"] {
+  margin-top: 3px;
+}
+.review-candidate-text {
+  flex: 1 1 auto;
+  font-size: 0.92rem;
+}
+.review-candidate-text .score {
+  color: var(--muted);
+  font-weight: 400;
+  margin-left: 6px;
+}
+.review-candidate-text .path {
+  color: var(--muted);
+  font-family: ui-monospace, Menlo, Consolas, monospace;
+  font-size: 0.82rem;
+  word-break: break-all;
+}
+
+.not-found-section {
+  margin-top: 16px;
+}
+.not-found-section h3 {
+  margin: 0 0 6px;
+  font-size: 1rem;
+  color: var(--warn);
+}
+#not-found-list {
+  margin: 0;
+  padding-left: 24px;
+  max-height: 30vh;
+  overflow: auto;
+  background: #11151c;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding-block: 8px;
+}
+#not-found-list li {
+  padding: 2px 0;
+  color: var(--muted);
+}

@@ -11,9 +11,9 @@ dist/
 *.spec
 
 # Generated playlists and archives
-CrateHacker/playlists/*.nml
-CrateHacker/archive/*.nml
-CrateHacker/collection.nml
+desktop/playlists/*.nml
+desktop/archive/*.nml
+desktop/collection.nml
 
 # IDE
 .vscode/

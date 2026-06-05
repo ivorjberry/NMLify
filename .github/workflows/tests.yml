@@ -1,4 +1,4 @@
-name: CrateHacker tests
+name: CrateHacker desktop tests
 
 # Cost note: this workflow runs on the GitHub-hosted `ubuntu-latest` runner.
 # Public repos: minutes are free and unlimited.
@@ -9,12 +9,12 @@ on:
   push:
     branches: [main]
     paths:
-      - 'CrateHacker/**'
+      - 'desktop/**'
       - '.github/workflows/tests.yml'
   pull_request:
     branches: [main]
     paths:
-      - 'CrateHacker/**'
+      - 'desktop/**'
       - '.github/workflows/tests.yml'
   workflow_dispatch:
 
@@ -34,7 +34,7 @@ jobs:
         python-version: ['3.11', '3.12']
     defaults:
       run:
-        working-directory: CrateHacker
+        working-directory: desktop
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -44,7 +44,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
-          cache-dependency-path: CrateHacker/requirements.txt
+          cache-dependency-path: desktop/requirements.txt
 
       - name: Install dependencies
         run: |
