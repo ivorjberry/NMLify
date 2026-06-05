@@ -236,6 +236,7 @@ fetchBtn.addEventListener('click', async () => {
       playlistNameInput.value = fetched.meta.name;
     }
     refreshMatchButton();
+    refreshDiskMatchButton();
   } catch (err) {
     showError(err);
     playlistStatus.textContent = err instanceof Error ? err.message : String(err);
@@ -377,8 +378,6 @@ matchBtn.addEventListener('click', () => {
       }
       notFoundList.appendChild(frag);
       notFoundSection.classList.remove('hidden');
-      diskSection.classList.remove('hidden');
-      refreshDiskMatchButton();
     }
 
     const total = collectionView.groups.length + notFoundFromMatch.length;
@@ -520,7 +519,8 @@ function refreshDiskMatchButton(): void {
   diskMatchBtn.disabled =
     !diskFileIndex ||
     diskFileIndex.files.length === 0 ||
-    notFoundFromMatch.length === 0 ||
+    !lastPlaylist ||
+    lastPlaylist.tracks.length === 0 ||
     diskRootInput.value.trim().length === 0;
 }
 
@@ -556,8 +556,8 @@ diskMatchBtn.addEventListener('click', () => {
   diskView.groups = [];
   diskView.container.innerHTML = '';
   diskView.toolbar.classList.add('hidden');
-  if (!diskFileIndex || notFoundFromMatch.length === 0) {
-    diskMatchStatus.textContent = 'Scan a folder and run the main match first.';
+  if (!diskFileIndex || !lastPlaylist || lastPlaylist.tracks.length === 0) {
+    diskMatchStatus.textContent = 'Scan a folder and fetch a playlist first.';
     diskMatchStatus.className = 'status warn';
     return;
   }
@@ -566,11 +566,19 @@ diskMatchBtn.addEventListener('click', () => {
   diskRatioInput.value = String(ratio);
   const rootPrefix = diskRootInput.value.trim();
 
+  // Search every playlist track so the user can pick disk candidates even
+  // for tracks that already matched in the collection (e.g. when the
+  // collection match is the wrong file).
+  const searchQueries = lastPlaylist.tracks.map((t) => {
+    const artists = t.artists.map((a) => a.name).join(', ');
+    return `${artists} - ${t.name}`;
+  });
+
   diskMatchStatus.textContent = 'Searching disk…';
   diskMatchStatus.className = 'status';
 
   setTimeout(() => {
-    const hits = fuzzyMatchFiles(notFoundFromMatch, diskFileIndex!, ratio);
+    const hits = fuzzyMatchFiles(searchQueries, diskFileIndex!, ratio);
     const groups: ReviewGroup[] = [];
     for (const [trackStr, matches] of hits) {
       const sep = trackStr.indexOf(' - ');
@@ -591,7 +599,7 @@ diskMatchBtn.addEventListener('click', () => {
     renderReview(diskView);
 
     diskMatchStatus.textContent =
-      `Found disk matches for ${groups.length} of ${notFoundFromMatch.length} not-found tracks.`;
+      `Found disk matches for ${groups.length} of ${searchQueries.length} playlist tracks.`;
     diskMatchStatus.className = groups.length > 0 ? 'status ok' : 'status warn';
     refreshMatchButton();
   }, 0);
