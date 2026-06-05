@@ -1,6 +1,6 @@
 /**
  * Node-only helper that writes a playlist .nml to disk with the same
- * collision-suffix behavior as CrateHacker/collection_utils.write_nml_playlist.
+ * collision-suffix behavior as desktop/collection_utils.write_nml_playlist.
  *
  * Kept in its own file so the browser bundle (which uses {@link buildNmlPlaylist}
  * + a download anchor instead) never pulls in `node:fs`.

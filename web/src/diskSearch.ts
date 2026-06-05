@@ -1,5 +1,5 @@
 /**
- * Disk search — port of CrateHacker/disk_search.py for the browser.
+ * Disk search — port of desktop/disk_search.py for the browser.
  *
  * Browsers can't see arbitrary filesystem paths. We use the
  * `<input type="file" webkitdirectory>` API to enumerate a user-picked folder,

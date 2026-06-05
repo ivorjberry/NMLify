@@ -1,4 +1,4 @@
-name: CrateHacker desktop tests
+name: NMLify desktop (legacy CrateHacker) tests
 
 # Cost note: this workflow runs on the GitHub-hosted `ubuntu-latest` runner.
 # Public repos: minutes are free and unlimited.

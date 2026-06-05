@@ -1,4 +1,4 @@
-# CrateHacker
+# NMLify
 
 Turn a Spotify playlist into a Traktor crate (`.nml`) by fuzzy-matching every
 track against your local Traktor collection — and, optionally, against the
@@ -42,10 +42,11 @@ publish the built bundle to GitHub Pages.
 
 ## Desktop / Python version
 
-The original NiceGUI desktop app still lives in [`desktop/`](desktop/) with
-its own install guide ([desktop/INSTALL.md](desktop/INSTALL.md)) and pytest
-suite. It's no longer the primary distribution, but it's there if you want a
-fully offline build or prefer the native UI.
+NMLify started life as a NiceGUI desktop app called **CrateHacker**. That
+original build still lives in [`desktop/`](desktop/) with its own install
+guide ([desktop/INSTALL.md](desktop/INSTALL.md)) and pytest suite. It's no
+longer the primary distribution, but it's there if you want a fully offline
+build or prefer the native UI.
 
 ## License
 

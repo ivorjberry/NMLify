@@ -81,7 +81,7 @@
 - Check that the tracks still exist at their original locations
 
 ### Support
-For issues or questions, visit: https://github.com/ivorjberry/dj-projects
+For issues or questions, visit: https://github.com/ivorjberry/nmlify
 
 For developer setup, building from source, and testing, see the [README](../README.md).
 

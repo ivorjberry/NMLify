@@ -1,4 +1,4 @@
-name: CrateHacker web
+name: NMLify web
 
 # Cost note: same as the pytest workflow — public repos are unlimited,
 # private repos draw from the 2,000-3,000 free minute pool. The full

@@ -1,9 +1,9 @@
 {
-  "name": "cratehacker-web",
+  "name": "nmlify",
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "description": "CrateHacker web app: convert Spotify playlists into Traktor (.nml) crates, fully in the browser.",
+  "description": "NMLify: convert Spotify playlists into Traktor (.nml) crates, fully in the browser.",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",

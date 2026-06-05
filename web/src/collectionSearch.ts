@@ -1,6 +1,6 @@
 /**
  * Fuzzy match Spotify playlist tracks against a Traktor collection.
- * Mirrors CrateHacker/collection_search.py — token-indexed pre-filter,
+ * Mirrors desktop/collection_search.py — token-indexed pre-filter,
  * fuzz.ratio() (via fuzzball) + substring containment on both title and
  * artist, combined score = floor((title + artist) / 2).
  */

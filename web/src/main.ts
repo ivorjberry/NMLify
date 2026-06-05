@@ -1,5 +1,5 @@
 /**
- * CrateHacker Web — DOM glue.
+ * NMLify — DOM glue.
  * Wires PKCE auth, playlist fetch, and the new collection-matching pipeline
  * (load .nml → fuzzy match → download crate) onto the static page.
  */
@@ -625,7 +625,7 @@ downloadBtn.addEventListener('click', () => {
     ...collectSelectedEntries(diskView.groups),
   ];
   if (entries.length === 0) return;
-  const name = playlistNameInput.value.trim() || 'CrateHacker Playlist';
+  const name = playlistNameInput.value.trim() || 'NMLify Playlist';
   const xml = buildNmlPlaylist(name, entries);
   const safeName = sanitizePlaylistFilename(name);
   triggerDownload(`${safeName}.nml`, xml);

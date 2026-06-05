@@ -1,6 +1,6 @@
 /**
  * Shared text-normalization helpers used by collection and disk search.
- * Mirrors CrateHacker/text_utils.py so the JS index lines up with the Python one.
+ * Mirrors desktop/text_utils.py so the JS index lines up with the Python one.
  * Keep this module dependency-free so it stays cheap to import.
  */
 

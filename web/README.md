@@ -1,8 +1,9 @@
-# CrateHacker Web
+# NMLify
 
-Static web port of [CrateHacker](../desktop/). Converts a Spotify playlist
-into a Traktor crate (`.nml`) entirely in the browser — no Python install, no
-`.env` file, no server. Built with Vite + TypeScript + Vitest.
+Static web app that converts a Spotify playlist into a Traktor crate (`.nml`)
+entirely in the browser — no Python install, no `.env` file, no server. Built
+with Vite + TypeScript + Vitest. Originally shipped as the desktop
+[CrateHacker](../desktop/) app, now ported to the web.
 
 ## Status
 

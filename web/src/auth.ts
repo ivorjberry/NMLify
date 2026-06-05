@@ -12,12 +12,12 @@ export const TOKEN_URL = 'https://accounts.spotify.com/api/token';
 // register every host they use in their Spotify app settings.
 export const REDIRECT_URI = window.location.origin + window.location.pathname;
 
-export const LS_CLIENT_ID = 'crateHackerClientId';
-export const LS_ACCESS_TOKEN = 'crateHackerAccessToken';
-export const LS_REFRESH_TOKEN = 'crateHackerRefreshToken';
-export const LS_EXPIRES_AT = 'crateHackerExpiresAt';
-export const LS_CODE_VERIFIER = 'crateHackerCodeVerifier';
-export const LS_AUTH_STATE = 'crateHackerAuthState';
+export const LS_CLIENT_ID = 'nmlifyClientId';
+export const LS_ACCESS_TOKEN = 'nmlifyAccessToken';
+export const LS_REFRESH_TOKEN = 'nmlifyRefreshToken';
+export const LS_EXPIRES_AT = 'nmlifyExpiresAt';
+export const LS_CODE_VERIFIER = 'nmlifyCodeVerifier';
+export const LS_AUTH_STATE = 'nmlifyAuthState';
 
 // ---------- PKCE helpers --------------------------------------------------
 

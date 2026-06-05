@@ -1,7 +1,7 @@
 /**
  * Traktor .nml (XML) load + build.
  * Mirrors the load_collection / write_nml_playlist behavior from
- * CrateHacker/collection_utils.py so the JS layer produces files that
+ * desktop/collection_utils.py so the JS layer produces files that
  * Traktor accepts the same way xmltodict's output does.
  */
 import { XMLBuilder, XMLParser } from 'fast-xml-parser';

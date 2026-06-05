@@ -1,6 +1,6 @@
 /**
  * Pure review-state helpers — mirrors the selection semantics in
- * CrateHacker/crate.py (`select_top_n`, `select_all`, `select_first_matches`,
+ * desktop/crate.py (`select_top_n`, `select_all`, `select_first_matches`,
  * `deselect_all`, and per-candidate toggling). Kept DOM-free so we can unit
  * test it and so main.ts can swap in a different renderer later.
  */
