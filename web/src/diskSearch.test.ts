@@ -145,14 +145,16 @@ describe('buildFileIndex + fuzzyMatchFiles', () => {
     expect(daftMatches[0]?.score).toBeGreaterThanOrEqual(daftMatches[1]?.score ?? -1);
   });
 
-  it('includes substring containment hits even when score is below threshold', () => {
+  it('respects the score threshold strictly — no low-score substring-containment hits', () => {
     const idx = buildFileIndex([
       { rootPrefix: ROOT, relativeDir: '', filename: 'short.mp3', parsedName: 'short' },
     ]);
-    // The track string fully contains the parsed name, so we keep it even
-    // though the ratio against this very long track is low.
+    // The track string fully contains the parsed name, but the fuzz.ratio
+    // against the long padded string is far below 95, so we no longer
+    // surface it. Previously a substring-containment OR clause would let
+    // it through with a misleading score in the teens.
     const got = fuzzyMatchFiles(['short ride home with extra padding text'], idx, 95);
-    expect(got.get('short ride home with extra padding text')).toBeDefined();
+    expect(got.get('short ride home with extra padding text')).toBeUndefined();
   });
 
   it('fires the progress callback once per track and swallows callback errors', () => {

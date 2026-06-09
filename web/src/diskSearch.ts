@@ -218,8 +218,11 @@ function collectCandidates(text: string, index: DiskFileIndex): Iterable<number>
 }
 
 /** Match the not-found list against disk files. Mirrors Python
- *  fuzzy_match_files: token prefilter, fuzz.ratio score, and an extra "OR
- *  substring containment" rule so near-misses with low ratios still surface.
+ *  fuzzy_match_files's token prefilter and fuzz.ratio score, but drops
+ *  the original "OR substring containment" branch — in practice that
+ *  branch surfaced very-low-score noise (e.g. a file `one.mp3` matching
+ *  "Daft Punk - One More Time…" with score ~16) and made the user-set
+ *  threshold meaningless. The score threshold is now strict.
  *  Returns a Map keyed by the original track string (preserves insertion
  *  order); tracks with zero matches are omitted, matching Python's behavior. */
 export function fuzzyMatchFiles(
@@ -241,11 +244,7 @@ export function fuzzyMatchFiles(
       if (!file) continue;
       const parsedLower = file.parsedName.toLowerCase();
       const score = fuzzRatio(trackLower, parsedLower);
-      if (
-        score > fuzzyRatio ||
-        parsedLower.includes(trackLower) ||
-        trackLower.includes(parsedLower)
-      ) {
+      if (score > fuzzyRatio) {
         matches.push({ file, score });
       }
     }

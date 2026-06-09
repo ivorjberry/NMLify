@@ -722,7 +722,11 @@ function renderCandidate(view: ReviewView, groupIndex: number, candidateIndex: n
   const title = (entry['@TITLE'] as string | undefined) ?? '(no title)';
   const artist = (entry['@ARTIST'] as string | undefined) ?? '(unknown)';
   const loc = entry.LOCATION;
-  const path = `${loc['@VOLUME'] ?? ''}${loc['@DIR'] ?? ''}${loc['@FILE'] ?? ''}`;
+  const fallbackPath = `${loc['@VOLUME'] ?? ''}${loc['@DIR'] ?? ''}${loc['@FILE'] ?? ''}`;
+  // Disk-match rows populate `display` so we surface file info instead of
+  // the Spotify query that was stamped onto @ARTIST/@TITLE for export.
+  const primary = match.display?.primary ?? `${artist} — ${title}`;
+  const pathLine = match.display?.path ?? fallbackPath;
 
   const li = document.createElement('li');
   li.className = 'review-candidate';
@@ -744,9 +748,9 @@ function renderCandidate(view: ReviewView, groupIndex: number, candidateIndex: n
   const text = document.createElement('span');
   text.className = 'review-candidate-text';
   text.innerHTML =
-    `<strong>${escapeHtml(artist)} — ${escapeHtml(title)}</strong> ` +
+    `<strong>${escapeHtml(primary)}</strong> ` +
     `<span class="score">score ${match.score}</span>` +
-    `<br><span class="path">${escapeHtml(path)}</span>`;
+    `<br><span class="path">${escapeHtml(pathLine)}</span>`;
   label.appendChild(text);
 
   li.appendChild(label);
@@ -1354,6 +1358,15 @@ async function runDiskMatch(): Promise<void> {
         candidates: matches.map((m) => ({
           entry: diskMatchToEntry(m.file, trackStr),
           score: m.score,
+          // Show what we actually know about the file on disk, not the
+          // searched-for Spotify title (the entry still carries the
+          // Spotify metadata for the eventual Traktor export).
+          display: {
+            primary: m.file.parsedName || m.file.filename,
+            path: m.file.relativeDir
+              ? `${m.file.relativeDir}/${m.file.filename}`
+              : m.file.filename,
+          },
         })),
         selected: matches.map((_, i) => i === 0),
       });

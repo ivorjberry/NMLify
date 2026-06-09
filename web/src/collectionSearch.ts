@@ -31,6 +31,16 @@ export interface Playlist {
 export interface CollectionMatch {
   entry: NmlEntry;
   score: number;
+  /** Optional renderer override. Disk-match candidates use this to show
+   *  file-derived info (parsed filename + relative path) instead of the
+   *  entry's @ARTIST/@TITLE, which on disk hits are just the Spotify
+   *  search query (kept that way so the exported Traktor playlist still
+   *  carries the correct track metadata). Collection matches leave it
+   *  undefined and fall back to the original artist/title rendering. */
+  display?: {
+    primary: string;
+    path: string;
+  };
 }
 
 export interface GroupedResult {
