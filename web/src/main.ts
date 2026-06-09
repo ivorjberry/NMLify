@@ -118,7 +118,6 @@ const downloadBtn = el<HTMLButtonElement>('download-btn');
 const playlistNameInput = el<HTMLInputElement>('playlist-name-input');
 
 // Step-5 disk search card
-const diskSection = el<HTMLElement>('disk-section');
 const diskRootInput = el<HTMLInputElement>('disk-root-input');
 const diskDirInput = el<HTMLInputElement>('disk-dir-input');
 const diskScanStatus = el<HTMLElement>('disk-scan-status');
@@ -366,7 +365,10 @@ function resetDiskReview(): void {
 matchBtn.addEventListener('click', () => {
   resetCollectionReview();
   resetDiskReview();
-  diskSection.classList.add('hidden');
+  // Step 5 stays visible at all times now -- gating happens at the button
+  // level via refreshDiskMatchButton(). Hiding the section here was a
+  // leftover from the earlier 'reveal-on-miss' design and made the disk
+  // search disappear after every Match click.
   refreshMatchButton();
 
   if (!loadedCollection || !collectionIndex || !lastPlaylist) {
