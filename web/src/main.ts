@@ -26,6 +26,7 @@ import {
   formatRelativeTime,
   isBackupsSupported,
   listBackups,
+  requestPersistentStorage,
   restoreBackup,
   saveBackup,
 } from './backups';
@@ -42,6 +43,15 @@ import {
   fuzzyMatchFiles,
   scanFileList,
 } from './diskSearch';
+import {
+  type CrateMeta,
+  type CrateSource,
+  deleteCrate,
+  isCratesSupported,
+  listCrates,
+  restoreCrate,
+  saveCrate,
+} from './crates';
 import {
   buildNmlPlaylist,
   loadCollection,
@@ -128,6 +138,10 @@ const diskTopNInput = el<HTMLInputElement>('disk-top-n-input');
 const backupsStatus = el<HTMLElement>('backups-status');
 const backupsList = el<HTMLOListElement>('backups-list');
 
+// Step-7 crate history card
+const cratesStatus = el<HTMLElement>('crates-status');
+const cratesList = el<HTMLOListElement>('crates-list');
+
 redirectUriDisplay.textContent = REDIRECT_URI;
 
 copyRedirectUriBtn.addEventListener('click', async () => {
@@ -201,6 +215,7 @@ logoutBtn.addEventListener('click', () => {
 // ---------- Playlist fetch ------------------------------------------------
 
 let lastPlaylist: FetchedPlaylist | null = null;
+let lastPlaylistUrl: string | null = null;
 
 fetchBtn.addEventListener('click', async () => {
   tracksList.innerHTML = '';
@@ -228,6 +243,7 @@ fetchBtn.addEventListener('click', async () => {
       playlistStatus.textContent = `Loading playlist… ${loaded}/${total}`;
     });
     lastPlaylist = fetched;
+    lastPlaylistUrl = playlistUrlInput.value.trim() || null;
 
     playlistInfo.innerHTML =
       `<strong>${escapeHtml(fetched.meta.name)}</strong> by ` +
@@ -647,6 +663,8 @@ downloadBtn.addEventListener('click', () => {
   const xml = buildNmlPlaylist(name, entries);
   const safeName = sanitizePlaylistFilename(name);
   triggerDownload(`${safeName}.nml`, xml);
+  // Fire-and-forget — never block the download UX on history persistence.
+  void recordCrate(name, xml, entries.length);
 });
 
 function clampRatio(value: number): number {
@@ -801,6 +819,141 @@ async function handleBackupDelete(item: BackupMeta): Promise<void> {
   }
 }
 
+// ---------- Crate history -----------------------------------------------
+
+/**
+ * Persist a freshly downloaded crate to the IndexedDB history and refresh
+ * the Crate history card. Same fire-and-forget contract as snapshots —
+ * never block the download UX on persistence.
+ */
+async function recordCrate(name: string, xml: string, entryCount: number): Promise<void> {
+  if (!isCratesSupported()) {
+    cratesStatus.textContent = 'This browser cannot store crate history (IndexedDB unavailable).';
+    cratesStatus.className = 'status warn';
+    return;
+  }
+  const source: CrateSource | null = lastPlaylist
+    ? {
+        type: 'spotify',
+        playlistName: lastPlaylist.meta.name,
+        playlistUrl: lastPlaylistUrl,
+        totalTracks: lastPlaylist.meta.tracks.total,
+      }
+    : null;
+  try {
+    await saveCrate({ name, xml, entryCount, source });
+    cratesStatus.textContent =
+      `Saved "${name}" to crate history (${entryCount} tracks, ${formatBytes(xml.length)}).`;
+    cratesStatus.className = 'status ok';
+    await renderCrates();
+  } catch (err) {
+    cratesStatus.textContent =
+      err instanceof Error ? `Crate history save failed: ${err.message}` : 'Crate history save failed.';
+    cratesStatus.className = 'status err';
+  }
+}
+
+async function renderCrates(): Promise<void> {
+  if (!isCratesSupported()) {
+    cratesList.innerHTML = '';
+    return;
+  }
+  let items: CrateMeta[];
+  try {
+    items = await listCrates();
+  } catch (err) {
+    cratesList.innerHTML = '';
+    cratesStatus.textContent =
+      err instanceof Error ? `Could not load crate history: ${err.message}` : 'Could not load crate history.';
+    cratesStatus.className = 'status err';
+    return;
+  }
+  cratesList.innerHTML = '';
+  const now = Date.now();
+  const frag = document.createDocumentFragment();
+  for (const item of items) {
+    frag.appendChild(renderCrateRow(item, now));
+  }
+  cratesList.appendChild(frag);
+}
+
+function renderCrateRow(item: CrateMeta, now: number): HTMLLIElement {
+  // Reuses .backup-row markup so we get the same styling for free.
+  const li = document.createElement('li');
+  li.className = 'backup-row';
+
+  const meta = document.createElement('div');
+  meta.className = 'backup-meta';
+
+  const main = document.createElement('span');
+  main.className = 'backup-meta-line';
+  const absolute = new Date(item.timestamp).toLocaleString();
+  main.textContent = `${formatRelativeTime(item.timestamp, now)} — ${item.name}`;
+  main.title = absolute;
+  meta.appendChild(main);
+
+  const sub = document.createElement('span');
+  sub.className = 'backup-meta-sub';
+  const sourceFragment = item.source
+    ? ` · from "${item.source.playlistName}" (${item.source.totalTracks} tracks)`
+    : '';
+  sub.textContent =
+    `${item.entryCount.toLocaleString()} tracks · ${formatBytes(item.byteSize)} · ${absolute}${sourceFragment}`;
+  meta.appendChild(sub);
+
+  li.appendChild(meta);
+
+  const actions = document.createElement('div');
+  actions.className = 'backup-actions';
+
+  const downloadButton = document.createElement('button');
+  downloadButton.type = 'button';
+  downloadButton.textContent = 'Download .nml';
+  downloadButton.title = 'Re-download this crate exactly as it was generated.';
+  downloadButton.addEventListener('click', () => {
+    void handleCrateDownload(item, downloadButton);
+  });
+  actions.appendChild(downloadButton);
+
+  const delButton = document.createElement('button');
+  delButton.type = 'button';
+  delButton.className = 'secondary';
+  delButton.textContent = 'Delete';
+  delButton.addEventListener('click', () => {
+    void handleCrateDelete(item);
+  });
+  actions.appendChild(delButton);
+
+  li.appendChild(actions);
+  return li;
+}
+
+async function handleCrateDownload(item: CrateMeta, button: HTMLButtonElement): Promise<void> {
+  const originalLabel = button.textContent;
+  button.disabled = true;
+  button.textContent = 'Preparing…';
+  try {
+    const record = await restoreCrate(item.id);
+    const safeName = sanitizePlaylistFilename(record.name);
+    triggerDownload(`${safeName}.nml`, record.xml);
+  } catch (err) {
+    showError(err);
+  } finally {
+    button.disabled = false;
+    button.textContent = originalLabel;
+  }
+}
+
+async function handleCrateDelete(item: CrateMeta): Promise<void> {
+  if (!window.confirm(`Delete crate "${item.name}"? This can't be undone.`)) return;
+  try {
+    await deleteCrate(item.id);
+    await renderCrates();
+  } catch (err) {
+    showError(err);
+  }
+}
+
 // ---------- Misc ----------------------------------------------------------
 
 function escapeHtml(s: string): string {
@@ -862,4 +1015,9 @@ function showError(err: unknown): void {
   refreshAuthUI();
   refreshMatchButton();
   void renderBackups();
+  void renderCrates();
+  // Best-effort: ask the browser to mark our origin as "persistent" so
+  // snapshots and crate history aren't silently evicted under quota
+  // pressure. Result is intentionally ignored — there is no fallback.
+  void requestPersistentStorage();
 })();

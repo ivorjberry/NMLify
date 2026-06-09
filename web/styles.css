@@ -281,6 +281,20 @@ a { color: var(--accent); }
   font-size: 0.9rem;
   font-style: italic;
 }
+.crates-list {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.crates-list:empty::before {
+  content: "No crates yet — download one above to capture it here.";
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-style: italic;
+}
 .backup-row {
   display: flex;
   align-items: center;

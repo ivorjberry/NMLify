@@ -4,16 +4,7 @@ Turn a Spotify playlist into a Traktor crate (`.nml`) by fuzzy-matching every
 track against your local Traktor collection — and, optionally, against the
 audio files sitting on your disk.
 
-There are two flavours:
-
-| | Hosted web app (**recommended**) | Desktop / Python version (legacy) |
-|---|---|---|
-| Install | Nothing — open the page in your browser | Python 3.11+, pip, a virtualenv |
-| Spotify auth | PKCE in the browser (no client secret) | Client ID + secret in a `.env` |
-| Privacy | Your `collection.nml` and audio files stay on your machine | Same — runs entirely locally |
-| Source | [`web/`](web/) | [`desktop/`](desktop/) |
-
-## Quick start (web)
+## Quick start
 
 1. Open the hosted app (link will appear here once the first GitHub Pages
    deploy lands — until then, follow the local-dev steps in

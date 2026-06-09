@@ -177,6 +177,26 @@ export function isBackupsSupported(): boolean {
   );
 }
 
+/**
+ * Ask the browser to mark our origin's storage as "persistent" so the
+ * snapshots (and crate history) are not silently evicted under quota
+ * pressure. Best-effort: Chrome typically grants automatically for sites
+ * with engagement, Firefox prompts the user, Safari ignores. Failures
+ * are non-fatal — the worst case is the default "best-effort" mode that
+ * we'd have had anyway. Returns the resolved `persisted` state when
+ * available, or `null` if the API is unsupported.
+ */
+export async function requestPersistentStorage(): Promise<boolean | null> {
+  if (typeof navigator === 'undefined' || !navigator.storage?.persist) return null;
+  try {
+    const already = navigator.storage.persisted ? await navigator.storage.persisted() : false;
+    if (already) return true;
+    return await navigator.storage.persist();
+  } catch {
+    return null;
+  }
+}
+
 /** List all snapshots, newest first. Blobs are not included. */
 export async function listBackups(): Promise<BackupMeta[]> {
   const db = await openDb();
