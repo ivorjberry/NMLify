@@ -328,6 +328,26 @@ a { color: var(--accent); }
   font-size: 0.85rem;
 }
 
+/* Step 4 — cached collection file info line */
+.collection-cached-info {
+  margin: 4px 0 8px;
+  padding: 6px 10px;
+  background: #11151c;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 0.9rem;
+  color: var(--muted);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+.collection-cached-info strong {
+  color: var(--fg);
+  font-family: inherit;
+}
+.collection-cached-info .sep {
+  margin: 0 8px;
+  opacity: 0.5;
+}
+
 /* Step 5 — multi-source disk picker */
 .disk-sources-list {
   list-style: none;

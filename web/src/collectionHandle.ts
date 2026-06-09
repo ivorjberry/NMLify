@@ -22,9 +22,18 @@ const STORE = 'handle';
 const HANDLE_KEY = 'current';
 
 export interface CollectionHandleRecord {
-  /** Folder/file display name at the time it was picked. Useful as a
-   *  status hint if the cached file later becomes unreachable. */
+  /** File name at the time it was picked. Browsers deliberately don't
+   *  expose the parent folder for security; we lean on size + mtime
+   *  below to distinguish multiple files that share this name. */
   displayName: string;
+  /** File size in bytes at the time it was last loaded. Cached so we can
+   *  show an identifying line in the UI before the user has re-granted
+   *  read access on a reload. */
+  size: number;
+  /** File mtime in epoch milliseconds at the time it was last loaded.
+   *  Same rationale as `size` — helps the user tell two same-named
+   *  collections apart at a glance. */
+  lastModified: number;
   handle: FileSystemFileHandle;
 }
 

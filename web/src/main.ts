@@ -122,6 +122,7 @@ const collectionPickRow = el<HTMLElement>('collection-pick-row');
 const collectionFallbackRow = el<HTMLElement>('collection-fallback-row');
 const collectionPickBtn = el<HTMLButtonElement>('collection-pick-btn');
 const collectionForgetBtn = el<HTMLButtonElement>('collection-forget-btn');
+const collectionCachedInfo = el<HTMLElement>('collection-cached-info');
 const collectionStatus = el<HTMLElement>('collection-status');
 const fuzzyRatioInput = el<HTMLInputElement>('fuzzy-ratio-input');
 const matchBtn = el<HTMLButtonElement>('match-btn');
@@ -414,6 +415,41 @@ if (supportsCollectionHandle) {
   collectionFallbackRow.classList.add('hidden');
 }
 
+/** Show an identifying line for the cached collection file. We can't
+ *  surface the parent folder (browsers don't expose it for picked
+ *  files), so we lean on filename + size + last-modified — two
+ *  collection.nml files from different Traktor setups will basically
+ *  never share both values. Pass `null` to hide. */
+function renderCachedInfo(
+  info: { displayName: string; size: number; lastModified: number } | null,
+): void {
+  if (!info) {
+    collectionCachedInfo.classList.add('hidden');
+    collectionCachedInfo.textContent = '';
+    return;
+  }
+  const absolute = new Date(info.lastModified).toLocaleString();
+  const relative = formatRelativeTime(info.lastModified);
+  collectionCachedInfo.innerHTML = '';
+  const name = document.createElement('strong');
+  name.textContent = info.displayName;
+  collectionCachedInfo.appendChild(name);
+  const sep1 = document.createElement('span');
+  sep1.className = 'sep';
+  sep1.textContent = '·';
+  collectionCachedInfo.appendChild(sep1);
+  collectionCachedInfo.appendChild(document.createTextNode(formatBytes(info.size)));
+  const sep2 = document.createElement('span');
+  sep2.className = 'sep';
+  sep2.textContent = '·';
+  collectionCachedInfo.appendChild(sep2);
+  const mtime = document.createElement('span');
+  mtime.textContent = `modified ${relative}`;
+  mtime.title = absolute;
+  collectionCachedInfo.appendChild(mtime);
+  collectionCachedInfo.classList.remove('hidden');
+}
+
 collectionPickBtn.addEventListener('click', async () => {
   let handles: FileSystemFileHandle[];
   try {
@@ -446,7 +482,13 @@ collectionPickBtn.addEventListener('click', async () => {
   // Persist after a successful read so we don't cache a handle for a
   // file the browser refused us access to.
   if (loadedCollection) {
-    void saveCollectionHandle({ displayName: file.name, handle });
+    const info = {
+      displayName: file.name,
+      size: file.size,
+      lastModified: file.lastModified,
+    };
+    void saveCollectionHandle({ ...info, handle });
+    renderCachedInfo(info);
     collectionForgetBtn.classList.remove('hidden');
   }
 });
@@ -454,6 +496,7 @@ collectionPickBtn.addEventListener('click', async () => {
 collectionForgetBtn.addEventListener('click', async () => {
   await clearCollectionHandle();
   collectionForgetBtn.classList.add('hidden');
+  renderCachedInfo(null);
   collectionStatus.textContent = 'Cleared cached collection file. Pick one above to load it again.';
   collectionStatus.className = 'status';
 });
@@ -468,6 +511,11 @@ async function restoreCachedCollection(): Promise<void> {
   }
   if (!record) return;
   collectionForgetBtn.classList.remove('hidden');
+  renderCachedInfo({
+    displayName: record.displayName,
+    size: record.size,
+    lastModified: record.lastModified,
+  });
 
   const permission = await queryHandlePermission(record.handle);
   if (permission === 'granted') {
@@ -475,6 +523,14 @@ async function restoreCachedCollection(): Promise<void> {
     try {
       const file = await record.handle.getFile();
       await loadCollectionFromFile(file);
+      // Refresh size/mtime in case the file changed since we cached it.
+      const info = {
+        displayName: file.name,
+        size: file.size,
+        lastModified: file.lastModified,
+      };
+      renderCachedInfo(info);
+      void saveCollectionHandle({ ...info, handle: record.handle });
     } catch {
       collectionStatus.textContent =
         `Couldn't read the cached "${record.displayName}". Pick it again to refresh.`;
@@ -507,6 +563,13 @@ function showRegrantButton(record: CollectionHandleRecord): void {
       try {
         const file = await record.handle.getFile();
         await loadCollectionFromFile(file);
+        const info = {
+          displayName: file.name,
+          size: file.size,
+          lastModified: file.lastModified,
+        };
+        renderCachedInfo(info);
+        void saveCollectionHandle({ ...info, handle: record.handle });
       } catch (err) {
         collectionStatus.textContent =
           err instanceof Error ? `Couldn't read file: ${err.message}` : `Couldn't read file.`;
