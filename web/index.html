@@ -151,6 +151,24 @@
 
       <div id="disk-groups"></div>
     </section>
+
+    <section id="backups-section" class="card">
+      <h2>6. Collection backups</h2>
+      <p>
+        Each time you load a <code>collection.nml</code>, NMLify saves a
+        compressed snapshot here. If Traktor corrupts your collection
+        during a playlist import, download the most recent snapshot and
+        replace <code>collection.nml</code> in your Traktor folder to
+        roll back.
+      </p>
+      <p class="hint">
+        Snapshots live in this browser only — they're never uploaded.
+        We keep the most recent 10 and prune older ones automatically.
+        Reloading the same file does not create a duplicate.
+      </p>
+      <p id="backups-status" class="status"></p>
+      <ol id="backups-list" class="backups-list"></ol>
+    </section>
   </main>
 
   <script type="module" src="/src/main.ts"></script>

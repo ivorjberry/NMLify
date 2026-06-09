@@ -266,3 +266,52 @@ a { color: var(--accent); }
   padding: 2px 0;
   color: var(--muted);
 }
+
+.backups-list {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.backups-list:empty::before {
+  content: "No snapshots yet — load a collection.nml above to capture one.";
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-style: italic;
+}
+.backup-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 10px;
+  background: #11151c;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+.backup-meta {
+  flex: 1;
+  min-width: 0;
+}
+.backup-meta-line {
+  display: block;
+  font-size: 0.95rem;
+}
+.backup-meta-sub {
+  display: block;
+  color: var(--muted);
+  font-size: 0.82rem;
+  margin-top: 2px;
+}
+.backup-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.backup-actions button {
+  padding: 4px 10px;
+  font-size: 0.85rem;
+}
+
+

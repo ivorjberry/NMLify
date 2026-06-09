@@ -19,6 +19,17 @@ import {
   startLogin,
 } from './auth';
 import {
+  backupDownloadFilename,
+  type BackupMeta,
+  deleteBackup,
+  formatBytes,
+  formatRelativeTime,
+  isBackupsSupported,
+  listBackups,
+  restoreBackup,
+  saveBackup,
+} from './backups';
+import {
   buildCollectionIndex,
   fuzzySearch,
   type TokenIndex,
@@ -112,6 +123,10 @@ const diskSelectAllBtn = el<HTMLButtonElement>('disk-select-all-btn');
 const diskDeselectAllBtn = el<HTMLButtonElement>('disk-deselect-all-btn');
 const diskSelectTopNBtn = el<HTMLButtonElement>('disk-select-top-n-btn');
 const diskTopNInput = el<HTMLInputElement>('disk-top-n-input');
+
+// Step-6 backups card
+const backupsStatus = el<HTMLElement>('backups-status');
+const backupsList = el<HTMLOListElement>('backups-list');
 
 redirectUriDisplay.textContent = REDIRECT_URI;
 
@@ -292,6 +307,8 @@ collectionFileInput.addEventListener('change', async () => {
     collectionStatus.textContent = `Loaded ${entries.length} entries from ${file.name}.`;
     collectionStatus.className = 'status ok';
     refreshMatchButton();
+    // Fire-and-forget snapshot; never block the matching flow on it.
+    void snapshotCollection(xml, file.name, entries.length);
   } catch (err) {
     loadedCollection = null;
     collectionIndex = null;
@@ -655,6 +672,135 @@ function triggerDownload(filename: string, content: string): void {
   setTimeout(() => URL.revokeObjectURL(url), 0);
 }
 
+// ---------- Backups ------------------------------------------------------
+
+/**
+ * Persist the just-loaded collection to the IndexedDB ring buffer and
+ * refresh the Backups card. Failures (quota, private mode, unsupported
+ * browser) are surfaced inline but never block the matching flow.
+ */
+async function snapshotCollection(
+  xml: string,
+  filename: string,
+  entryCount: number,
+): Promise<void> {
+  if (!isBackupsSupported()) {
+    backupsStatus.textContent =
+      'This browser cannot store snapshots (IndexedDB or CompressionStream unavailable).';
+    backupsStatus.className = 'status warn';
+    return;
+  }
+  try {
+    const result = await saveBackup(xml, filename, entryCount);
+    backupsStatus.textContent = result.created
+      ? `Snapshot saved (${entryCount} entries, ${formatBytes(xml.length)} uncompressed).`
+      : 'Identical snapshot already on file — nothing new to save.';
+    backupsStatus.className = 'status ok';
+    await renderBackups();
+  } catch (err) {
+    backupsStatus.textContent =
+      err instanceof Error ? `Snapshot failed: ${err.message}` : 'Snapshot failed.';
+    backupsStatus.className = 'status err';
+  }
+}
+
+async function renderBackups(): Promise<void> {
+  if (!isBackupsSupported()) {
+    backupsList.innerHTML = '';
+    return;
+  }
+  let items: BackupMeta[];
+  try {
+    items = await listBackups();
+  } catch (err) {
+    backupsList.innerHTML = '';
+    backupsStatus.textContent =
+      err instanceof Error ? `Could not load snapshots: ${err.message}` : 'Could not load snapshots.';
+    backupsStatus.className = 'status err';
+    return;
+  }
+  backupsList.innerHTML = '';
+  const now = Date.now();
+  const frag = document.createDocumentFragment();
+  for (const item of items) {
+    frag.appendChild(renderBackupRow(item, now));
+  }
+  backupsList.appendChild(frag);
+}
+
+function renderBackupRow(item: BackupMeta, now: number): HTMLLIElement {
+  const li = document.createElement('li');
+  li.className = 'backup-row';
+
+  const meta = document.createElement('div');
+  meta.className = 'backup-meta';
+
+  const main = document.createElement('span');
+  main.className = 'backup-meta-line';
+  const absolute = new Date(item.timestamp).toLocaleString();
+  main.textContent = `${formatRelativeTime(item.timestamp, now)} — ${item.filename}`;
+  main.title = absolute;
+  meta.appendChild(main);
+
+  const sub = document.createElement('span');
+  sub.className = 'backup-meta-sub';
+  sub.textContent = `${item.entryCount.toLocaleString()} entries · ${formatBytes(item.byteSize)} · ${absolute}`;
+  meta.appendChild(sub);
+
+  li.appendChild(meta);
+
+  const actions = document.createElement('div');
+  actions.className = 'backup-actions';
+
+  const downloadButton = document.createElement('button');
+  downloadButton.type = 'button';
+  downloadButton.textContent = 'Download .nml';
+  downloadButton.title =
+    'Download this snapshot. To restore in Traktor, quit Traktor and replace collection.nml in your Traktor folder with this file.';
+  downloadButton.addEventListener('click', () => {
+    void handleBackupDownload(item, downloadButton);
+  });
+  actions.appendChild(downloadButton);
+
+  const delButton = document.createElement('button');
+  delButton.type = 'button';
+  delButton.className = 'secondary';
+  delButton.textContent = 'Delete';
+  delButton.addEventListener('click', () => {
+    void handleBackupDelete(item);
+  });
+  actions.appendChild(delButton);
+
+  li.appendChild(actions);
+  return li;
+}
+
+async function handleBackupDownload(item: BackupMeta, button: HTMLButtonElement): Promise<void> {
+  const originalLabel = button.textContent;
+  button.disabled = true;
+  button.textContent = 'Preparing…';
+  try {
+    const { xml, filename, timestamp } = await restoreBackup(item.id);
+    triggerDownload(backupDownloadFilename(timestamp, filename), xml);
+  } catch (err) {
+    showError(err);
+  } finally {
+    button.disabled = false;
+    button.textContent = originalLabel;
+  }
+}
+
+async function handleBackupDelete(item: BackupMeta): Promise<void> {
+  const when = new Date(item.timestamp).toLocaleString();
+  if (!window.confirm(`Delete snapshot from ${when}? This can't be undone.`)) return;
+  try {
+    await deleteBackup(item.id);
+    await renderBackups();
+  } catch (err) {
+    showError(err);
+  }
+}
+
 // ---------- Misc ----------------------------------------------------------
 
 function escapeHtml(s: string): string {
@@ -715,4 +861,5 @@ function showError(err: unknown): void {
 
   refreshAuthUI();
   refreshMatchButton();
+  void renderBackups();
 })();
