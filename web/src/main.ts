@@ -52,6 +52,7 @@ import {
   scanFileList,
   type WalkableDirectoryHandle,
 } from './diskSearch';
+import { readTagsFromBlob } from './diskTags';
 import {
   addSource as addSourceRecord,
   type DiskSourceKind,
@@ -838,6 +839,11 @@ interface InMemorySource {
   /** Human-readable status for this row (empty if nothing to say). */
   rowStatus: string;
   rowStatusKind: '' | 'ok' | 'warn' | 'err';
+  /** When true, the next scan reads each audio file's ID3/MP4/Vorbis tags
+   *  for higher-precision matching. Off by default — it's an order of
+   *  magnitude slower than a plain filename walk. In-memory only; not
+   *  persisted across reloads (the user opts in per scan). */
+  readTags: boolean;
 }
 
 const sources: InMemorySource[] = [];
@@ -938,11 +944,32 @@ async function scanSource(source: InMemorySource): Promise<void> {
         setSourceStatus(source, `Scanning… ${count.toLocaleString()} files seen`, '');
         renderSources();
       },
+      source.readTags
+        ? {
+            readTags: readTagsFromBlob,
+            // Throttle UI updates — onTagProgress fires once per file but
+            // re-rendering after every single one chokes huge libraries.
+            onTagProgress: (done, total) => {
+              if (done === total || done % 25 === 0) {
+                setSourceStatus(
+                  source,
+                  `Reading tags… ${done.toLocaleString()} of ${total.toLocaleString()} files`,
+                  '',
+                );
+                renderSources();
+              }
+            },
+          }
+        : undefined,
     );
     source.files = scanned;
+    const tagged = scanned.filter((f) => f.tags).length;
+    const suffix = source.readTags
+      ? ` (${tagged.toLocaleString()} with tags).`
+      : '.';
     setSourceStatus(
       source,
-      `Indexed ${scanned.length.toLocaleString()} audio file${scanned.length === 1 ? '' : 's'}.`,
+      `Indexed ${scanned.length.toLocaleString()} audio file${scanned.length === 1 ? '' : 's'}${suffix}`,
       scanned.length > 0 ? 'ok' : 'warn',
     );
   } catch (err) {
@@ -999,15 +1026,64 @@ async function repickFallback(source: InMemorySource): Promise<void> {
   source.busy = true;
   setSourceStatus(source, 'Indexing files…', '');
   renderSources();
+  const filesArr = Array.from(files);
   const scannable = scanFileList(
-    Array.from(files).map((f) => ({ name: f.name, webkitRelativePath: f.webkitRelativePath })),
+    filesArr.map((f) => ({ name: f.name, webkitRelativePath: f.webkitRelativePath })),
     source.rootPrefix,
   );
+  // Tag-read pass on the legacy-picker path: we already have File blobs
+  // from the <input>. scanFileList filters in order, so we walk filesArr
+  // and consume one slot from `scannable` for each match — keeping the
+  // (DiskFile, File) pairing without rebuilding keys.
+  if (source.readTags && scannable.length > 0) {
+    const pairs: Array<{ df: DiskFile; blob: File }> = [];
+    let s = 0;
+    for (const f of filesArr) {
+      if (s >= scannable.length) break;
+      const df = scannable[s]!;
+      // scanFileList only keeps audio files, in input order — a File
+      // matches the next scannable slot iff their filenames agree.
+      if (f.name === df.filename) {
+        pairs.push({ df, blob: f });
+        s += 1;
+      }
+    }
+    const concurrency = 4;
+    let done = 0;
+    let next = 0;
+    async function worker(): Promise<void> {
+      while (true) {
+        const i = next;
+        next += 1;
+        if (i >= pairs.length) return;
+        const { df, blob } = pairs[i]!;
+        try {
+          const tags = await readTagsFromBlob(blob);
+          if (tags) df.tags = tags;
+        } catch {
+          // Per-file failure is non-fatal.
+        }
+        done += 1;
+        if (done === pairs.length || done % 25 === 0) {
+          setSourceStatus(
+            source,
+            `Reading tags… ${done.toLocaleString()} of ${pairs.length.toLocaleString()} files`,
+            '',
+          );
+          renderSources();
+        }
+      }
+    }
+    const n = Math.max(1, Math.min(concurrency, pairs.length));
+    await Promise.all(Array.from({ length: n }, worker));
+  }
   source.files = scannable;
   source.busy = false;
+  const tagged = scannable.filter((f) => f.tags).length;
+  const tagSuffix = source.readTags ? ` (${tagged.toLocaleString()} with tags)` : '';
   setSourceStatus(
     source,
-    `Indexed ${scannable.length.toLocaleString()} audio file${scannable.length === 1 ? '' : 's'} (of ${files.length.toLocaleString()} total in folder).`,
+    `Indexed ${scannable.length.toLocaleString()} audio file${scannable.length === 1 ? '' : 's'}${tagSuffix} (of ${files.length.toLocaleString()} total in folder).`,
     scannable.length > 0 ? 'ok' : 'warn',
   );
   rebuildCombinedIndex();
@@ -1056,6 +1132,7 @@ async function addFsaSource(): Promise<void> {
     rowStatus:
       'Folder added. Click "Scan" to index its filenames. The Root path below is optional — fill it in only if you plan to export a Traktor playlist, so it can locate files on disk.',
     rowStatusKind: '',
+    readTags: false,
   };
   sources.push(source);
   renderSources();
@@ -1090,6 +1167,7 @@ async function addFallbackSource(): Promise<void> {
     rowStatus:
       'Click "Pick folder…" to index its filenames. The Root path below is optional — fill it in only if you plan to export a Traktor playlist, so it can locate files on disk.',
     rowStatusKind: '',
+    readTags: false,
   };
   sources.push(source);
   renderSources();
@@ -1187,6 +1265,27 @@ function renderSourceRow(source: InMemorySource): HTMLLIElement {
   prefixRow.appendChild(prefixLabel);
   li.appendChild(prefixRow);
 
+  // Per-row tag-read opt-in. Off by default — reading tags requires
+  // opening every audio file and parsing its header, which is 10–100×
+  // slower than the plain filename walk. When on, the matcher scores
+  // each candidate against the file's ARTIST/TITLE tags separately
+  // (much higher precision than fuzzy-matching the filename).
+  const tagsRow = document.createElement('div');
+  tagsRow.className = 'disk-source-tags-row';
+  const tagsLabel = document.createElement('label');
+  tagsLabel.className = 'disk-source-tags-label';
+  const tagsCb = document.createElement('input');
+  tagsCb.type = 'checkbox';
+  tagsCb.checked = source.readTags;
+  tagsCb.disabled = source.busy;
+  tagsCb.addEventListener('change', () => {
+    source.readTags = tagsCb.checked;
+  });
+  tagsLabel.appendChild(tagsCb);
+  tagsLabel.appendChild(document.createTextNode(' Read file tags (slower, more accurate)'));
+  tagsRow.appendChild(tagsLabel);
+  li.appendChild(tagsRow);
+
   const actions = document.createElement('div');
   actions.className = 'disk-source-actions';
 
@@ -1263,6 +1362,7 @@ async function restoreSources(): Promise<void> {
             ? 'Rescanning…'
             : 'Click "Grant access" to re-authorize this folder.',
         rowStatusKind: '',
+        readTags: false,
       };
       sources.push(source);
       if (permission === 'granted') {
@@ -1281,6 +1381,7 @@ async function restoreSources(): Promise<void> {
         busy: false,
         rowStatus: 'Re-pick the folder to use it this session.',
         rowStatusKind: '',
+        readTags: false,
       });
     }
   }
@@ -1293,6 +1394,20 @@ void restoreSources();
 diskMatchBtn.addEventListener('click', () => {
   void runDiskMatch();
 });
+
+/** Build the headline shown for a disk-match candidate. Prefers ID3/MP4
+ *  tags when present (e.g. "Daft Punk — One More Time") so the user sees
+ *  curated metadata rather than the raw filename; falls back to the
+ *  parsed filename, then the bare filename. */
+function candidateDisplayPrimary(file: DiskFile): string {
+  const t = file.tags;
+  if (t && (t.artist || t.title)) {
+    const artist = t.artist?.trim() || '(unknown artist)';
+    const title = t.title?.trim() || file.parsedName || file.filename;
+    return `${artist} — ${title}`;
+  }
+  return file.parsedName || file.filename;
+}
 
 /** Disk-match runner — yields to the event loop every N tracks so the
  *  status text actually paints and we have a chance to surface errors
@@ -1360,9 +1475,11 @@ async function runDiskMatch(): Promise<void> {
           score: m.score,
           // Show what we actually know about the file on disk, not the
           // searched-for Spotify title (the entry still carries the
-          // Spotify metadata for the eventual Traktor export).
+          // Spotify metadata for the eventual Traktor export). Prefer
+          // ID3/MP4 tags when present; otherwise fall back to the
+          // parsed filename.
           display: {
-            primary: m.file.parsedName || m.file.filename,
+            primary: candidateDisplayPrimary(m.file),
             path: m.file.relativeDir
               ? `${m.file.relativeDir}/${m.file.filename}`
               : m.file.filename,

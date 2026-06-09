@@ -403,6 +403,16 @@ a { color: var(--accent); }
 .disk-source-status {
   margin: 0;
 }
+.disk-source-tags-row {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+.disk-source-tags-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
 .disk-source-actions {
   display: flex;
   gap: 6px;

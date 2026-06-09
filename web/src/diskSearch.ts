@@ -26,6 +26,12 @@ export const AUDIO_EXTENSIONS: ReadonlySet<string> = new Set([
   '.mp4', '.stem.mp4',
 ]);
 
+export interface DiskFileTags {
+  artist?: string;
+  title?: string;
+  album?: string;
+}
+
 export interface DiskFile {
   /** Absolute path of the disk source this file came from, e.g.
    *  "D:\\Music\\Library". Stored per-file so a single combined index can
@@ -39,6 +45,11 @@ export interface DiskFile {
   /** Cleaned display name derived from filename (no extension, no leading
    *  track number, underscores replaced, whitespace collapsed). */
   parsedName: string;
+  /** Optional ID3/MP4/Vorbis tags read from the file. Populated only when
+   *  the user opts in to tag-reading during the scan, since it's an order
+   *  of magnitude slower than a plain filename walk. When present, the
+   *  matcher prefers tag fields over the parsed filename for scoring. */
+  tags?: DiskFileTags;
 }
 
 export interface DiskMatch {
@@ -137,6 +148,25 @@ export interface WalkableDirectoryHandle {
 export interface WalkableFileHandle {
   kind: 'file';
   name: string;
+  /** Real FileSystemFileHandles expose this; tests typically don't. When
+   *  present and a TagReader is supplied to collectAudioFilesFromHandle,
+   *  it's used to read the file's audio metadata. */
+  getFile?(): Promise<File>;
+}
+
+/** Async function that parses a file's audio metadata. Injected from
+ *  diskTags.ts so this module stays free of the music-metadata dependency
+ *  and remains trivially unit-testable. */
+export type TagReader = (file: File) => Promise<DiskFileTags | undefined>;
+
+export interface CollectAudioFilesOptions {
+  /** Async function that parses tags from a File blob (see TagReader). */
+  readTags?: TagReader;
+  /** Fired as tags finish parsing: (done, total audio files). */
+  onTagProgress?: (done: number, total: number) => void;
+  /** How many tag reads to overlap. Browser file I/O benefits a lot from
+   *  parallelism on spinning disks; 4 is a safe default. */
+  tagConcurrency?: number;
 }
 
 /**
@@ -155,8 +185,12 @@ export async function collectAudioFilesFromHandle(
   rootHandle: WalkableDirectoryHandle,
   rootPrefix: string,
   onProgress?: (filesSeen: number) => void,
+  options: CollectAudioFilesOptions = {},
 ): Promise<DiskFile[]> {
   const out: DiskFile[] = [];
+  // Parallel to out[]: holds the file handle so an optional tag-read pass
+  // can reach back into the file. Discarded before return.
+  const handles: WalkableFileHandle[] = [];
   let seen = 0;
 
   async function walk(handle: WalkableDirectoryHandle, relativeDir: string): Promise<void> {
@@ -170,6 +204,7 @@ export async function collectAudioFilesFromHandle(
             filename: entry.name,
             parsedName: parseFilename(entry.name),
           });
+          handles.push(entry);
         }
         if (onProgress && seen % 500 === 0) onProgress(seen);
       } else if (entry.kind === 'directory') {
@@ -181,22 +216,80 @@ export async function collectAudioFilesFromHandle(
 
   await walk(rootHandle, '');
   if (onProgress) onProgress(seen);
+
+  const { readTags, onTagProgress, tagConcurrency = 4 } = options;
+  if (readTags && out.length > 0) {
+    await enrichWithTags(out, handles, readTags, tagConcurrency, onTagProgress);
+  }
+
   return out;
 }
 
-/** Inverted index from cleaned-filename tokens to file indices. */
+/** Drive `readTags` over the (file, handle) pairs with bounded concurrency.
+ *  Individual failures are swallowed — a missing or corrupt tag should
+ *  never abort the scan; the file just falls back to filename matching. */
+async function enrichWithTags(
+  files: DiskFile[],
+  handles: WalkableFileHandle[],
+  readTags: TagReader,
+  concurrency: number,
+  onProgress?: (done: number, total: number) => void,
+): Promise<void> {
+  const total = files.length;
+  let done = 0;
+  let next = 0;
+
+  async function worker(): Promise<void> {
+    while (true) {
+      const i = next;
+      next += 1;
+      if (i >= total) return;
+      const handle = handles[i];
+      const file = files[i];
+      if (file && handle && typeof handle.getFile === 'function') {
+        try {
+          const blob = await handle.getFile();
+          const tags = await readTags(blob);
+          if (tags) file.tags = tags;
+        } catch {
+          // Per-file failure is non-fatal; move on.
+        }
+      }
+      done += 1;
+      if (onProgress) {
+        try {
+          onProgress(done, total);
+        } catch {
+          // Never let a UI listener take down the scan.
+        }
+      }
+    }
+  }
+
+  const n = Math.max(1, Math.min(concurrency, total));
+  await Promise.all(Array.from({ length: n }, worker));
+}
+
+/** Inverted index from cleaned-filename tokens to file indices. When a
+ *  file has tags, those tokens are also indexed so tag-only matches still
+ *  survive the prefilter. */
 export function buildFileIndex(files: DiskFile[]): DiskFileIndex {
   const byToken = new Map<string, Set<number>>();
+  function add(token: string, i: number): void {
+    let bucket = byToken.get(token);
+    if (!bucket) {
+      bucket = new Set<number>();
+      byToken.set(token, bucket);
+    }
+    bucket.add(i);
+  }
   for (let i = 0; i < files.length; i += 1) {
     const file = files[i];
     if (!file) continue;
-    for (const token of tokenize(file.parsedName)) {
-      let bucket = byToken.get(token);
-      if (!bucket) {
-        bucket = new Set<number>();
-        byToken.set(token, bucket);
-      }
-      bucket.add(i);
+    for (const token of tokenize(file.parsedName)) add(token, i);
+    if (file.tags) {
+      if (file.tags.title) for (const t of tokenize(file.tags.title)) add(t, i);
+      if (file.tags.artist) for (const t of tokenize(file.tags.artist)) add(t, i);
     }
   }
   return { files, byToken };
@@ -237,13 +330,40 @@ export function fuzzyMatchFiles(
   for (let i = 0; i < notFoundTracks.length; i += 1) {
     const trackStr = notFoundTracks[i]!;
     const trackLower = trackStr.toLowerCase();
+    // Pre-split the search string once per track. When a file has tags
+    // we score artist-vs-tag-artist and title-vs-tag-title separately,
+    // mirroring how the NML collection match works.
+    const sepIdx = trackStr.indexOf(' - ');
+    const queryArtist = sepIdx > 0 ? trackStr.slice(0, sepIdx).trim().toLowerCase() : '';
+    const queryTitle = sepIdx > 0 ? trackStr.slice(sepIdx + 3).trim().toLowerCase() : trackLower;
     const matches: DiskMatch[] = [];
 
     for (const idx of collectCandidates(trackLower, index)) {
       const file = index.files[idx];
       if (!file) continue;
-      const parsedLower = file.parsedName.toLowerCase();
-      const score = fuzzRatio(trackLower, parsedLower);
+
+      let score: number;
+      const tagTitle = file.tags?.title?.toLowerCase() ?? '';
+      const tagArtist = file.tags?.artist?.toLowerCase() ?? '';
+      if (tagTitle || tagArtist) {
+        // Tag path: average the available axes. Missing one side collapses
+        // to the other so a file with only a TITLE tag still gets a
+        // meaningful score.
+        const titleScore = tagTitle ? fuzzRatio(queryTitle, tagTitle) : 0;
+        const artistScore = tagArtist && queryArtist ? fuzzRatio(queryArtist, tagArtist) : 0;
+        if (tagTitle && tagArtist && queryArtist) {
+          score = Math.floor((titleScore + artistScore) / 2);
+        } else if (tagTitle) {
+          score = titleScore;
+        } else {
+          score = artistScore;
+        }
+      } else {
+        // No tags \u2014 fall back to the parsed-filename comparison.
+        const parsedLower = file.parsedName.toLowerCase();
+        score = fuzzRatio(trackLower, parsedLower);
+      }
+
       if (score > fuzzyRatio) {
         matches.push({ file, score });
       }

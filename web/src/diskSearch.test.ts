@@ -170,6 +170,111 @@ describe('buildFileIndex + fuzzyMatchFiles', () => {
       [3, 3],
     ]);
   });
+
+  it('uses ID3/MP4 tags when present, scoring artist and title separately', () => {
+    // The filename is a noisy "DJ rip" form that wouldn't match the
+    // Spotify query on its own (low ratio against the long, padded
+    // filename). With tags supplied, the matcher scores
+    // queryArtist ↔ tagArtist and queryTitle ↔ tagTitle, averaged.
+    const idx = buildFileIndex([
+      {
+        rootPrefix: ROOT,
+        relativeDir: 'rips',
+        filename: '01 - dj snake mix - track id - id - 128bpm.mp3',
+        parsedName: '- dj snake mix - track id - id - 128bpm',
+        tags: { artist: 'Daft Punk', title: 'One More Time' },
+      },
+    ]);
+    const got = fuzzyMatchFiles(['Daft Punk - One More Time'], idx, 90);
+    const matches = got.get('Daft Punk - One More Time');
+    expect(matches).toBeDefined();
+    expect(matches!.length).toBe(1);
+    expect(matches![0]!.score).toBeGreaterThanOrEqual(90);
+  });
+
+  it('falls back to filename scoring when a candidate has no tags', () => {
+    const idx = buildFileIndex([
+      {
+        rootPrefix: ROOT,
+        relativeDir: '',
+        filename: 'daft punk - one more time.mp3',
+        parsedName: 'daft punk - one more time',
+        // No tags.
+      },
+    ]);
+    const got = fuzzyMatchFiles(['Daft Punk - One More Time'], idx, 70);
+    expect(got.get('Daft Punk - One More Time')).toBeDefined();
+  });
+
+  it('indexes tag tokens so tag-only matches survive the prefilter', () => {
+    // The filename and parsedName share no token with the search query,
+    // so without tag-token indexing the prefilter would drop this file.
+    const idx = buildFileIndex([
+      {
+        rootPrefix: ROOT,
+        relativeDir: '',
+        filename: 'track-001.mp3',
+        parsedName: 'track-001',
+        tags: { artist: 'Queen', title: 'Bohemian Rhapsody' },
+      },
+    ]);
+    const got = fuzzyMatchFiles(['Queen - Bohemian Rhapsody'], idx, 90);
+    expect(got.get('Queen - Bohemian Rhapsody')).toBeDefined();
+  });
+});
+
+describe('collectAudioFilesFromHandle tag enrichment', () => {
+  it('invokes the readTags callback for each audio file and attaches returned tags', async () => {
+    type Walk = WalkableDirectoryHandle;
+    const stubFile = (name: string): WalkableFileHandle => ({
+      kind: 'file',
+      name,
+      getFile: async () =>
+        new File([new Uint8Array([0])], name, { type: 'audio/mpeg' }),
+    });
+    const root: Walk = {
+      kind: 'directory',
+      name: 'root',
+      values: async function* () {
+        yield stubFile('a.mp3');
+        yield stubFile('b.flac');
+        yield { kind: 'file', name: 'notes.txt' } as WalkableFileHandle; // non-audio, skipped
+      },
+    };
+    const seenNames: string[] = [];
+    const readTags = async (f: File) => {
+      seenNames.push(f.name);
+      return { artist: 'A', title: f.name };
+    };
+    const out = await collectAudioFilesFromHandle(root, 'D:\\Music', undefined, {
+      readTags,
+    });
+    expect(out.map((f) => f.filename).sort()).toEqual(['a.mp3', 'b.flac']);
+    expect(seenNames.sort()).toEqual(['a.mp3', 'b.flac']);
+    expect(out.every((f) => f.tags?.artist === 'A')).toBe(true);
+  });
+
+  it('skips tag-reading entirely when no readTags is provided (zero extra work)', async () => {
+    let getFileCalls = 0;
+    const root: WalkableDirectoryHandle = {
+      kind: 'directory',
+      name: 'root',
+      values: async function* () {
+        yield {
+          kind: 'file',
+          name: 'a.mp3',
+          getFile: async () => {
+            getFileCalls += 1;
+            return new File([new Uint8Array([0])], 'a.mp3');
+          },
+        };
+      },
+    };
+    const out = await collectAudioFilesFromHandle(root, 'D:\\Music');
+    expect(out.length).toBe(1);
+    expect(out[0]!.tags).toBeUndefined();
+    expect(getFileCalls).toBe(0);
+  });
 });
 
 describe('locationFromRelativePath', () => {
