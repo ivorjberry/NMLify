@@ -36,6 +36,13 @@ import {
   type TokenIndex,
 } from './collectionSearch';
 import {
+  clearCollectionHandle,
+  type CollectionHandleRecord,
+  isCollectionHandleSupported,
+  loadCollectionHandle,
+  saveCollectionHandle,
+} from './collectionHandle';
+import {
   buildFileIndex,
   collectAudioFilesFromHandle,
   type DiskFile,
@@ -111,6 +118,10 @@ const tracksList = el<HTMLUListElement>('tracks-list');
 
 // Step-3 review card
 const collectionFileInput = el<HTMLInputElement>('collection-file-input');
+const collectionPickRow = el<HTMLElement>('collection-pick-row');
+const collectionFallbackRow = el<HTMLElement>('collection-fallback-row');
+const collectionPickBtn = el<HTMLButtonElement>('collection-pick-btn');
+const collectionForgetBtn = el<HTMLButtonElement>('collection-forget-btn');
 const collectionStatus = el<HTMLElement>('collection-status');
 const fuzzyRatioInput = el<HTMLInputElement>('fuzzy-ratio-input');
 const matchBtn = el<HTMLButtonElement>('match-btn');
@@ -324,6 +335,14 @@ const diskView: ReviewView = {
 collectionFileInput.addEventListener('change', async () => {
   const file = collectionFileInput.files?.[0];
   if (!file) return;
+  await loadCollectionFromFile(file);
+});
+
+/** Shared collection-load helper. Reads the file, parses + indexes it,
+ *  updates the status line, and kicks off a backup snapshot. Used by
+ *  both the legacy `<input>` change handler and the File System Access
+ *  flow that restores a cached handle. */
+async function loadCollectionFromFile(file: File): Promise<void> {
   collectionStatus.textContent = `Reading ${file.name}…`;
   collectionStatus.className = 'status';
   try {
@@ -344,7 +363,165 @@ collectionFileInput.addEventListener('change', async () => {
     collectionStatus.className = 'status err';
     refreshMatchButton();
   }
+}
+
+// ---------- File System Access flow for collection.nml -------------------
+//
+// When supported (Chromium-family), we show a dedicated picker button
+// whose chosen `FileSystemFileHandle` is persisted to IndexedDB. On
+// reload we restore the handle, `queryPermission`, and either auto-load
+// silently (granted) or surface a "Re-grant access" button. Firefox /
+// Safari keep using the legacy `<input type="file">` row.
+
+type FsAccessOpenWindow = Window & {
+  showOpenFilePicker: (opts?: {
+    types?: { description?: string; accept?: Record<string, string[]> }[];
+    excludeAcceptAllOption?: boolean;
+    multiple?: boolean;
+  }) => Promise<FileSystemFileHandle[]>;
+};
+
+interface PermissionFileHandle extends FileSystemFileHandle {
+  queryPermission?: (d: { mode: 'read' | 'readwrite' }) => Promise<'granted' | 'denied' | 'prompt'>;
+  requestPermission?: (d: { mode: 'read' | 'readwrite' }) => Promise<'granted' | 'denied' | 'prompt'>;
+}
+
+async function queryHandlePermission(handle: FileSystemFileHandle): Promise<'granted' | 'denied' | 'prompt' | 'unknown'> {
+  const ph = handle as PermissionFileHandle;
+  if (typeof ph.queryPermission !== 'function') return 'unknown';
+  try {
+    return await ph.queryPermission({ mode: 'read' });
+  } catch {
+    return 'unknown';
+  }
+}
+
+async function requestHandlePermission(handle: FileSystemFileHandle): Promise<'granted' | 'denied' | 'prompt' | 'unknown'> {
+  const ph = handle as PermissionFileHandle;
+  if (typeof ph.requestPermission !== 'function') return 'unknown';
+  try {
+    return await ph.requestPermission({ mode: 'read' });
+  } catch {
+    return 'denied';
+  }
+}
+
+const supportsCollectionHandle = isCollectionHandleSupported();
+if (supportsCollectionHandle) {
+  // Hide the legacy picker entirely on FSA browsers — the dedicated
+  // button is friendlier and we can persist the chosen file.
+  collectionPickRow.classList.remove('hidden');
+  collectionFallbackRow.classList.add('hidden');
+}
+
+collectionPickBtn.addEventListener('click', async () => {
+  let handles: FileSystemFileHandle[];
+  try {
+    handles = await (window as unknown as FsAccessOpenWindow).showOpenFilePicker({
+      types: [{ description: 'Traktor collection', accept: { 'application/xml': ['.nml'] } }],
+      excludeAcceptAllOption: false,
+      multiple: false,
+    });
+  } catch (err) {
+    if ((err as { name?: string })?.name === 'AbortError') return;
+    collectionStatus.textContent =
+      err instanceof Error ? `Could not open file: ${err.message}` : 'Could not open file.';
+    collectionStatus.className = 'status err';
+    return;
+  }
+  const handle = handles[0];
+  if (!handle) return;
+
+  let file: File;
+  try {
+    file = await handle.getFile();
+  } catch (err) {
+    collectionStatus.textContent =
+      err instanceof Error ? `Could not read file: ${err.message}` : 'Could not read file.';
+    collectionStatus.className = 'status err';
+    return;
+  }
+
+  await loadCollectionFromFile(file);
+  // Persist after a successful read so we don't cache a handle for a
+  // file the browser refused us access to.
+  if (loadedCollection) {
+    void saveCollectionHandle({ displayName: file.name, handle });
+    collectionForgetBtn.classList.remove('hidden');
+  }
 });
+
+collectionForgetBtn.addEventListener('click', async () => {
+  await clearCollectionHandle();
+  collectionForgetBtn.classList.add('hidden');
+  collectionStatus.textContent = 'Cleared cached collection file. Pick one above to load it again.';
+  collectionStatus.className = 'status';
+});
+
+async function restoreCachedCollection(): Promise<void> {
+  if (!supportsCollectionHandle) return;
+  let record: CollectionHandleRecord | null;
+  try {
+    record = await loadCollectionHandle();
+  } catch {
+    return;
+  }
+  if (!record) return;
+  collectionForgetBtn.classList.remove('hidden');
+
+  const permission = await queryHandlePermission(record.handle);
+  if (permission === 'granted') {
+    // Silent restore: read the file as if the user had just picked it.
+    try {
+      const file = await record.handle.getFile();
+      await loadCollectionFromFile(file);
+    } catch {
+      collectionStatus.textContent =
+        `Couldn't read the cached "${record.displayName}". Pick it again to refresh.`;
+      collectionStatus.className = 'status warn';
+    }
+    return;
+  }
+
+  // 'prompt' / 'denied' / 'unknown' — we can't read without a gesture.
+  // Surface a one-click re-grant button instead of a fresh picker.
+  collectionStatus.textContent = `"${record.displayName}" was cached from a previous session.`;
+  collectionStatus.className = 'status';
+  showRegrantButton(record);
+}
+
+function showRegrantButton(record: CollectionHandleRecord): void {
+  // Reuse the existing pick button as a "Re-grant access" affordance so
+  // the layout doesn't shift. Clicking it asks the browser to renew
+  // permission for the cached handle and then loads the file. If the
+  // user denies, we fall back to the normal pick flow on the next click.
+  const originalLabel = collectionPickBtn.textContent;
+  collectionPickBtn.textContent = `Re-grant access to ${record.displayName}`;
+  const onceHandler = async (e: Event) => {
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    collectionPickBtn.removeEventListener('click', onceHandler, true);
+    collectionPickBtn.textContent = originalLabel;
+    const result = await requestHandlePermission(record.handle);
+    if (result === 'granted') {
+      try {
+        const file = await record.handle.getFile();
+        await loadCollectionFromFile(file);
+      } catch (err) {
+        collectionStatus.textContent =
+          err instanceof Error ? `Couldn't read file: ${err.message}` : `Couldn't read file.`;
+        collectionStatus.className = 'status err';
+      }
+    } else {
+      collectionStatus.textContent =
+        'Access not granted. Click "Pick collection.nml…" to choose a file.';
+      collectionStatus.className = 'status warn';
+    }
+  };
+  collectionPickBtn.addEventListener('click', onceHandler, true);
+}
+
+void restoreCachedCollection();
 
 function refreshMatchButton(): void {
   matchBtn.disabled = !(loadedCollection && lastPlaylist);

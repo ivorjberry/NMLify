@@ -71,7 +71,12 @@
       <p>
         Pick your <code>collection.nml</code>. It's read locally in your browser — nothing is uploaded.
       </p>
-      <div class="row">
+      <div id="collection-pick-row" class="row hidden">
+        <button id="collection-pick-btn" type="button">Pick collection.nml…</button>
+        <button id="collection-forget-btn" type="button" class="secondary hidden">Forget cached file</button>
+        <span class="hint">We'll remember this file so you don't have to re-pick it on reload (you may be asked to re-confirm access).</span>
+      </div>
+      <div id="collection-fallback-row" class="row">
         <input id="collection-file-input" type="file" accept=".nml" />
       </div>
       <p id="collection-status" class="status"></p>
