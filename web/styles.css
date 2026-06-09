@@ -328,4 +328,92 @@ a { color: var(--accent); }
   font-size: 0.85rem;
 }
 
+/* Step 5 — multi-source disk picker */
+.disk-sources-list {
+  list-style: none;
+  margin: 8px 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.disk-source-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 12px;
+  background: #11151c;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+.disk-source-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.disk-source-kind {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  padding: 2px 6px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+.disk-source-count {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+.disk-source-prefix-row label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+.disk-source-prefix-row input {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+.disk-source-actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.disk-source-actions button {
+  padding: 4px 10px;
+  font-size: 0.85rem;
+}
+
+/* Collapsible Step 6 / Step 7 cards */
+#backups-section > details > summary,
+#crates-section > details > summary {
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+#backups-section > details > summary::-webkit-details-marker,
+#crates-section > details > summary::-webkit-details-marker {
+  display: none;
+}
+#backups-section > details > summary::before,
+#crates-section > details > summary::before {
+  content: "▸";
+  color: var(--muted);
+  font-size: 0.9rem;
+  transition: transform 120ms ease;
+  display: inline-block;
+}
+#backups-section > details[open] > summary::before,
+#crates-section > details[open] > summary::before {
+  transform: rotate(90deg);
+}
+#backups-section > details > summary > h2,
+#crates-section > details > summary > h2 {
+  display: inline;
+  margin: 0;
+}
+
 

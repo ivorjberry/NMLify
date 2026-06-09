@@ -46,6 +46,15 @@ import {
   type WalkableDirectoryHandle,
 } from './diskSearch';
 import {
+  addSource as addSourceRecord,
+  type DiskSourceKind,
+  type DiskSourceRecord,
+  isSourcesSupported,
+  listSources,
+  removeSource as removeSourceRecord,
+  updateSource as updateSourceRecord,
+} from './diskSources';
+import {
   type CrateMeta,
   type CrateSource,
   deleteCrate,
@@ -120,12 +129,10 @@ const downloadBtn = el<HTMLButtonElement>('download-btn');
 const playlistNameInput = el<HTMLInputElement>('playlist-name-input');
 
 // Step-5 disk search card
-const diskRootInput = el<HTMLInputElement>('disk-root-input');
-const diskDirInput = el<HTMLInputElement>('disk-dir-input');
-const diskPickRow = el<HTMLElement>('disk-pick-row');
-const diskFallbackRow = el<HTMLElement>('disk-fallback-row');
-const diskFallbackHint = el<HTMLElement>('disk-fallback-hint');
-const diskPickBtn = el<HTMLButtonElement>('disk-pick-btn');
+const diskSourcesList = el<HTMLOListElement>('disk-sources-list');
+const diskSourcesEmpty = el<HTMLElement>('disk-sources-empty');
+const diskAddSourceBtn = el<HTMLButtonElement>('disk-add-source-btn');
+const diskAddSourceHint = el<HTMLElement>('disk-add-source-hint');
 const diskScanStatus = el<HTMLElement>('disk-scan-status');
 const diskRatioInput = el<HTMLInputElement>('disk-ratio-input');
 const diskMatchBtn = el<HTMLButtonElement>('disk-match-btn');
@@ -284,7 +291,6 @@ fetchBtn.addEventListener('click', async () => {
 let loadedCollection: NmlEntry[] | null = null;
 let collectionIndex: { titleIndex: TokenIndex; artistIndex: TokenIndex } | null = null;
 let notFoundFromMatch: string[] = [];
-let diskFileIndex: DiskFileIndex | null = null;
 
 interface ReviewView {
   groups: ReviewGroup[];
@@ -555,114 +561,503 @@ selectTopNBtn.addEventListener('click', () => {
 });
 
 // ---------- Disk search --------------------------------------------------
+//
+// State model:
+//
+//   sources: ordered list of InMemorySource — one per folder the user has
+//   added. Each carries its own DiskFile[] (scanned filenames) plus the
+//   metadata persisted in IDB. The combined fuzzy index is rebuilt from
+//   `sources.flatMap(s => s.files)` whenever a source is added, removed,
+//   rescanned, or has its rootPrefix edited. Storing rootPrefix on each
+//   DiskFile means the combined index can span multiple drives without
+//   any per-source bookkeeping at match time.
+//
+//   Persistence: every UI-visible change goes through diskSources.ts so
+//   reloads come back to the same list. FSA handles are stored as
+//   structured clones inside IDB; on reload we call queryPermission and
+//   either auto-rescan ('granted') or show a "Grant access" button.
+//   Fallback (Firefox/Safari) sources can't persist a handle, so the
+//   user re-picks once per session and we remember the displayName +
+//   rootPrefix as a hint.
+
+interface InMemorySource {
+  recordId: number;
+  kind: DiskSourceKind;
+  displayName: string;
+  rootPrefix: string;
+  handle: FileSystemDirectoryHandle | null;
+  files: DiskFile[];
+  /** Last-known FSA permission state — used to show "Grant access" UI. */
+  permission: 'granted' | 'denied' | 'prompt' | 'unknown';
+  /** True while a scan / permission request is in flight. */
+  busy: boolean;
+  /** Human-readable status for this row (empty if nothing to say). */
+  rowStatus: string;
+  rowStatusKind: '' | 'ok' | 'warn' | 'err';
+}
+
+const sources: InMemorySource[] = [];
+let combinedIndex: DiskFileIndex | null = null;
+
+// Feature-detect the File System Access API. Chromium-family browsers
+// get a proper "grant read access" prompt (no scary "upload N files"
+// dialog) and we can persist the handle. Firefox/Safari fall back to a
+// per-row `<input type="file" webkitdirectory>` that has to be re-picked
+// each session.
+const supportsFsAccess = typeof window !== 'undefined' && 'showDirectoryPicker' in window;
+if (!supportsFsAccess) {
+  diskAddSourceHint.textContent =
+    'Firefox/Safari will show a one-time "upload N files" confirmation when you pick a large folder — nothing is uploaded.';
+}
+
+type FsAccessWindow = Window & {
+  showDirectoryPicker: (opts?: { mode?: 'read' | 'readwrite' }) => Promise<FileSystemDirectoryHandle>;
+};
+
+/** Bridge from the lib.dom FileSystemDirectoryHandle to our structural
+ *  WalkableDirectoryHandle. They're the same thing at runtime; the cast
+ *  just isolates us from minor lib.dom version drift. */
+function asWalkable(h: FileSystemDirectoryHandle): WalkableDirectoryHandle {
+  return h as unknown as WalkableDirectoryHandle;
+}
+
+interface PermissionHandle extends FileSystemDirectoryHandle {
+  queryPermission?: (d: { mode: 'read' | 'readwrite' }) => Promise<'granted' | 'denied' | 'prompt'>;
+  requestPermission?: (d: { mode: 'read' | 'readwrite' }) => Promise<'granted' | 'denied' | 'prompt'>;
+}
+
+async function checkPermission(handle: FileSystemDirectoryHandle): Promise<'granted' | 'denied' | 'prompt' | 'unknown'> {
+  const ph = handle as PermissionHandle;
+  if (typeof ph.queryPermission !== 'function') return 'unknown';
+  try {
+    return await ph.queryPermission({ mode: 'read' });
+  } catch {
+    return 'unknown';
+  }
+}
+
+async function requestPermission(handle: FileSystemDirectoryHandle): Promise<'granted' | 'denied' | 'prompt' | 'unknown'> {
+  const ph = handle as PermissionHandle;
+  if (typeof ph.requestPermission !== 'function') return 'unknown';
+  try {
+    return await ph.requestPermission({ mode: 'read' });
+  } catch {
+    return 'denied';
+  }
+}
+
+function rebuildCombinedIndex(): void {
+  const all: DiskFile[] = sources.flatMap((s) => s.files);
+  combinedIndex = all.length > 0 ? buildFileIndex(all) : null;
+}
+
+function totalSourceFiles(): number {
+  return sources.reduce((sum, s) => sum + s.files.length, 0);
+}
 
 function refreshDiskMatchButton(): void {
-  diskMatchBtn.disabled =
-    !diskFileIndex ||
-    diskFileIndex.files.length === 0 ||
-    notFoundFromMatch.length === 0 ||
-    diskRootInput.value.trim().length === 0;
+  // Require: at least one source has scanned files, no source with files
+  // has an empty rootPrefix (otherwise we can't build a Traktor LOCATION),
+  // and there are not-found tracks from the collection match to search for.
+  const haveFiles = totalSourceFiles() > 0;
+  const allPrefixed = sources.every((s) => s.files.length === 0 || s.rootPrefix.trim().length > 0);
+  diskMatchBtn.disabled = !haveFiles || !allPrefixed || notFoundFromMatch.length === 0;
 }
 
-diskRootInput.addEventListener('input', refreshDiskMatchButton);
-
-// Feature-detect the File System Access API. Chromium browsers get a
-// proper "grant read access" prompt with no scary "upload N files"
-// dialog; Firefox/Safari fall back to the legacy webkitdirectory input.
-const supportsFsAccess = typeof window !== 'undefined' && 'showDirectoryPicker' in window;
-if (supportsFsAccess) {
-  diskPickRow.classList.remove('hidden');
-} else {
-  diskFallbackRow.classList.remove('hidden');
-  diskFallbackHint.classList.remove('hidden');
+function setSourceStatus(source: InMemorySource, msg: string, kind: InMemorySource['rowStatusKind']): void {
+  source.rowStatus = msg;
+  source.rowStatusKind = kind;
 }
 
-diskPickBtn.addEventListener('click', async () => {
-  // showDirectoryPicker isn't in lib.dom yet in every TS version; narrow
-  // through a minimal local type rather than @ts-ignore.
-  type FsAccessWindow = Window & {
-    showDirectoryPicker: (opts?: { mode?: 'read' | 'readwrite' }) => Promise<WalkableDirectoryHandle>;
-  };
-  let handle: WalkableDirectoryHandle;
+/** Replace each file's rootPrefix in place so a prefix edit doesn't
+ *  require a rescan. Safe because files were originally pushed with the
+ *  source's then-current prefix. */
+function restampSourcePrefix(source: InMemorySource, newPrefix: string): void {
+  source.rootPrefix = newPrefix;
+  for (const f of source.files) f.rootPrefix = newPrefix;
+}
+
+async function scanSource(source: InMemorySource): Promise<void> {
+  if (!source.handle) {
+    setSourceStatus(source, 'No folder handle — re-pick the folder.', 'warn');
+    renderSources();
+    return;
+  }
+  source.busy = true;
+  setSourceStatus(source, 'Scanning…', '');
+  renderSources();
+  try {
+    const scanned = await collectAudioFilesFromHandle(
+      asWalkable(source.handle),
+      source.rootPrefix,
+      (count) => {
+        setSourceStatus(source, `Scanning… ${count.toLocaleString()} files seen`, '');
+        renderSources();
+      },
+    );
+    source.files = scanned;
+    setSourceStatus(
+      source,
+      `Indexed ${scanned.length.toLocaleString()} audio file${scanned.length === 1 ? '' : 's'}.`,
+      scanned.length > 0 ? 'ok' : 'warn',
+    );
+  } catch (err) {
+    source.files = [];
+    setSourceStatus(
+      source,
+      err instanceof Error ? `Scan failed: ${err.message}` : 'Scan failed.',
+      'err',
+    );
+  } finally {
+    source.busy = false;
+    rebuildCombinedIndex();
+    refreshDiskMatchButton();
+    renderSources();
+  }
+}
+
+async function grantAccessAndScan(source: InMemorySource): Promise<void> {
+  if (!source.handle) return;
+  source.busy = true;
+  renderSources();
+  const result = await requestPermission(source.handle);
+  source.permission = result;
+  source.busy = false;
+  if (result === 'granted') {
+    await scanSource(source);
+  } else {
+    setSourceStatus(source, 'Access not granted.', 'warn');
+    renderSources();
+  }
+}
+
+async function repickFallback(source: InMemorySource): Promise<void> {
+  // Firefox/Safari path: open a one-shot webkitdirectory picker just for
+  // this row. We don't get a persistent handle so we just stamp the
+  // scanned files with the source's rootPrefix and move on.
+  const input = document.createElement('input');
+  input.type = 'file';
+  (input as HTMLInputElement & { webkitdirectory: boolean }).webkitdirectory = true;
+  input.multiple = true;
+  input.style.display = 'none';
+  document.body.appendChild(input);
+  const filesPromise = new Promise<FileList | null>((resolve) => {
+    input.addEventListener('change', () => resolve(input.files), { once: true });
+    // No reliable cancel signal across browsers — if the user closes the
+    // dialog we just never resolve. The button stays in 'busy' state
+    // briefly until the next user interaction, which is acceptable.
+  });
+  input.click();
+  const files = await filesPromise;
+  input.remove();
+  if (!files || files.length === 0) return;
+
+  source.busy = true;
+  setSourceStatus(source, 'Indexing files…', '');
+  renderSources();
+  const scannable = scanFileList(
+    Array.from(files).map((f) => ({ name: f.name, webkitRelativePath: f.webkitRelativePath })),
+    source.rootPrefix,
+  );
+  source.files = scannable;
+  source.busy = false;
+  setSourceStatus(
+    source,
+    `Indexed ${scannable.length.toLocaleString()} audio file${scannable.length === 1 ? '' : 's'} (of ${files.length.toLocaleString()} total in folder).`,
+    scannable.length > 0 ? 'ok' : 'warn',
+  );
+  rebuildCombinedIndex();
+  refreshDiskMatchButton();
+  renderSources();
+}
+
+async function addFsaSource(): Promise<void> {
+  let handle: FileSystemDirectoryHandle;
   try {
     handle = await (window as unknown as FsAccessWindow).showDirectoryPicker({ mode: 'read' });
   } catch (err) {
-    // User cancelled the picker — silent. Any other error is surfaced.
     if ((err as { name?: string })?.name === 'AbortError') return;
     diskScanStatus.textContent =
       err instanceof Error ? `Could not open folder: ${err.message}` : 'Could not open folder.';
     diskScanStatus.className = 'status err';
     return;
   }
-
-  diskScanStatus.textContent = 'Scanning folder…';
+  diskScanStatus.textContent = '';
   diskScanStatus.className = 'status';
-  diskPickBtn.disabled = true;
-  try {
-    const scannable = await collectAudioFilesFromHandle(handle, (count) => {
-      diskScanStatus.textContent = `Scanning folder… ${count.toLocaleString()} files seen`;
-    });
-    diskFileIndex = buildFileIndex(scannable);
-    diskScanStatus.textContent =
-      `Indexed ${scannable.length.toLocaleString()} audio file${scannable.length === 1 ? '' : 's'} in "${handle.name}".`;
-    diskScanStatus.className = scannable.length > 0 ? 'status ok' : 'status warn';
-    refreshDiskMatchButton();
-  } catch (err) {
-    diskFileIndex = null;
-    diskScanStatus.textContent =
-      err instanceof Error ? `Scan failed: ${err.message}` : 'Scan failed.';
-    diskScanStatus.className = 'status err';
-    refreshDiskMatchButton();
-  } finally {
-    diskPickBtn.disabled = false;
-  }
-});
 
-diskDirInput.addEventListener('change', () => {
-  const files = diskDirInput.files;
-  if (!files || files.length === 0) {
-    diskFileIndex = null;
-    diskScanStatus.textContent = '';
-    diskScanStatus.className = 'status';
-    refreshDiskMatchButton();
+  const displayName = handle.name;
+  let recordId: number;
+  if (isSourcesSupported()) {
+    const rec = await addSourceRecord({
+      kind: 'fsa',
+      displayName,
+      rootPrefix: '',
+      handle,
+    });
+    recordId = rec.id;
+  } else {
+    // No IDB (e.g. private window with storage denied) — fall back to an
+    // ephemeral negative id so the row still works for the session.
+    recordId = -(sources.length + 1);
+  }
+  const source: InMemorySource = {
+    recordId,
+    kind: 'fsa',
+    displayName,
+    rootPrefix: '',
+    handle,
+    files: [],
+    permission: 'granted', // just picked
+    busy: false,
+    rowStatus: 'Folder added. Enter the absolute root path, then scan.',
+    rowStatusKind: '',
+  };
+  sources.push(source);
+  renderSources();
+  refreshDiskMatchButton();
+}
+
+async function addFallbackSource(): Promise<void> {
+  // No picker yet — just create the row. The user enters the prefix and
+  // clicks "Pick folder" which fires repickFallback().
+  const displayName = `Folder ${sources.length + 1}`;
+  let recordId: number;
+  if (isSourcesSupported()) {
+    const rec = await addSourceRecord({
+      kind: 'fallback',
+      displayName,
+      rootPrefix: '',
+      handle: null,
+    });
+    recordId = rec.id;
+  } else {
+    recordId = -(sources.length + 1);
+  }
+  const source: InMemorySource = {
+    recordId,
+    kind: 'fallback',
+    displayName,
+    rootPrefix: '',
+    handle: null,
+    files: [],
+    permission: 'unknown',
+    busy: false,
+    rowStatus: 'Enter the root path, then pick the folder.',
+    rowStatusKind: '',
+  };
+  sources.push(source);
+  renderSources();
+  refreshDiskMatchButton();
+}
+
+async function removeSource(source: InMemorySource): Promise<void> {
+  const idx = sources.indexOf(source);
+  if (idx >= 0) sources.splice(idx, 1);
+  if (source.recordId > 0 && isSourcesSupported()) {
+    try {
+      await removeSourceRecord(source.recordId);
+    } catch {
+      // Best-effort — UI already updated.
+    }
+  }
+  rebuildCombinedIndex();
+  refreshDiskMatchButton();
+  renderSources();
+}
+
+async function persistPrefix(source: InMemorySource): Promise<void> {
+  if (source.recordId <= 0 || !isSourcesSupported()) return;
+  try {
+    await updateSourceRecord(source.recordId, { rootPrefix: source.rootPrefix });
+  } catch {
+    // Non-fatal; the in-memory state is correct.
+  }
+}
+
+function renderSources(): void {
+  diskSourcesList.innerHTML = '';
+  if (sources.length === 0) {
+    diskSourcesEmpty.classList.remove('hidden');
     return;
   }
-  diskScanStatus.textContent = 'Indexing files…';
-  diskScanStatus.className = 'status';
-  // Browsers expose webkitRelativePath on each File; iterate the FileList.
-  const scannable: DiskFile[] = scanFileList(
-    Array.from(files).map((f) => ({
-      name: f.name,
-      webkitRelativePath: f.webkitRelativePath,
-    })),
-  );
-  diskFileIndex = buildFileIndex(scannable);
-  diskScanStatus.textContent =
-    `Indexed ${scannable.length} audio file${scannable.length === 1 ? '' : 's'} ` +
-    `(of ${files.length} total in folder).`;
-  diskScanStatus.className = scannable.length > 0 ? 'status ok' : 'status warn';
-  refreshDiskMatchButton();
+  diskSourcesEmpty.classList.add('hidden');
+
+  const frag = document.createDocumentFragment();
+  for (const source of sources) {
+    frag.appendChild(renderSourceRow(source));
+  }
+  diskSourcesList.appendChild(frag);
+}
+
+function renderSourceRow(source: InMemorySource): HTMLLIElement {
+  const li = document.createElement('li');
+  li.className = 'disk-source-row';
+
+  const head = document.createElement('div');
+  head.className = 'disk-source-head';
+  const name = document.createElement('strong');
+  name.textContent = source.displayName;
+  head.appendChild(name);
+  const kindBadge = document.createElement('span');
+  kindBadge.className = 'disk-source-kind';
+  kindBadge.textContent = source.kind === 'fsa' ? 'File System Access' : 'Legacy picker';
+  head.appendChild(kindBadge);
+  if (source.files.length > 0) {
+    const count = document.createElement('span');
+    count.className = 'disk-source-count';
+    count.textContent = `${source.files.length.toLocaleString()} file${source.files.length === 1 ? '' : 's'}`;
+    head.appendChild(count);
+  }
+  li.appendChild(head);
+
+  const prefixRow = document.createElement('div');
+  prefixRow.className = 'disk-source-prefix-row';
+  const prefixLabel = document.createElement('label');
+  prefixLabel.textContent = 'Root path';
+  const prefixInput = document.createElement('input');
+  prefixInput.type = 'text';
+  prefixInput.placeholder = 'D:\\Music\\Library';
+  prefixInput.value = source.rootPrefix;
+  prefixInput.addEventListener('input', () => {
+    restampSourcePrefix(source, prefixInput.value);
+    rebuildCombinedIndex();
+    refreshDiskMatchButton();
+  });
+  prefixInput.addEventListener('change', () => {
+    void persistPrefix(source);
+  });
+  prefixLabel.appendChild(prefixInput);
+  prefixRow.appendChild(prefixLabel);
+  li.appendChild(prefixRow);
+
+  const actions = document.createElement('div');
+  actions.className = 'disk-source-actions';
+
+  if (source.kind === 'fsa') {
+    if (source.permission === 'granted') {
+      const rescanBtn = document.createElement('button');
+      rescanBtn.type = 'button';
+      rescanBtn.textContent = source.files.length > 0 ? 'Rescan' : 'Scan';
+      rescanBtn.disabled = source.busy;
+      rescanBtn.addEventListener('click', () => void scanSource(source));
+      actions.appendChild(rescanBtn);
+    } else {
+      const grantBtn = document.createElement('button');
+      grantBtn.type = 'button';
+      grantBtn.textContent = 'Grant access';
+      grantBtn.disabled = source.busy;
+      grantBtn.addEventListener('click', () => void grantAccessAndScan(source));
+      actions.appendChild(grantBtn);
+    }
+  } else {
+    const pickBtn = document.createElement('button');
+    pickBtn.type = 'button';
+    pickBtn.textContent = source.files.length > 0 ? 'Re-pick folder' : 'Pick folder…';
+    pickBtn.disabled = source.busy;
+    pickBtn.addEventListener('click', () => void repickFallback(source));
+    actions.appendChild(pickBtn);
+  }
+
+  const removeBtn = document.createElement('button');
+  removeBtn.type = 'button';
+  removeBtn.className = 'secondary';
+  removeBtn.textContent = 'Remove';
+  removeBtn.disabled = source.busy;
+  removeBtn.addEventListener('click', () => void removeSource(source));
+  actions.appendChild(removeBtn);
+
+  li.appendChild(actions);
+
+  if (source.rowStatus) {
+    const status = document.createElement('p');
+    status.className = `status${source.rowStatusKind ? ' ' + source.rowStatusKind : ''}`;
+    status.textContent = source.rowStatus;
+    li.appendChild(status);
+  }
+
+  return li;
+}
+
+diskAddSourceBtn.addEventListener('click', () => {
+  if (supportsFsAccess) {
+    void addFsaSource();
+  } else {
+    void addFallbackSource();
+  }
 });
+
+/** Restore persisted sources on startup. FSA rows whose permission is
+ *  still 'granted' auto-rescan; everything else waits for a user click. */
+async function restoreSources(): Promise<void> {
+  if (!isSourcesSupported()) return;
+  let records: DiskSourceRecord[];
+  try {
+    records = await listSources();
+  } catch {
+    return;
+  }
+  for (const rec of records) {
+    if (rec.kind === 'fsa' && rec.handle) {
+      const permission = await checkPermission(rec.handle);
+      const source: InMemorySource = {
+        recordId: rec.id,
+        kind: 'fsa',
+        displayName: rec.displayName,
+        rootPrefix: rec.rootPrefix,
+        handle: rec.handle,
+        files: [],
+        permission,
+        busy: false,
+        rowStatus:
+          permission === 'granted'
+            ? 'Rescanning…'
+            : 'Click "Grant access" to re-authorize this folder.',
+        rowStatusKind: '',
+      };
+      sources.push(source);
+      if (permission === 'granted') {
+        void scanSource(source);
+      }
+    } else {
+      // Fallback row — no handle survives reload, user re-picks once.
+      sources.push({
+        recordId: rec.id,
+        kind: 'fallback',
+        displayName: rec.displayName,
+        rootPrefix: rec.rootPrefix,
+        handle: null,
+        files: [],
+        permission: 'unknown',
+        busy: false,
+        rowStatus: 'Re-pick the folder to use it this session.',
+        rowStatusKind: '',
+      });
+    }
+  }
+  renderSources();
+  refreshDiskMatchButton();
+}
+
+void restoreSources();
 
 diskMatchBtn.addEventListener('click', () => {
   diskView.groups = [];
   diskView.container.innerHTML = '';
   diskView.toolbar.classList.add('hidden');
-  if (!diskFileIndex || notFoundFromMatch.length === 0) {
-    diskMatchStatus.textContent = 'Scan a folder and run the collection match first.';
+  if (!combinedIndex || notFoundFromMatch.length === 0) {
+    diskMatchStatus.textContent = 'Add a music folder and run the collection match first.';
     diskMatchStatus.className = 'status warn';
     return;
   }
 
   const ratio = clampRatio(parseInt(diskRatioInput.value, 10));
   diskRatioInput.value = String(ratio);
-  const rootPrefix = diskRootInput.value.trim();
 
   diskMatchStatus.textContent = 'Searching disk…';
   diskMatchStatus.className = 'status';
 
   setTimeout(() => {
-    const hits = fuzzyMatchFiles(notFoundFromMatch, diskFileIndex!, ratio);
+    const hits = fuzzyMatchFiles(notFoundFromMatch, combinedIndex!, ratio);
     const groups: ReviewGroup[] = [];
     for (const [trackStr, matches] of hits) {
       const sep = trackStr.indexOf(' - ');
@@ -673,7 +1068,7 @@ diskMatchBtn.addEventListener('click', () => {
         spotifyArtists: artists,
         spotifyTitle: title,
         candidates: matches.map((m) => ({
-          entry: diskMatchToEntry(rootPrefix, m.file, trackStr),
+          entry: diskMatchToEntry(m.file, trackStr),
           score: m.score,
         })),
         selected: matches.map((_, i) => i === 0),

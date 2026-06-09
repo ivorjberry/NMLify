@@ -20,6 +20,10 @@ export const AUDIO_EXTENSIONS: ReadonlySet<string> = new Set([
 ]);
 
 export interface DiskFile {
+  /** Absolute path of the disk source this file came from, e.g.
+   *  "D:\\Music\\Library". Stored per-file so a single combined index can
+   *  span multiple sources and still emit correct Traktor LOCATIONs. */
+  rootPrefix: string;
   /** Path relative to the picked root, forward-slash separated, no leading
    *  slash. Empty string means the file is directly under the picked folder. */
   relativeDir: string;
@@ -76,8 +80,13 @@ function stripPickedRoot(webkitRelativePath: string): string {
 }
 
 /** Filter a directory-picker file list down to audio files, recording the
- *  relative directory + filename + parsed display name for each one. */
-export function scanFileList(files: Iterable<ScannableFile>): DiskFile[] {
+ *  relative directory + filename + parsed display name for each one.
+ *  The supplied `rootPrefix` is stamped onto each file so a combined
+ *  multi-source index still knows where each file lives on disk. */
+export function scanFileList(
+  files: Iterable<ScannableFile>,
+  rootPrefix: string,
+): DiskFile[] {
   const out: DiskFile[] = [];
   for (const f of files) {
     if (!AUDIO_EXTENSIONS.has(extOf(f.name))) continue;
@@ -89,6 +98,7 @@ export function scanFileList(files: Iterable<ScannableFile>): DiskFile[] {
     const lastSlash = insideRoot.lastIndexOf('/');
     const relativeDir = lastSlash >= 0 ? insideRoot.slice(0, lastSlash) : '';
     out.push({
+      rootPrefix,
       relativeDir,
       filename: f.name,
       parsedName: parseFilename(f.name),
@@ -126,6 +136,7 @@ export interface WalkableFileHandle {
  */
 export async function collectAudioFilesFromHandle(
   rootHandle: WalkableDirectoryHandle,
+  rootPrefix: string,
   onProgress?: (filesSeen: number) => void,
 ): Promise<DiskFile[]> {
   const out: DiskFile[] = [];
@@ -137,6 +148,7 @@ export async function collectAudioFilesFromHandle(
         seen += 1;
         if (AUDIO_EXTENSIONS.has(extOf(entry.name))) {
           out.push({
+            rootPrefix,
             relativeDir,
             filename: entry.name,
             parsedName: parseFilename(entry.name),
@@ -272,9 +284,9 @@ export function locationFromRelativePath(
 
 /** Build a minimal NmlEntry from a disk file + the "Artist - Title" track
  *  string from the not-found list. Splits on the first " - " just like
- *  disk_search.disk_match_to_entry. */
+ *  disk_search.disk_match_to_entry. The root prefix is read directly off
+ *  the file so combined indexes spanning multiple sources just work. */
 export function diskMatchToEntry(
-  rootPrefix: string,
   file: DiskFile,
   trackName: string,
 ): NmlEntry {
@@ -288,6 +300,6 @@ export function diskMatchToEntry(
   return {
     '@TITLE': title,
     '@ARTIST': artist,
-    LOCATION: locationFromRelativePath(rootPrefix, file.relativeDir, file.filename),
+    LOCATION: locationFromRelativePath(file.rootPrefix, file.relativeDir, file.filename),
   };
 }
