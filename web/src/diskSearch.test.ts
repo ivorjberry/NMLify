@@ -16,11 +16,12 @@ import {
 } from './diskSearch';
 
 describe('AUDIO_EXTENSIONS', () => {
-  it('covers the Python audio set plus Traktor STEM files', () => {
+  it('covers the Python audio set plus Traktor STEM / MP4 audio containers', () => {
     expect([...AUDIO_EXTENSIONS].sort()).toEqual(
       [
         '.mp3', '.m4a', '.flac', '.wav', '.aiff', '.aif',
-        '.ogg', '.wma', '.alac', '.opus', '.stem.mp4',
+        '.ogg', '.wma', '.alac', '.opus',
+        '.mp4', '.stem.mp4',
       ].sort(),
     );
   });
@@ -90,22 +91,32 @@ describe('scanFileList', () => {
     expect(scanFileList([file('Library/readme.txt')], 'D:\\Music\\Library')).toEqual([]);
   });
 
-  it('indexes Traktor STEM files (.stem.mp4) but skips bare .mp4 videos', () => {
+  it('indexes Traktor STEM files (.stem.mp4 and bare .mp4/.m4a variants)', () => {
+    // STEM exports show up under three names in the wild: the official
+    // compound ".stem.mp4", a renamed bare ".mp4", and ".m4a" when the
+    // user has stripped the extension or re-muxed. All should be indexed
+    // so the fuzzy match can find them.
     const got = scanFileList(
       [
         file('Library/stems/daft punk - around the world.stem.mp4'),
-        file('Library/videos/music video.mp4'),
+        file('Library/stems/queen - bohemian rhapsody.mp4'),
+        file('Library/stems/abba - dancing queen.m4a'),
+        file('Library/photos/cover.jpg'),
       ],
       'D:\\Music\\Library',
     );
-    expect(got).toEqual<DiskFile[]>([
-      {
-        rootPrefix: 'D:\\Music\\Library',
-        relativeDir: 'stems',
-        filename: 'daft punk - around the world.stem.mp4',
-        parsedName: 'daft punk - around the world',
-      },
+    expect(got.map((f) => f.filename).sort()).toEqual([
+      'abba - dancing queen.m4a',
+      'daft punk - around the world.stem.mp4',
+      'queen - bohemian rhapsody.mp4',
     ]);
+    // Display names are clean — no leftover ".stem" or extension tail.
+    const byFile = new Map(got.map((f) => [f.filename, f.parsedName]));
+    expect(byFile.get('daft punk - around the world.stem.mp4')).toBe(
+      'daft punk - around the world',
+    );
+    expect(byFile.get('queen - bohemian rhapsody.mp4')).toBe('queen - bohemian rhapsody');
+    expect(byFile.get('abba - dancing queen.m4a')).toBe('abba - dancing queen');
   });
 });
 

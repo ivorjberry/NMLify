@@ -17,11 +17,13 @@ import { tokenize } from './tokenize';
 export const AUDIO_EXTENSIONS: ReadonlySet<string> = new Set([
   '.mp3', '.m4a', '.flac', '.wav', '.aiff', '.aif',
   '.ogg', '.wma', '.alac', '.opus',
-  // Traktor STEM files use a compound extension. They're MP4 containers
-  // with extra metadata, but only the .stem.mp4 variant should be indexed
-  // as audio — bare .mp4 is usually a video and we don't want to surface
-  // it as a candidate match.
-  '.stem.mp4',
+  // Traktor STEM files can ship either as a compound ".stem.mp4" or just
+  // ".mp4" / ".m4a" — they're all MP4-family containers with the extra
+  // STEM metadata. We index every MP4-family extension so renamed stems
+  // and other DJ-ready audio MP4s come through. Bare ".mp4" video files
+  // in a music folder are uncommon enough that the false-positive risk
+  // is worth paying for full STEM coverage.
+  '.mp4', '.stem.mp4',
 ]);
 
 export interface DiskFile {
