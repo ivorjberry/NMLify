@@ -387,13 +387,21 @@ a { color: var(--accent); }
 }
 .disk-source-prefix-row label {
   display: flex;
-  flex-direction: column;
-  gap: 4px;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
   font-size: 0.85rem;
   color: var(--muted);
 }
 .disk-source-prefix-row input {
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 4px 8px;
+  font-size: 0.85rem;
+}
+.disk-source-status {
+  margin: 0;
 }
 .disk-source-actions {
   display: flex;

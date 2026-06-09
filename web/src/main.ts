@@ -1049,7 +1049,8 @@ async function addFsaSource(): Promise<void> {
     files: [],
     permission: 'granted', // just picked
     busy: false,
-    rowStatus: 'Folder added. Enter the absolute root path below, then click "Scan" to index its filenames.',
+    rowStatus:
+      'Folder added. Type its absolute path below (browsers can\'t share it for you), then click "Scan" to index its filenames.',
     rowStatusKind: '',
   };
   sources.push(source);
@@ -1150,13 +1151,24 @@ function renderSourceRow(source: InMemorySource): HTMLLIElement {
   }
   li.appendChild(head);
 
+  // Per-row status sits between the head and the path input so the
+  // instruction ("Folder added — type its absolute path below…") appears
+  // immediately above the box it refers to, instead of dangling beneath
+  // the action buttons.
+  if (source.rowStatus) {
+    const status = document.createElement('p');
+    status.className = `status${source.rowStatusKind ? ' ' + source.rowStatusKind : ''} disk-source-status`;
+    status.textContent = source.rowStatus;
+    li.appendChild(status);
+  }
+
   const prefixRow = document.createElement('div');
   prefixRow.className = 'disk-source-prefix-row';
   const prefixLabel = document.createElement('label');
   prefixLabel.textContent = 'Root path';
   const prefixInput = document.createElement('input');
   prefixInput.type = 'text';
-  prefixInput.placeholder = 'D:\\Music\\Library';
+  prefixInput.placeholder = 'e.g. D:\\Music\\Library';
   prefixInput.value = source.rootPrefix;
   prefixInput.addEventListener('input', () => {
     restampSourcePrefix(source, prefixInput.value);
@@ -1207,13 +1219,6 @@ function renderSourceRow(source: InMemorySource): HTMLLIElement {
   actions.appendChild(removeBtn);
 
   li.appendChild(actions);
-
-  if (source.rowStatus) {
-    const status = document.createElement('p');
-    status.className = `status${source.rowStatusKind ? ' ' + source.rowStatusKind : ''}`;
-    status.textContent = source.rowStatus;
-    li.appendChild(status);
-  }
 
   return li;
 }
