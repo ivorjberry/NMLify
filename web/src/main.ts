@@ -809,7 +809,7 @@ async function addFsaSource(): Promise<void> {
     files: [],
     permission: 'granted', // just picked
     busy: false,
-    rowStatus: 'Folder added. Enter the absolute root path, then scan.',
+    rowStatus: 'Folder added. Enter the absolute root path below, then click "Scan" to index its filenames.',
     rowStatusKind: '',
   };
   sources.push(source);
@@ -842,7 +842,7 @@ async function addFallbackSource(): Promise<void> {
     files: [],
     permission: 'unknown',
     busy: false,
-    rowStatus: 'Enter the root path, then pick the folder.',
+    rowStatus: 'Enter the root path below, then click "Pick folder…" to index its filenames.',
     rowStatusKind: '',
   };
   sources.push(source);

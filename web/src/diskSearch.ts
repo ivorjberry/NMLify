@@ -17,6 +17,11 @@ import { tokenize } from './tokenize';
 export const AUDIO_EXTENSIONS: ReadonlySet<string> = new Set([
   '.mp3', '.m4a', '.flac', '.wav', '.aiff', '.aif',
   '.ogg', '.wma', '.alac', '.opus',
+  // Traktor STEM files use a compound extension. They're MP4 containers
+  // with extra metadata, but only the .stem.mp4 variant should be indexed
+  // as audio — bare .mp4 is usually a video and we don't want to surface
+  // it as a candidate match.
+  '.stem.mp4',
 ]);
 
 export interface DiskFile {
@@ -55,10 +60,14 @@ export interface ScannableFile {
 const TRACK_NUM_RE = /^\d{1,3}[\s.\-]+/;
 
 /** Strip extension, leading track numbers, collapse whitespace, replace
- *  underscores. Mirrors disk_search.parse_filename. */
+ *  underscores. Mirrors disk_search.parse_filename. Compound extensions
+ *  like ".stem.mp4" are stripped in full so the display name doesn't end
+ *  up with a leftover ".stem" tail. */
 export function parseFilename(filename: string): string {
-  const dot = filename.lastIndexOf('.');
-  const stem = dot > 0 ? filename.slice(0, dot) : filename;
+  const ext = extOf(filename);
+  const stem = ext.length > 0 && filename.toLowerCase().endsWith(ext)
+    ? filename.slice(0, filename.length - ext.length)
+    : filename;
   return stem
     .replace(TRACK_NUM_RE, '')
     .replace(/_/g, ' ')
@@ -66,9 +75,15 @@ export function parseFilename(filename: string): string {
     .trim();
 }
 
+/** Return the lower-case audio extension for `filename`, treating Traktor
+ *  STEM files (".stem.mp4") as a single compound extension rather than
+ *  splitting them as plain ".mp4". Non-audio files still get their bare
+ *  trailing extension back so the AUDIO_EXTENSIONS check filters them. */
 function extOf(filename: string): string {
-  const dot = filename.lastIndexOf('.');
-  return dot >= 0 ? filename.slice(dot).toLowerCase() : '';
+  const lower = filename.toLowerCase();
+  if (lower.endsWith('.stem.mp4')) return '.stem.mp4';
+  const dot = lower.lastIndexOf('.');
+  return dot >= 0 ? lower.slice(dot) : '';
 }
 
 /** Drop the leading "<picked-folder>/" segment that browsers prepend to every

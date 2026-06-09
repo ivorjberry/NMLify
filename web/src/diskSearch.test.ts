@@ -16,9 +16,12 @@ import {
 } from './diskSearch';
 
 describe('AUDIO_EXTENSIONS', () => {
-  it('matches the Python set', () => {
+  it('covers the Python audio set plus Traktor STEM files', () => {
     expect([...AUDIO_EXTENSIONS].sort()).toEqual(
-      ['.mp3', '.m4a', '.flac', '.wav', '.aiff', '.aif', '.ogg', '.wma', '.alac', '.opus'].sort(),
+      [
+        '.mp3', '.m4a', '.flac', '.wav', '.aiff', '.aif',
+        '.ogg', '.wma', '.alac', '.opus', '.stem.mp4',
+      ].sort(),
     );
   });
 });
@@ -45,6 +48,14 @@ describe('parseFilename', () => {
   });
   it('keeps files with no extension', () => {
     expect(parseFilename('no_extension')).toBe('no extension');
+  });
+  it('strips the full .stem.mp4 compound extension', () => {
+    // Display name must not be left with a dangling ".stem" tail, otherwise
+    // every STEM file would look like "<title> stem" to the fuzzy matcher.
+    expect(parseFilename('daft punk - around the world.stem.mp4')).toBe(
+      'daft punk - around the world',
+    );
+    expect(parseFilename('01 song.STEM.MP4')).toBe('song');
   });
 });
 
@@ -77,6 +88,24 @@ describe('scanFileList', () => {
 
   it('returns [] when nothing matches', () => {
     expect(scanFileList([file('Library/readme.txt')], 'D:\\Music\\Library')).toEqual([]);
+  });
+
+  it('indexes Traktor STEM files (.stem.mp4) but skips bare .mp4 videos', () => {
+    const got = scanFileList(
+      [
+        file('Library/stems/daft punk - around the world.stem.mp4'),
+        file('Library/videos/music video.mp4'),
+      ],
+      'D:\\Music\\Library',
+    );
+    expect(got).toEqual<DiskFile[]>([
+      {
+        rootPrefix: 'D:\\Music\\Library',
+        relativeDir: 'stems',
+        filename: 'daft punk - around the world.stem.mp4',
+        parsedName: 'daft punk - around the world',
+      },
+    ]);
   });
 });
 
@@ -264,5 +293,21 @@ describe('collectAudioFilesFromHandle', () => {
     await collectAudioFilesFromHandle(root, 'D:\\Music', (n) => counts.push(n));
     expect(counts[counts.length - 1]).toBe(600);
     expect(counts).toContain(500);
+  });
+
+  it('picks up Traktor STEM files during the recursive walk', async () => {
+    const root = dir('Library', [
+      file('regular.mp3'),
+      dir('Stems', [
+        file('queen - bohemian rhapsody.stem.mp4'),
+        file('cover-art.jpg'),
+      ]),
+    ]);
+    const result = await collectAudioFilesFromHandle(root, 'D:\\Music\\Library');
+    const filenames = result.map((f) => f.filename).sort();
+    expect(filenames).toEqual(['queen - bohemian rhapsody.stem.mp4', 'regular.mp3'].sort());
+    const stem = result.find((f) => f.filename.endsWith('.stem.mp4'))!;
+    expect(stem.parsedName).toBe('queen - bohemian rhapsody');
+    expect(stem.relativeDir).toBe('Stems');
   });
 });
