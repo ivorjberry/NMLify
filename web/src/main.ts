@@ -37,11 +37,13 @@ import {
 } from './collectionSearch';
 import {
   buildFileIndex,
+  collectAudioFilesFromHandle,
   type DiskFile,
   type DiskFileIndex,
   diskMatchToEntry,
   fuzzyMatchFiles,
   scanFileList,
+  type WalkableDirectoryHandle,
 } from './diskSearch';
 import {
   type CrateMeta,
@@ -120,6 +122,10 @@ const playlistNameInput = el<HTMLInputElement>('playlist-name-input');
 // Step-5 disk search card
 const diskRootInput = el<HTMLInputElement>('disk-root-input');
 const diskDirInput = el<HTMLInputElement>('disk-dir-input');
+const diskPickRow = el<HTMLElement>('disk-pick-row');
+const diskFallbackRow = el<HTMLElement>('disk-fallback-row');
+const diskFallbackHint = el<HTMLElement>('disk-fallback-hint');
+const diskPickBtn = el<HTMLButtonElement>('disk-pick-btn');
 const diskScanStatus = el<HTMLElement>('disk-scan-status');
 const diskRatioInput = el<HTMLInputElement>('disk-ratio-input');
 const diskMatchBtn = el<HTMLButtonElement>('disk-match-btn');
@@ -559,6 +565,58 @@ function refreshDiskMatchButton(): void {
 }
 
 diskRootInput.addEventListener('input', refreshDiskMatchButton);
+
+// Feature-detect the File System Access API. Chromium browsers get a
+// proper "grant read access" prompt with no scary "upload N files"
+// dialog; Firefox/Safari fall back to the legacy webkitdirectory input.
+const supportsFsAccess = typeof window !== 'undefined' && 'showDirectoryPicker' in window;
+if (supportsFsAccess) {
+  diskPickRow.classList.remove('hidden');
+} else {
+  diskFallbackRow.classList.remove('hidden');
+  diskFallbackHint.classList.remove('hidden');
+}
+
+diskPickBtn.addEventListener('click', async () => {
+  // showDirectoryPicker isn't in lib.dom yet in every TS version; narrow
+  // through a minimal local type rather than @ts-ignore.
+  type FsAccessWindow = Window & {
+    showDirectoryPicker: (opts?: { mode?: 'read' | 'readwrite' }) => Promise<WalkableDirectoryHandle>;
+  };
+  let handle: WalkableDirectoryHandle;
+  try {
+    handle = await (window as unknown as FsAccessWindow).showDirectoryPicker({ mode: 'read' });
+  } catch (err) {
+    // User cancelled the picker — silent. Any other error is surfaced.
+    if ((err as { name?: string })?.name === 'AbortError') return;
+    diskScanStatus.textContent =
+      err instanceof Error ? `Could not open folder: ${err.message}` : 'Could not open folder.';
+    diskScanStatus.className = 'status err';
+    return;
+  }
+
+  diskScanStatus.textContent = 'Scanning folder…';
+  diskScanStatus.className = 'status';
+  diskPickBtn.disabled = true;
+  try {
+    const scannable = await collectAudioFilesFromHandle(handle, (count) => {
+      diskScanStatus.textContent = `Scanning folder… ${count.toLocaleString()} files seen`;
+    });
+    diskFileIndex = buildFileIndex(scannable);
+    diskScanStatus.textContent =
+      `Indexed ${scannable.length.toLocaleString()} audio file${scannable.length === 1 ? '' : 's'} in "${handle.name}".`;
+    diskScanStatus.className = scannable.length > 0 ? 'status ok' : 'status warn';
+    refreshDiskMatchButton();
+  } catch (err) {
+    diskFileIndex = null;
+    diskScanStatus.textContent =
+      err instanceof Error ? `Scan failed: ${err.message}` : 'Scan failed.';
+    diskScanStatus.className = 'status err';
+    refreshDiskMatchButton();
+  } finally {
+    diskPickBtn.disabled = false;
+  }
+});
 
 diskDirInput.addEventListener('change', () => {
   const files = diskDirInput.files;

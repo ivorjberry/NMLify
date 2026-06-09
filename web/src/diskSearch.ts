@@ -97,6 +97,64 @@ export function scanFileList(files: Iterable<ScannableFile>): DiskFile[] {
   return out;
 }
 
+/** Minimal structural type for a File System Access API directory handle.
+ *  We only need async iteration + the kind/name discriminator, so this
+ *  decouples us from lib.dom version drift and makes the walker trivial
+ *  to unit-test with a hand-rolled fake. */
+export interface WalkableDirectoryHandle {
+  kind: 'directory';
+  name: string;
+  values(): AsyncIterable<WalkableDirectoryHandle | WalkableFileHandle>;
+}
+
+export interface WalkableFileHandle {
+  kind: 'file';
+  name: string;
+}
+
+/**
+ * Recursively walk a File System Access API directory handle and collect
+ * audio files. Filters by AUDIO_EXTENSIONS during the walk so we never
+ * allocate DiskFile records for non-audio files — meaningful on libraries
+ * with tens of thousands of mixed files.
+ *
+ * Output shape matches scanFileList() exactly so downstream code (the
+ * index builder + matcher) doesn't care which picker the user used.
+ *
+ * onProgress, if provided, is called periodically with the running count
+ * of files seen (audio or not), and once more at the end.
+ */
+export async function collectAudioFilesFromHandle(
+  rootHandle: WalkableDirectoryHandle,
+  onProgress?: (filesSeen: number) => void,
+): Promise<DiskFile[]> {
+  const out: DiskFile[] = [];
+  let seen = 0;
+
+  async function walk(handle: WalkableDirectoryHandle, relativeDir: string): Promise<void> {
+    for await (const entry of handle.values()) {
+      if (entry.kind === 'file') {
+        seen += 1;
+        if (AUDIO_EXTENSIONS.has(extOf(entry.name))) {
+          out.push({
+            relativeDir,
+            filename: entry.name,
+            parsedName: parseFilename(entry.name),
+          });
+        }
+        if (onProgress && seen % 500 === 0) onProgress(seen);
+      } else if (entry.kind === 'directory') {
+        const next = relativeDir ? `${relativeDir}/${entry.name}` : entry.name;
+        await walk(entry, next);
+      }
+    }
+  }
+
+  await walk(rootHandle, '');
+  if (onProgress) onProgress(seen);
+  return out;
+}
+
 /** Inverted index from cleaned-filename tokens to file indices. */
 export function buildFileIndex(files: DiskFile[]): DiskFileIndex {
   const byToken = new Map<string, Set<number>>();

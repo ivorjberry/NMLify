@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import {
   AUDIO_EXTENSIONS,
   buildFileIndex,
+  collectAudioFilesFromHandle,
   diskMatchToEntry,
   fuzzyMatchFiles,
   locationFromRelativePath,
@@ -10,6 +11,8 @@ import {
   scanFileList,
   type DiskFile,
   type ScannableFile,
+  type WalkableDirectoryHandle,
+  type WalkableFileHandle,
 } from './diskSearch';
 
 describe('AUDIO_EXTENSIONS', () => {
@@ -179,5 +182,65 @@ describe('diskMatchToEntry', () => {
     const entry = diskMatchToEntry('D:\\Music', file, 'Standalone Title');
     expect(entry['@ARTIST']).toBe('');
     expect(entry['@TITLE']).toBe('Standalone Title');
+  });
+});
+
+describe('collectAudioFilesFromHandle', () => {
+  // Hand-rolled fakes that satisfy the minimal structural contract.
+  function file(name: string): WalkableFileHandle {
+    return { kind: 'file', name };
+  }
+  function dir(
+    name: string,
+    children: (WalkableDirectoryHandle | WalkableFileHandle)[],
+  ): WalkableDirectoryHandle {
+    return {
+      kind: 'directory',
+      name,
+      async *values() {
+        for (const child of children) yield child;
+      },
+    };
+  }
+
+  it('walks recursively, filters by AUDIO_EXTENSIONS, and reports relative dirs', async () => {
+    const root = dir('Library', [
+      file('top.mp3'),
+      file('cover.jpg'), // non-audio, skipped
+      dir('House', [
+        file('01 track-a.flac'),
+        dir('Deep', [file('track-b.wav')]),
+      ]),
+      dir('Empty', []),
+    ]);
+
+    const result = await collectAudioFilesFromHandle(root);
+    const summary = result
+      .map((f) => `${f.relativeDir}|${f.filename}`)
+      .sort();
+    expect(summary).toEqual(
+      [
+        '|top.mp3',
+        'House|01 track-a.flac',
+        'House/Deep|track-b.wav',
+      ].sort(),
+    );
+  });
+
+  it('does not include the root folder name in relativeDir (matches scanFileList)', async () => {
+    const root = dir('Music', [file('only.mp3')]);
+    const result = await collectAudioFilesFromHandle(root);
+    expect(result).toHaveLength(1);
+    expect(result[0]!.relativeDir).toBe('');
+  });
+
+  it('invokes onProgress with the running count and a final tally', async () => {
+    // 600 audio files in one folder so the every-500 progress tick fires.
+    const children = Array.from({ length: 600 }, (_, i) => file(`t${i}.mp3`));
+    const root = dir('Big', children);
+    const counts: number[] = [];
+    await collectAudioFilesFromHandle(root, (n) => counts.push(n));
+    expect(counts[counts.length - 1]).toBe(600);
+    expect(counts).toContain(500);
   });
 });

@@ -123,9 +123,19 @@
         <label for="disk-root-input">Absolute path of the folder you'll pick</label>
         <input id="disk-root-input" type="text" placeholder="D:\Music\Library" />
       </div>
-      <div class="row">
+      <div id="disk-pick-row" class="row hidden">
+        <button id="disk-pick-btn" type="button">Pick music folder…</button>
+        <span class="hint">Grants this tab read-only access to filenames in the folder you choose.</span>
+      </div>
+      <div id="disk-fallback-row" class="row hidden">
         <input id="disk-dir-input" type="file" webkitdirectory directory multiple />
       </div>
+      <p id="disk-fallback-hint" class="hint hidden">
+        Firefox and Safari will show a one-time confirmation along the lines
+        of "<em>upload N files</em>" when you pick a large folder.
+        <strong>Nothing is uploaded</strong> — NMLify only reads the
+        filenames locally to fuzzy-match against your not-found tracks.
+      </p>
       <p id="disk-scan-status" class="status"></p>
       <div class="row">
         <label for="disk-ratio-input">Fuzzy match threshold (0–100)</label>
