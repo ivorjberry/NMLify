@@ -1281,11 +1281,27 @@ async function restoreSources(): Promise<void> {
 void restoreSources();
 
 diskMatchBtn.addEventListener('click', () => {
+  void runDiskMatch();
+});
+
+/** Disk-match runner — yields to the event loop every N tracks so the
+ *  status text actually paints and we have a chance to surface errors
+ *  rather than freezing the UI on a big library. The earlier single
+ *  fuzzyMatchFiles call ran fine for small libraries but on a 25k-file
+ *  collection it could block for tens of seconds with no visible
+ *  feedback, making the button look broken. */
+async function runDiskMatch(): Promise<void> {
   diskView.groups = [];
   diskView.container.innerHTML = '';
   diskView.toolbar.classList.add('hidden');
-  if (!combinedIndex || notFoundFromMatch.length === 0) {
-    diskMatchStatus.textContent = 'Add a music folder and run the collection match first.';
+
+  if (!combinedIndex || combinedIndex.files.length === 0) {
+    diskMatchStatus.textContent = 'No indexed files yet — click "Scan" on a folder above first.';
+    diskMatchStatus.className = 'status warn';
+    return;
+  }
+  if (notFoundFromMatch.length === 0) {
+    diskMatchStatus.textContent = 'Run the collection match in Step 4 first — there are no not-found tracks to search for.';
     diskMatchStatus.className = 'status warn';
     return;
   }
@@ -1293,13 +1309,35 @@ diskMatchBtn.addEventListener('click', () => {
   const ratio = clampRatio(parseInt(diskRatioInput.value, 10));
   diskRatioInput.value = String(ratio);
 
-  diskMatchStatus.textContent = 'Searching disk…';
+  const totalTracks = notFoundFromMatch.length;
+  const totalFiles = combinedIndex.files.length;
+  diskMatchStatus.textContent =
+    `Searching ${totalFiles.toLocaleString()} indexed file${totalFiles === 1 ? '' : 's'} for ${totalTracks} not-found track${totalTracks === 1 ? '' : 's'}…`;
   diskMatchStatus.className = 'status';
+  diskMatchBtn.disabled = true;
 
-  setTimeout(() => {
-    const hits = fuzzyMatchFiles(notFoundFromMatch, combinedIndex!, ratio);
+  // Chunk size of 5 keeps the UI responsive even for huge libraries
+  // (fuzzball ratio is ~microseconds per pair, but each track can fan
+  // out to thousands of candidates after the token prefilter).
+  const CHUNK = 5;
+  const aggregated = new Map<string, ReturnType<typeof fuzzyMatchFiles> extends Map<string, infer V> ? V : never>();
+
+  try {
+    for (let i = 0; i < totalTracks; i += CHUNK) {
+      const slice = notFoundFromMatch.slice(i, i + CHUNK);
+      const hits = fuzzyMatchFiles(slice, combinedIndex, ratio);
+      for (const [k, v] of hits) aggregated.set(k, v);
+
+      const done = Math.min(i + CHUNK, totalTracks);
+      diskMatchStatus.textContent =
+        `Searching disk… ${done} of ${totalTracks} track${totalTracks === 1 ? '' : 's'} (${aggregated.size} matched so far)`;
+      // Yield to the event loop so the status repaints and the user can
+      // see progress instead of a frozen tab.
+      await new Promise<void>((resolve) => setTimeout(resolve, 0));
+    }
+
     const groups: ReviewGroup[] = [];
-    for (const [trackStr, matches] of hits) {
+    for (const [trackStr, matches] of aggregated) {
       const sep = trackStr.indexOf(' - ');
       const artists = sep > 0 ? trackStr.slice(0, sep).trim() : '';
       const title = sep > 0 ? trackStr.slice(sep + 3).trim() : trackStr;
@@ -1318,11 +1356,20 @@ diskMatchBtn.addEventListener('click', () => {
     renderReview(diskView);
 
     diskMatchStatus.textContent =
-      `Found disk matches for ${groups.length} of ${notFoundFromMatch.length} not-found tracks.`;
+      `Found disk matches for ${groups.length} of ${totalTracks} not-found tracks.`;
     diskMatchStatus.className = groups.length > 0 ? 'status ok' : 'status warn';
+  } catch (err) {
+    // Without this, an unexpected throw used to be swallowed silently
+    // and the button just appeared to do nothing.
+    console.error('Disk match failed:', err);
+    diskMatchStatus.textContent =
+      err instanceof Error ? `Disk match failed: ${err.message}` : 'Disk match failed (see browser console).';
+    diskMatchStatus.className = 'status err';
+  } finally {
     refreshMatchButton();
-  }, 0);
-});
+    refreshDiskMatchButton();
+  }
+}
 
 diskSelectFirstBtn.addEventListener('click', () => {
   selectTopN(diskView.groups, 1);
