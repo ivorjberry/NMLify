@@ -1050,7 +1050,7 @@ async function addFsaSource(): Promise<void> {
     permission: 'granted', // just picked
     busy: false,
     rowStatus:
-      'Folder added. Type its absolute path below (browsers can\'t share it for you), then click "Scan" to index its filenames.',
+      'Folder added. Click "Scan" to index its filenames. The Root path below is optional — fill it in only if you plan to export a Traktor playlist, so it can locate files on disk.',
     rowStatusKind: '',
   };
   sources.push(source);
@@ -1083,7 +1083,8 @@ async function addFallbackSource(): Promise<void> {
     files: [],
     permission: 'unknown',
     busy: false,
-    rowStatus: 'Enter the root path below, then click "Pick folder…" to index its filenames.',
+    rowStatus:
+      'Click "Pick folder…" to index its filenames. The Root path below is optional — fill it in only if you plan to export a Traktor playlist, so it can locate files on disk.',
     rowStatusKind: '',
   };
   sources.push(source);
@@ -1165,7 +1166,7 @@ function renderSourceRow(source: InMemorySource): HTMLLIElement {
   const prefixRow = document.createElement('div');
   prefixRow.className = 'disk-source-prefix-row';
   const prefixLabel = document.createElement('label');
-  prefixLabel.textContent = 'Root path';
+  prefixLabel.textContent = 'Root path (optional)';
   const prefixInput = document.createElement('input');
   prefixInput.type = 'text';
   prefixInput.placeholder = 'e.g. D:\\Music\\Library';
