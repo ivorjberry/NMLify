@@ -139,6 +139,7 @@ const topNInput = el<HTMLInputElement>('top-n-input');
 const notFoundSection = el<HTMLElement>('not-found-section');
 const notFoundList = el<HTMLUListElement>('not-found-list');
 const downloadBtn = el<HTMLButtonElement>('download-btn');
+const diskDownloadBtn = el<HTMLButtonElement>('disk-download-btn');
 const playlistNameInput = el<HTMLInputElement>('playlist-name-input');
 
 // Step-5 disk search card
@@ -592,7 +593,9 @@ void restoreCachedCollection();
 
 function refreshMatchButton(): void {
   matchBtn.disabled = !(loadedCollection && lastPlaylist);
-  downloadBtn.disabled = totalSelected() === 0;
+  const disableDownload = totalSelected() === 0;
+  downloadBtn.disabled = disableDownload;
+  diskDownloadBtn.disabled = disableDownload;
 }
 
 function totalSelected(): number {
@@ -1534,7 +1537,7 @@ diskSelectTopNBtn.addEventListener('click', () => {
 
 // ---------- Download -----------------------------------------------------
 
-downloadBtn.addEventListener('click', () => {
+function handleDownload(): void {
   const entries = [
     ...collectSelectedEntries(collectionView.groups),
     ...collectSelectedEntries(diskView.groups),
@@ -1546,7 +1549,10 @@ downloadBtn.addEventListener('click', () => {
   triggerDownload(`${safeName}.nml`, xml);
   // Fire-and-forget — never block the download UX on history persistence.
   void recordCrate(name, xml, entries.length);
-});
+}
+
+downloadBtn.addEventListener('click', handleDownload);
+diskDownloadBtn.addEventListener('click', handleDownload);
 
 function clampRatio(value: number): number {
   if (!Number.isFinite(value)) return 70;

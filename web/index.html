@@ -88,16 +88,13 @@
       <p id="collection-status" class="status"></p>
 
       <div class="row">
-        <label for="fuzzy-ratio-input">Fuzzy match threshold (0–100)</label>
+        <label for="fuzzy-ratio-input">Match threshold</label>
         <input id="fuzzy-ratio-input" type="number" min="0" max="100" step="1" value="70" />
-      </div>
-      <div class="row">
         <label for="playlist-name-input">Crate name</label>
         <input id="playlist-name-input" type="text" placeholder="Defaults to the Spotify playlist name" />
       </div>
       <div class="row">
         <button id="match-btn" disabled>Match playlist against collection</button>
-        <button id="download-btn" class="secondary" disabled>Download .nml</button>
       </div>
       <p id="match-status" class="status"></p>
 
@@ -119,6 +116,10 @@
       <div id="not-found-section" class="not-found-section hidden">
         <h3>Not found in your collection</h3>
         <ol id="not-found-list"></ol>
+      </div>
+
+      <div class="row">
+        <button id="download-btn" disabled>Download playlist</button>
       </div>
     </section>
 
@@ -180,6 +181,10 @@
       </div>
 
       <div id="disk-groups"></div>
+
+      <div class="row">
+        <button id="disk-download-btn" disabled>Download playlist</button>
+      </div>
     </section>
 
     <section id="backups-section" class="card">
