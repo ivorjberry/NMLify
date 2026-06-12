@@ -75,18 +75,18 @@ npm run preview  # serves the built bundle
 
 ## Try it
 
-1. Click **Log in with Spotify**. Spotify will ask you to approve the app,
-   then redirect you back. The auth status should switch to "Signed in".
+1. Paste a Spotify playlist URL (yours or any public one) and click
+   **Fetch tracks**. If you're not already signed in, the app will
+   redirect you to Spotify to approve access and then automatically
+   fetch the playlist when you return.
    (If Spotify rejects the login, follow the **Use my own Spotify app**
    steps above first.)
-2. Paste a Spotify playlist URL (yours or any public one) and click
-   **Fetch tracks**.
-3. Pick your `collection.nml` (typically in
+2. Pick your `collection.nml` (typically in
    `Documents\Native Instruments\Traktor Pro <version>\`). The file is read
    locally in your browser — nothing is uploaded.
-4. Click **Match playlist against collection**. The top match per track is
+3. Click **Match playlist against collection**. The top match per track is
    auto-picked.
-5. Click **Download .nml** to save the crate, then drop it into Traktor's
+4. Click **Download .nml** to save the crate, then drop it into Traktor's
    Playlists section.
 
 ## Project layout

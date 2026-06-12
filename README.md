@@ -9,10 +9,12 @@ audio files sitting on your disk.
 1. Open the hosted app (link will appear here once the first GitHub Pages
    deploy lands — until then, follow the local-dev steps in
    [web/README.md](web/README.md)).
-2. Click **Log in with Spotify** and approve the app. NMLify ships with a
+2. Paste a Spotify playlist URL and click **Fetch tracks**. If you're not
+   signed in yet, you'll be redirected to Spotify to approve the app and
+   then brought back with your playlist already loaded. NMLify ships with a
    built-in Client ID, so most users won't need to register anything.
-3. Paste a playlist URL, pick your `collection.nml`, match, and download
-   the `.nml`. Drop the file into Traktor's Playlists section.
+3. Pick your `collection.nml`, match, and download the `.nml`. Drop the
+   file into Traktor's Playlists section.
 
 If Spotify rejects your login, the built-in app's developer-mode whitelist
 doesn't include you — expand **Use my own Spotify app** on the page and

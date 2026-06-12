@@ -249,16 +249,19 @@ fetchBtn.addEventListener('click', async () => {
   playlistStatus.className = 'status';
 
   try {
-    const token = await getValidAccessToken();
-    if (!token) {
-      playlistStatus.textContent = 'Sign in first.';
-      playlistStatus.className = 'status warn';
-      return;
-    }
     const id = extractPlaylistId(playlistUrlInput.value.trim());
     if (!id) {
       playlistStatus.textContent = "That doesn't look like a Spotify playlist URL.";
       playlistStatus.className = 'status warn';
+      return;
+    }
+    const token = await getValidAccessToken();
+    if (!token) {
+      // Save the playlist URL so we can auto-fetch after login redirect
+      localStorage.setItem('nmlifyPendingPlaylist', playlistUrlInput.value.trim());
+      playlistStatus.textContent = 'Redirecting to Spotify login…';
+      playlistStatus.className = 'status';
+      startLogin().catch(showError);
       return;
     }
 
@@ -1898,4 +1901,13 @@ function showError(err: unknown): void {
   // snapshots and crate history aren't silently evicted under quota
   // pressure. Result is intentionally ignored — there is no fallback.
   void requestPersistentStorage();
+
+  // If we redirected back from Spotify after a "Fetch tracks" click,
+  // restore the playlist URL and auto-fetch it.
+  const pendingPlaylist = localStorage.getItem('nmlifyPendingPlaylist');
+  if (pendingPlaylist && getStoredToken()) {
+    localStorage.removeItem('nmlifyPendingPlaylist');
+    playlistUrlInput.value = pendingPlaylist;
+    fetchBtn.click();
+  }
 })();

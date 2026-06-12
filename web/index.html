@@ -47,12 +47,17 @@
     </section>
 
     <section id="auth-section" class="card">
-      <h2>2. Authenticate</h2>
-      <div class="row">
-        <button id="login-btn">Log in with Spotify</button>
-        <button id="logout-btn" class="secondary">Log out</button>
+      <div class="auth-header">
+        <h2>2. Authenticate</h2>
+        <p id="auth-status" class="status"></p>
       </div>
-      <p id="auth-status" class="status"></p>
+      <details id="auth-details">
+        <summary>Sign in / out</summary>
+        <div class="row">
+          <button id="login-btn">Log in with Spotify</button>
+          <button id="logout-btn" class="secondary">Log out</button>
+        </div>
+      </details>
     </section>
 
     <section id="playlist-section" class="card">
@@ -216,6 +221,8 @@
       </details>
     </section>
   </main>
+
+  <div id="version-badge">v1.1</div>
 
   <script type="module" src="/src/main.ts"></script>
 </body>

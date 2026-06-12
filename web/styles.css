@@ -454,4 +454,40 @@ a { color: var(--accent); }
   margin: 0;
 }
 
+/* ---------- Auth section (collapsed by default) ------------------------- */
+
+.auth-header {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+.auth-header h2 { margin: 0; }
+.auth-header .status { margin: 0; }
+
+#auth-details {
+  margin-top: 10px;
+  border-top: 1px solid var(--border);
+  padding-top: 10px;
+}
+#auth-details > summary {
+  cursor: pointer;
+  color: var(--muted);
+  user-select: none;
+  padding: 4px 0;
+}
+#auth-details > summary:hover { color: var(--fg); }
+#auth-details[open] > summary { color: var(--fg); margin-bottom: 8px; }
+
+/* ---------- Version badge ----------------------------------------------- */
+
+#version-badge {
+  position: fixed;
+  bottom: 12px;
+  right: 16px;
+  color: var(--muted);
+  font-size: 0.75rem;
+  opacity: 0.6;
+  pointer-events: none;
+  user-select: none;
+}
 
