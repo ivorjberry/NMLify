@@ -4,3 +4,7 @@ dist/
 *.log
 .vite/
 coverage/
+.env
+.env.*
+!.env.example
+.vercel/

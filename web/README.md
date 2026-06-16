@@ -2,8 +2,9 @@
 
 Static web app that converts a Spotify playlist into a Traktor crate (`.nml`)
 entirely in the browser — no Python install, no `.env` file, no server. Built
-with Vite + TypeScript + Vitest. Originally shipped as the desktop
-[CrateHacker](../desktop/) app, now ported to the web.
+with Vite + TypeScript + Vitest. An optional serverless token endpoint adds
+login-free access to **public** playlists (see below). Originally shipped as the
+desktop [CrateHacker](../desktop/) app, now ported to the web.
 
 ## Status
 
@@ -15,6 +16,7 @@ with Vite + TypeScript + Vitest. Originally shipped as the desktop
 | Match-review UI (pick alternates, "select top N")           | ✅ shipped   |
 | Disk search for tracks not in your collection               | ✅ shipped   |
 | GitHub Pages deploy                                         | ✅ shipped   |
+| Login-free public playlists (serverless token endpoint)     | ✅ shipped   |
 
 ## Prerequisites
 
@@ -22,6 +24,45 @@ with Vite + TypeScript + Vitest. Originally shipped as the desktop
 - A Spotify account. **No** Spotify developer app required for most users —
   NMLify ships with a built-in Client ID. See below for when you need your
   own.
+
+## Public playlists without login (optional serverless token)
+
+Spotify's Web API needs a token for **every** request, even public playlists.
+To let visitors fetch **public** playlists without logging in, NMLify ships a
+tiny serverless function — [`api/spotify-token.ts`](api/spotify-token.ts) — that
+mints an app-level "Client Credentials" token server-side and returns it to the
+page. The Spotify **client secret stays on the server** and is never sent to the
+browser; the minted token can only ever read already-public data.
+
+The front-end tries this token first; if a playlist turns out to be private or
+collaborative (Spotify replies 401/403/404), it falls back to the normal PKCE
+login automatically. If the function isn't deployed, the page simply falls back
+to login as before — so this is purely additive.
+
+### Deploy the token endpoint on Vercel
+
+1. Sign in to [vercel.com](https://vercel.com) with your GitHub account and
+   **Import** the `NMLify` repo.
+2. Set the project's **Root Directory** to `web` (Vercel then auto-detects Vite
+   and the `api/` function).
+3. Add **Environment Variables** (Project → Settings → Environment Variables):
+   - `SPOTIFY_CLIENT_ID` — your Spotify app's Client ID
+   - `SPOTIFY_CLIENT_SECRET` — your Spotify app's Client Secret
+   - `ALLOWED_ORIGINS` *(optional)* — comma-separated origins allowed to call
+     the endpoint, e.g. `https://your-app.vercel.app`. Leave unset to allow any
+     origin (the token only grants access to public data either way).
+4. Deploy. Every push to `main` redeploys automatically.
+
+By default the page calls the same-origin `/api/spotify-token`, which is correct
+when the whole site is hosted on Vercel. If you keep the static site on GitHub
+Pages and only host the function on Vercel, set
+`VITE_SPOTIFY_TOKEN_ENDPOINT` (a build-time `VITE_*` var) to the absolute Vercel
+URL — see [`.env.example`](.env.example).
+
+> **Security note:** the origin allow-list stops casual cross-site use but a
+> non-browser client can spoof the `Origin` header. That's an acceptable risk
+> here because the token only reaches public data and the response is edge-cached
+> (`s-maxage`), so repeat calls reuse one token instead of hitting Spotify.
 
 ## Do I need my own Spotify app?
 
@@ -76,17 +117,18 @@ npm run preview  # serves the built bundle
 ## Try it
 
 1. Paste a Spotify playlist URL (yours or any public one) and click
-   **Fetch tracks**. If you're not already signed in, the app will
-   redirect you to Spotify to approve access and then automatically
-   fetch the playlist when you return.
-   (If Spotify rejects the login, follow the **Use my own Spotify app**
-   steps above first.)
+   **Fetch tracks**. **Public** playlists load without any login when the
+   serverless token endpoint is deployed (see above). For a **private** or
+   **collaborative** playlist — or if the endpoint isn't deployed — the app
+   redirects you to Spotify to approve access, then auto-fetches when you
+   return. (If Spotify rejects the login, follow the **Use my own Spotify
+   app** steps above first.)
 2. Pick your `collection.nml` (typically in
    `Documents\Native Instruments\Traktor Pro <version>\`). The file is read
    locally in your browser — nothing is uploaded.
 3. Click **Match playlist against collection**. The top match per track is
    auto-picked.
-4. Click **Download .nml** to save the crate, then drop it into Traktor's
+4. Click **Download playlist** to save the crate, then drop it into Traktor's
    Playlists section.
 
 ## Project layout
@@ -95,9 +137,12 @@ npm run preview  # serves the built bundle
 web/
 ├── index.html          # entry HTML; Vite picks it up automatically
 ├── styles.css          # dark-theme styles, imported by main.ts
+├── api/
+│   └── spotify-token.ts  # Vercel Edge fn: app-level token for public playlists
 ├── src/
 │   ├── main.ts         # DOM glue + init
 │   ├── auth.ts         # Spotify PKCE flow + token storage
+│   ├── publicToken.ts  # fetch/cache app-level token from api/spotify-token.ts
 │   ├── spotify.ts      # playlist fetch (paginated)
 │   ├── tokenize.ts     # ported from desktop/text_utils.py
 │   ├── collectionSearch.ts  # ported from desktop/collection_search.py
@@ -108,6 +153,7 @@ web/
 │   └── *.test.ts       # Vitest suites mirroring the pytest suites
 ├── package.json
 ├── tsconfig.json
+├── vercel.json
 └── vite.config.ts
 ```
 

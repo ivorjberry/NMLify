@@ -6,6 +6,20 @@
 const API_URL = 'https://api.spotify.com/v1';
 const PLAYLIST_ID_RE = /open\.spotify\.com\/playlist\/([a-zA-Z0-9]+)/;
 
+/**
+ * Error thrown by Spotify Web API calls, carrying the HTTP status so callers
+ * can distinguish auth/not-found (e.g. a private playlist hit with an app-level
+ * token) from other failures.
+ */
+export class SpotifyApiError extends Error {
+  readonly status: number;
+  constructor(status: number, body: string) {
+    super(`Spotify ${status}: ${body}`);
+    this.name = 'SpotifyApiError';
+    this.status = status;
+  }
+}
+
 export interface SpotifyArtistRef {
   name: string;
 }
@@ -38,7 +52,7 @@ export function extractPlaylistId(url: string | null | undefined): string | null
 async function spotifyGet<T>(url: string, token: string): Promise<T> {
   const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
   if (!res.ok) {
-    throw new Error(`Spotify ${res.status}: ${await res.text()}`);
+    throw new SpotifyApiError(res.status, await res.text());
   }
   return res.json() as Promise<T>;
 }

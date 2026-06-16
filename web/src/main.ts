@@ -91,8 +91,10 @@ import {
   extractPlaylistId,
   fetchPlaylist,
   type FetchedPlaylist,
+  SpotifyApiError,
   type SpotifyTrackRef,
 } from './spotify';
+import { getPublicToken } from './publicToken';
 
 // ---------- DOM hooks -----------------------------------------------------
 
@@ -224,8 +226,8 @@ function refreshAuthUI(): void {
     authStatus.textContent = `Signed in. Token valid for ~${minutes} min.`;
     authStatus.className = 'status ok';
   } else {
-    authStatus.textContent = 'Not signed in.';
-    authStatus.className = 'status warn';
+    authStatus.textContent = "Not signed in — you'll be prompted to sign in when you fetch a playlist.";
+    authStatus.className = 'status';
   }
 }
 
@@ -249,30 +251,51 @@ fetchBtn.addEventListener('click', async () => {
   playlistStatus.textContent = '';
   playlistStatus.className = 'status';
 
+  const url = playlistUrlInput.value.trim();
+
   try {
-    const id = extractPlaylistId(playlistUrlInput.value.trim());
+    const id = extractPlaylistId(url);
     if (!id) {
       playlistStatus.textContent = "That doesn't look like a Spotify playlist URL.";
       playlistStatus.className = 'status warn';
       return;
     }
-    const token = await getValidAccessToken();
+
+    // Prefer a logged-in user token (reads private + public). If there's no
+    // user session, try an app-level "public" token from our serverless
+    // endpoint so public playlists work without any login.
+    let token = await getValidAccessToken();
+    let usingPublicToken = false;
     if (!token) {
-      // Save the playlist URL so we can auto-fetch after login redirect
-      localStorage.setItem('nmlifyPendingPlaylist', playlistUrlInput.value.trim());
-      playlistStatus.textContent = 'Redirecting to Spotify login…';
-      playlistStatus.className = 'status';
-      startLogin().catch(showError);
+      token = await getPublicToken();
+      usingPublicToken = true;
+    }
+
+    if (!token) {
+      // No user session and no public-token endpoint available → log in.
+      redirectToLogin(url, 'Redirecting to Spotify login…');
       return;
     }
 
     playlistStatus.textContent = 'Loading playlist…';
 
-    const fetched = await fetchPlaylist(id, token, (loaded, total) => {
-      playlistStatus.textContent = `Loading playlist… ${loaded}/${total}`;
-    });
+    let fetched: FetchedPlaylist;
+    try {
+      fetched = await fetchPlaylist(id, token, (loaded, total) => {
+        playlistStatus.textContent = `Loading playlist… ${loaded}/${total}`;
+      });
+    } catch (err) {
+      // A public token can't see private/collaborative playlists — Spotify
+      // returns 401/403/404. In that case, fall back to interactive login.
+      if (usingPublicToken && err instanceof SpotifyApiError && isPrivatePlaylistStatus(err.status)) {
+        redirectToLogin(url, "That playlist isn't public — signing you in…");
+        return;
+      }
+      throw err;
+    }
+
     lastPlaylist = fetched;
-    lastPlaylistUrl = playlistUrlInput.value.trim() || null;
+    lastPlaylistUrl = url || null;
 
     playlistInfo.innerHTML =
       `<strong>${escapeHtml(fetched.meta.name)}</strong> by ` +
@@ -302,6 +325,21 @@ fetchBtn.addEventListener('click', async () => {
     playlistStatus.className = 'status err';
   }
 });
+
+// HTTP statuses Spotify returns when an app-level token hits a playlist it
+// can't see (private/collaborative, or "not found" because it's hidden).
+function isPrivatePlaylistStatus(status: number): boolean {
+  return status === 401 || status === 403 || status === 404;
+}
+
+// Stash the playlist URL so init() can auto-fetch after the OAuth round-trip,
+// then kick off the PKCE login redirect.
+function redirectToLogin(url: string, message: string): void {
+  localStorage.setItem('nmlifyPendingPlaylist', url);
+  playlistStatus.textContent = message;
+  playlistStatus.className = 'status';
+  startLogin().catch(showError);
+}
 
 // ---------- Collection load + match --------------------------------------
 

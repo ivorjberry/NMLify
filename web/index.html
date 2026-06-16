@@ -13,17 +13,24 @@
     </header>
 
     <section id="config-section" class="card">
-      <h2>1. Spotify access</h2>
-      <p>
-        NMLify ships with a built-in Spotify app, so most users can skip
-        straight to <strong>Log in with Spotify</strong> below.
-      </p>
+      <div class="auth-header">
+        <h2>1. Spotify access</h2>
+        <p id="auth-status" class="status"></p>
+      </div>
       <p class="hint">
-        Spotify keeps third-party apps in a restricted developer mode unless
-        the developer is an organization with thousands of monthly users. If
-        the login fails for you, register a free Spotify app of your own and
-        paste its Client ID here.
+        NMLify ships with a built-in Spotify app, so most users can just sign
+        in. Spotify keeps third-party apps in a restricted developer mode, so
+        if the login fails for you, register a free app of your own below and
+        paste its Client ID.
       </p>
+
+      <details id="auth-details">
+        <summary>Sign in / out</summary>
+        <div class="row">
+          <button id="login-btn">Log in with Spotify</button>
+          <button id="logout-btn" class="secondary">Log out</button>
+        </div>
+      </details>
 
       <details id="byo-client-details">
         <summary>Use my own Spotify app</summary>
@@ -46,22 +53,8 @@
       </details>
     </section>
 
-    <section id="auth-section" class="card">
-      <div class="auth-header">
-        <h2>2. Authenticate</h2>
-        <p id="auth-status" class="status"></p>
-      </div>
-      <details id="auth-details">
-        <summary>Sign in / out</summary>
-        <div class="row">
-          <button id="login-btn">Log in with Spotify</button>
-          <button id="logout-btn" class="secondary">Log out</button>
-        </div>
-      </details>
-    </section>
-
     <section id="playlist-section" class="card">
-      <h2>3. Fetch a Spotify playlist</h2>
+      <h2>2. Fetch a Spotify playlist</h2>
       <div class="row">
         <input id="playlist-url-input" type="text" placeholder="https://open.spotify.com/playlist/..." autocomplete="off" />
         <button id="fetch-btn">Fetch tracks</button>
@@ -72,7 +65,7 @@
     </section>
 
     <section id="match-section" class="card">
-      <h2>4. Load your Traktor collection and match</h2>
+      <h2>3. Load your Traktor collection and match</h2>
       <p>
         Pick your <code>collection.nml</code>. It's read locally in your browser — nothing is uploaded.
       </p>
@@ -124,9 +117,9 @@
     </section>
 
     <section id="disk-section" class="card">
-      <h2>5. Find missing tracks on disk (optional)</h2>
+      <h2>4. Find missing tracks on disk (optional)</h2>
       <p>
-        After step 4, any tracks not found in your collection are listed
+        After step 3, any tracks not found in your collection are listed
         above. Add one or more folders that hold your music and we'll
         fuzzy-match those tracks against your filenames. Files stay on
         your machine — the browser only reads filenames, not contents.
@@ -189,7 +182,7 @@
 
     <section id="backups-section" class="card">
       <details id="backups-details">
-        <summary><h2>6. Collection backups</h2></summary>
+        <summary><h2>5. Collection backups</h2></summary>
         <p>
           Each time you load a <code>collection.nml</code>, NMLify saves a
           compressed snapshot here. If Traktor corrupts your collection
@@ -209,7 +202,7 @@
 
     <section id="crates-section" class="card">
       <details id="crates-details">
-        <summary><h2>7. Crate history</h2></summary>
+        <summary><h2>6. Crate history</h2></summary>
         <p>
           Every crate you download is also saved here so you can grab it
           again later — even after closing the tab. Handy when you
@@ -227,7 +220,7 @@
     </section>
   </main>
 
-  <div id="version-badge">v1.1</div>
+  <div id="version-badge">v1.2</div>
 
   <script type="module" src="/src/main.ts"></script>
 </body>
