@@ -219,14 +219,22 @@ clearClientIdBtn.addEventListener('click', () => {
 
 // ---------- Auth UI -------------------------------------------------------
 
+// True once we've successfully fetched a playlist using the app-level
+// "public access" token (no personal login). Lets the auth status make clear
+// the user is browsing public content rather than signed in to their account.
+let publicAccessActive = false;
+
 function refreshAuthUI(): void {
   const token = getStoredToken();
   if (token) {
     const minutes = Math.max(0, Math.round((getExpiresAtMs() - Date.now()) / 60000));
-    authStatus.textContent = `Signed in. Token valid for ~${minutes} min.`;
+    authStatus.textContent = `Signed in to your Spotify account. Token valid for ~${minutes} min.`;
+    authStatus.className = 'status ok';
+  } else if (publicAccessActive) {
+    authStatus.textContent = 'Public access — no login needed. Sign in only for private or collaborative playlists.';
     authStatus.className = 'status ok';
   } else {
-    authStatus.textContent = "Not signed in — you'll be prompted to sign in when you fetch a playlist.";
+    authStatus.textContent = "Not signed in. Public playlists load automatically; you'll be prompted to sign in only for private ones.";
     authStatus.className = 'status';
   }
 }
@@ -237,6 +245,7 @@ loginBtn.addEventListener('click', () => {
 
 logoutBtn.addEventListener('click', () => {
   clearAuth();
+  publicAccessActive = false;
   refreshAuthUI();
 });
 
@@ -313,6 +322,13 @@ fetchBtn.addEventListener('click', async () => {
 
     playlistStatus.textContent = `Loaded ${fetched.tracks.length} tracks.`;
     playlistStatus.className = 'status ok';
+
+    // Reflect public-access mode in the auth status (only when we didn't use
+    // a personal login token).
+    if (usingPublicToken) {
+      publicAccessActive = true;
+      refreshAuthUI();
+    }
 
     // Default the output crate name to the Spotify playlist name.
     if (!playlistNameInput.value.trim()) {

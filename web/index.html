@@ -18,10 +18,8 @@
         <p id="auth-status" class="status"></p>
       </div>
       <p class="hint">
-        NMLify ships with a built-in Spotify app, so most users can just sign
-        in. Spotify keeps third-party apps in a restricted developer mode, so
-        if the login fails for you, register a free app of your own below and
-        paste its Client ID.
+        Public playlists need no login. Sign in only for private or
+        collaborative playlists.
       </p>
 
       <details id="auth-details">
@@ -33,7 +31,7 @@
       </details>
 
       <details id="byo-client-details">
-        <summary>Use my own Spotify app</summary>
+        <summary>Use my own Spotify developer app</summary>
         <p>
           Create a free app in the
           <a href="https://developer.spotify.com/dashboard" target="_blank" rel="noopener">Spotify Developer Dashboard</a>
@@ -220,7 +218,7 @@
     </section>
   </main>
 
-  <div id="version-badge">v1.2</div>
+  <div id="version-badge">v1.2.1</div>
 
   <script type="module" src="/src/main.ts"></script>
 </body>

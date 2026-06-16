@@ -18,7 +18,7 @@ audio files sitting on your disk.
    the file into Traktor's Playlists section.
 
 If Spotify rejects your login, the built-in app's developer-mode whitelist
-doesn't include you — expand **Use my own Spotify app** on the page and
+doesn't include you — expand **Use my own Spotify developer app** on the page and
 follow the short setup in [web/README.md](web/README.md#do-i-need-my-own-spotify-app).
 
 ## Self-host or hack on the web app

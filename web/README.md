@@ -75,7 +75,7 @@ third-party apps in a restricted developer-mode whitelist (max ~25 users)
 unless the developer is an organization with thousands of monthly users —
 so the built-in app can only ever support a small, hand-picked group.
 
-If you hit that wall, expand the **Use my own Spotify app** disclosure on
+If you hit that wall, expand the **Use my own Spotify developer app** disclosure on
 the page and:
 
 1. Go to the [Spotify Developer Dashboard](https://developer.spotify.com/dashboard)
@@ -166,7 +166,7 @@ web/
   serving over `http://127.0.0.1:5173/` (Vite dev server) and not opening
   `index.html` from the file system.
 - **Stuck signed-in state after changing Client IDs** — click **Log out**,
-  then **Reset to default** under the **Use my own Spotify app** disclosure,
+  then **Reset to default** under the **Use my own Spotify developer app** disclosure,
   then start over.
 - **"Match" button stays disabled** — both a Spotify playlist and a
   `collection.nml` must be loaded before matching can run.
