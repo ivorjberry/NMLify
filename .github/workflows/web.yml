@@ -56,6 +56,15 @@ jobs:
 
       - name: Build (vite)
         run: npm run build
+        env:
+          # Points the static Pages bundle at the Vercel serverless token
+          # endpoint so public playlists load without login. Set this as a
+          # repository variable (Settings → Secrets and variables → Actions →
+          # Variables), e.g. https://<your-app>.vercel.app/api/spotify-token.
+          # If unset, the build falls back to the same-origin "/api/spotify-token"
+          # (only correct when the whole site is hosted on Vercel), and Pages
+          # users are prompted to log in for every playlist.
+          VITE_SPOTIFY_TOKEN_ENDPOINT: ${{ vars.VITE_SPOTIFY_TOKEN_ENDPOINT }}
 
       - name: Upload Pages artifact
         # Skip artifact upload on PR builds; only main pushes deploy.
