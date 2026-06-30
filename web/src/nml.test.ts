@@ -6,6 +6,7 @@ import { XMLParser } from 'fast-xml-parser';
 
 import {
   buildNmlPlaylist,
+  getPlayCount,
   loadCollection,
   type NmlEntry,
   sanitizePlaylistFilename,
@@ -83,6 +84,34 @@ describe('sanitizePlaylistFilename', () => {
     expect(sanitizePlaylistFilename('***')).toBe('playlist');
     expect(sanitizePlaylistFilename('   ')).toBe('playlist');
     expect(sanitizePlaylistFilename('')).toBe('playlist');
+  });
+});
+
+describe('getPlayCount', () => {
+  const baseEntry = (info?: Record<string, unknown>): NmlEntry =>
+    ({
+      LOCATION: { '@VOLUME': 'C:', '@DIR': '/Music/', '@FILE': 'a.mp3' },
+      ...(info ? { INFO: info } : {}),
+    }) as NmlEntry;
+
+  it('parses a string PLAYCOUNT attribute', () => {
+    expect(getPlayCount(baseEntry({ '@PLAYCOUNT': '7' }))).toBe(7);
+  });
+
+  it('accepts a numeric PLAYCOUNT value', () => {
+    expect(getPlayCount(baseEntry({ '@PLAYCOUNT': 3 }))).toBe(3);
+  });
+
+  it('returns null when INFO is missing', () => {
+    expect(getPlayCount(baseEntry())).toBeNull();
+  });
+
+  it('returns null when PLAYCOUNT is absent', () => {
+    expect(getPlayCount(baseEntry({ '@BITRATE': '128000' }))).toBeNull();
+  });
+
+  it('returns null for non-numeric PLAYCOUNT', () => {
+    expect(getPlayCount(baseEntry({ '@PLAYCOUNT': 'lots' }))).toBeNull();
   });
 });
 

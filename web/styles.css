@@ -237,6 +237,11 @@ a { color: var(--accent); }
   font-weight: 400;
   margin-left: 6px;
 }
+.review-candidate-text .playcount {
+  color: var(--muted);
+  font-weight: 400;
+  margin-left: 6px;
+}
 .review-candidate-text .path {
   color: var(--muted);
   font-family: ui-monospace, Menlo, Consolas, monospace;

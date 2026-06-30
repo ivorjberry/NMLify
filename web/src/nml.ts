@@ -18,6 +18,7 @@ export interface NmlEntry {
   '@ARTIST'?: string;
   LOCATION: NmlLocation;
   STEMS?: unknown;
+  INFO?: Record<string, unknown>;
   [key: string]: unknown;
 }
 
@@ -55,6 +56,20 @@ export function loadCollection(xml: string): NmlEntry[] {
   if (entries == null) return [];
   if (Array.isArray(entries)) return entries as NmlEntry[];
   return [entries as NmlEntry];
+}
+
+/**
+ * Read the Traktor play count for an entry, stored as the PLAYCOUNT attribute
+ * on its child <INFO> node. Returns null when the track has never been played
+ * (Traktor omits the attribute) or the value isn't a parseable number.
+ */
+export function getPlayCount(entry: NmlEntry): number | null {
+  const info = entry.INFO;
+  if (!info) return null;
+  const raw = info['@PLAYCOUNT'];
+  const n =
+    typeof raw === 'number' ? raw : typeof raw === 'string' ? parseInt(raw, 10) : NaN;
+  return Number.isFinite(n) ? n : null;
 }
 
 /**
