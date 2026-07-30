@@ -157,6 +157,8 @@ const diskMatchStatus = el<HTMLElement>('disk-match-status');
 const diskToolbar = el<HTMLElement>('disk-toolbar');
 const diskSummaryEl = el<HTMLElement>('disk-summary');
 const diskGroupsContainer = el<HTMLElement>('disk-groups');
+const diskNotFoundSection = el<HTMLElement>('disk-not-found-section');
+const diskNotFoundList = el<HTMLOListElement>('disk-not-found-list');
 const diskSelectFirstBtn = el<HTMLButtonElement>('disk-select-first-btn');
 const diskSelectAllBtn = el<HTMLButtonElement>('disk-select-all-btn');
 const diskDeselectAllBtn = el<HTMLButtonElement>('disk-deselect-all-btn');
@@ -363,6 +365,16 @@ function redirectToLogin(url: string, message: string): void {
 let loadedCollection: NmlEntry[] | null = null;
 let collectionIndex: { titleIndex: TokenIndex; artistIndex: TokenIndex } | null = null;
 let notFoundFromMatch: string[] = [];
+// Ordered "Artist - Title" labels for every track in the last collection
+// match, in playlist order, plus a live lookup to the ReviewGroup each one
+// produced (absent for tracks with zero collection matches). Together they
+// drive the dynamic "not selected from collection" list, which is also the
+// input to the disk search.
+let collectionOrderedLabels: string[] = [];
+let collectionGroupByLabel = new Map<string, ReviewGroup>();
+// Snapshot of the track list fed to the most recent disk search, so the
+// "still not found on disk" list stays stable against later collection edits.
+let diskSearchInput: string[] = [];
 
 interface ReviewView {
   groups: ReviewGroup[];
@@ -665,6 +677,8 @@ function resetCollectionReview(): void {
   notFoundList.innerHTML = '';
   notFoundSection.classList.add('hidden');
   notFoundFromMatch = [];
+  collectionOrderedLabels = [];
+  collectionGroupByLabel = new Map();
 }
 
 function resetDiskReview(): void {
@@ -674,6 +688,81 @@ function resetDiskReview(): void {
   diskView.summary.textContent = '';
   diskMatchStatus.textContent = '';
   diskMatchStatus.className = 'status';
+  diskNotFoundList.innerHTML = '';
+  diskNotFoundSection.classList.add('hidden');
+  diskSearchInput = [];
+}
+
+/** The set of collection-match tracks that are currently unresolved, in
+ *  playlist order. A track is unresolved when it produced zero collection
+ *  matches OR when every one of its collection candidates is deselected.
+ *  This is both what the "not selected from collection" list shows and the
+ *  exact input handed to the disk search. */
+function collectionUnresolvedTracks(): string[] {
+  const out: string[] = [];
+  for (const label of collectionOrderedLabels) {
+    const group = collectionGroupByLabel.get(label);
+    if (!group || !group.selected.some((s) => s === true)) {
+      out.push(label);
+    }
+  }
+  return out;
+}
+
+/** Render the dynamic "not selected from collection" list beneath the
+ *  collection results and re-gate the disk-search button. Call after a
+ *  collection match and on every collection-selection change. */
+function renderCollectionUnresolved(): void {
+  notFoundList.innerHTML = '';
+  const unresolved = collectionUnresolvedTracks();
+
+  if (unresolved.length === 0) {
+    notFoundSection.classList.add('hidden');
+    refreshDiskMatchButton();
+    return;
+  }
+
+  const frag = document.createDocumentFragment();
+  for (const line of unresolved) {
+    const li = document.createElement('li');
+    li.textContent = line;
+    frag.appendChild(li);
+  }
+  notFoundList.appendChild(frag);
+  notFoundSection.classList.remove('hidden');
+  refreshDiskMatchButton();
+}
+
+/** Render the "still not found on disk" list shown beneath the disk
+ *  results. It's dynamic: a searched track appears here when it either
+ *  produced zero disk matches OR has all of its disk candidates
+ *  deselected. Compared against the snapshot of tracks fed to the last
+ *  disk search. Call after a disk search and on every disk-selection
+ *  change. */
+function refreshDiskUnresolved(): void {
+  diskNotFoundList.innerHTML = '';
+  const groupByKey = new Map(diskView.groups.map((g) => [g.spotifyKey, g]));
+  const unresolved: string[] = [];
+  for (const track of diskSearchInput) {
+    const group = groupByKey.get(track);
+    if (!group || !group.selected.some((s) => s === true)) {
+      unresolved.push(track);
+    }
+  }
+
+  if (unresolved.length === 0) {
+    diskNotFoundSection.classList.add('hidden');
+    return;
+  }
+
+  const frag = document.createDocumentFragment();
+  for (const line of unresolved) {
+    const li = document.createElement('li');
+    li.textContent = line;
+    frag.appendChild(li);
+  }
+  diskNotFoundList.appendChild(frag);
+  diskNotFoundSection.classList.remove('hidden');
 }
 
 matchBtn.addEventListener('click', () => {
@@ -716,17 +805,26 @@ matchBtn.addEventListener('click', () => {
     selectTopN(collectionView.groups, 1);
     renderReview(collectionView);
 
+    // Build the playlist-ordered label list + live group lookup that drive
+    // the dynamic "not selected from collection" list (and the disk search
+    // input). Every playlist track is either a matched group or a zero-match
+    // track; both belong in the unresolved universe.
     notFoundFromMatch = notFoundTracks.slice();
-    if (notFoundFromMatch.length > 0) {
-      const frag = document.createDocumentFragment();
-      for (const line of notFoundFromMatch) {
-        const li = document.createElement('li');
-        li.textContent = line;
-        frag.appendChild(li);
-      }
-      notFoundList.appendChild(frag);
-      notFoundSection.classList.remove('hidden');
+    collectionOrderedLabels = [];
+    collectionGroupByLabel = new Map();
+    const groupByKey = new Map(collectionView.groups.map((g) => [g.spotifyKey, g]));
+    const seenLabels = new Set<string>();
+    for (const it of playlistForSearch.items) {
+      const artists = it.track.artists.map((a) => a.name).join(', ');
+      const name = it.track.name;
+      const label = `${artists} - ${name}`;
+      if (seenLabels.has(label)) continue;
+      seenLabels.add(label);
+      collectionOrderedLabels.push(label);
+      const g = groupByKey.get(`${name}||${artists}`);
+      if (g) collectionGroupByLabel.set(label, g);
     }
+    renderCollectionUnresolved();
     refreshDiskMatchButton();
 
     const total = collectionView.groups.length + notFoundFromMatch.length;
@@ -806,6 +904,8 @@ function renderCandidate(view: ReviewView, groupIndex: number, candidateIndex: n
   cb.addEventListener('change', () => {
     setCandidateSelected(group, candidateIndex, cb.checked);
     updateSummary(view);
+    if (view === diskView) refreshDiskUnresolved();
+    if (view === collectionView) renderCollectionUnresolved();
     refreshMatchButton();
   });
   label.appendChild(cb);
@@ -847,6 +947,8 @@ function syncCheckboxes(view: ReviewView): void {
     cb.checked = group.selected[ci] === true;
   });
   updateSummary(view);
+  if (view === diskView) refreshDiskUnresolved();
+  if (view === collectionView) renderCollectionUnresolved();
   refreshMatchButton();
 }
 
@@ -977,10 +1079,11 @@ function totalSourceFiles(): number {
 function refreshDiskMatchButton(): void {
   // Require: at least one source has scanned files, no source with files
   // has an empty rootPrefix (otherwise we can't build a Traktor LOCATION),
-  // and there are not-found tracks from the collection match to search for.
+  // and there is at least one unresolved collection track to search for
+  // (zero-match tracks plus any whose collection matches are all deselected).
   const haveFiles = totalSourceFiles() > 0;
   const allPrefixed = sources.every((s) => s.files.length === 0 || s.rootPrefix.trim().length > 0);
-  diskMatchBtn.disabled = !haveFiles || !allPrefixed || notFoundFromMatch.length === 0;
+  diskMatchBtn.disabled = !haveFiles || !allPrefixed || collectionUnresolvedTracks().length === 0;
 }
 
 function setSourceStatus(source: InMemorySource, msg: string, kind: InMemorySource['rowStatusKind']): void {
@@ -1494,19 +1597,23 @@ async function runDiskMatch(): Promise<void> {
     diskMatchStatus.className = 'status warn';
     return;
   }
-  if (notFoundFromMatch.length === 0) {
-    diskMatchStatus.textContent = 'Run the collection match in Step 4 first — there are no not-found tracks to search for.';
+  const searchInput = collectionUnresolvedTracks();
+  if (searchInput.length === 0) {
+    diskMatchStatus.textContent = 'Run the collection match in Step 4 first — there are no unresolved tracks to search for.';
     diskMatchStatus.className = 'status warn';
     return;
   }
+  // Snapshot the input so the "still not found on disk" list stays anchored
+  // to what was actually searched, even if collection selections change later.
+  diskSearchInput = searchInput.slice();
 
   const ratio = clampRatio(parseInt(diskRatioInput.value, 10));
   diskRatioInput.value = String(ratio);
 
-  const totalTracks = notFoundFromMatch.length;
+  const totalTracks = searchInput.length;
   const totalFiles = combinedIndex.files.length;
   diskMatchStatus.textContent =
-    `Searching ${totalFiles.toLocaleString()} indexed file${totalFiles === 1 ? '' : 's'} for ${totalTracks} not-found track${totalTracks === 1 ? '' : 's'}…`;
+    `Searching ${totalFiles.toLocaleString()} indexed file${totalFiles === 1 ? '' : 's'} for ${totalTracks} unresolved track${totalTracks === 1 ? '' : 's'}…`;
   diskMatchStatus.className = 'status';
   diskMatchBtn.disabled = true;
 
@@ -1518,7 +1625,7 @@ async function runDiskMatch(): Promise<void> {
 
   try {
     for (let i = 0; i < totalTracks; i += CHUNK) {
-      const slice = notFoundFromMatch.slice(i, i + CHUNK);
+      const slice = searchInput.slice(i, i + CHUNK);
       const hits = fuzzyMatchFiles(slice, combinedIndex, ratio);
       for (const [k, v] of hits) aggregated.set(k, v);
 
@@ -1559,9 +1666,10 @@ async function runDiskMatch(): Promise<void> {
     }
     diskView.groups = groups;
     renderReview(diskView);
+    refreshDiskUnresolved();
 
     diskMatchStatus.textContent =
-      `Found disk matches for ${groups.length} of ${totalTracks} not-found tracks.`;
+      `Found disk matches for ${groups.length} of ${totalTracks} unresolved track${totalTracks === 1 ? '' : 's'}.`;
     diskMatchStatus.className = groups.length > 0 ? 'status ok' : 'status warn';
   } catch (err) {
     // Without this, an unexpected throw used to be swallowed silently

@@ -185,7 +185,8 @@ a { color: var(--accent); }
   font-size: 0.9rem;
 }
 
-#review-groups {
+#review-groups,
+#disk-groups {
   margin-top: 12px;
   max-height: 60vh;
   overflow: auto;
@@ -194,7 +195,8 @@ a { color: var(--accent); }
   background: #11151c;
   padding: 6px 0;
 }
-#review-groups:empty {
+#review-groups:empty,
+#disk-groups:empty {
   display: none;
 }
 
@@ -257,7 +259,8 @@ a { color: var(--accent); }
   font-size: 1rem;
   color: var(--warn);
 }
-#not-found-list {
+#not-found-list,
+#disk-not-found-list {
   margin: 0;
   padding-left: 24px;
   max-height: 30vh;
@@ -267,7 +270,8 @@ a { color: var(--accent); }
   border-radius: 6px;
   padding-block: 8px;
 }
-#not-found-list li {
+#not-found-list li,
+#disk-not-found-list li {
   padding: 2px 0;
   color: var(--muted);
 }
