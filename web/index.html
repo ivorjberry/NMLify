@@ -106,7 +106,13 @@
       <div id="review-groups"></div>
 
       <div id="not-found-section" class="not-found-section hidden">
-        <h3>Not found in your collection</h3>
+        <h3>Not selected from your collection</h3>
+        <p class="hint">
+          Tracks with no collection match, plus any whose collection
+          matches you've all deselected. This list updates as you change
+          your selections above, and it's exactly what the disk search
+          below looks for.
+        </p>
         <ol id="not-found-list"></ol>
       </div>
 
@@ -118,8 +124,8 @@
     <section id="disk-section" class="card">
       <h2>4. Find missing tracks on disk (optional)</h2>
       <p>
-        After step 3, any tracks not found in your collection are listed
-        above. Add one or more folders that hold your music and we'll
+        After step 3, any tracks not selected from your collection are
+        listed above. Add one or more folders that hold your music and we'll
         fuzzy-match those tracks against your filenames. Files stay on
         your machine — the browser only reads filenames, not contents.
       </p>
@@ -173,6 +179,11 @@
       </div>
 
       <div id="disk-groups"></div>
+
+      <div id="disk-not-found-section" class="not-found-section hidden">
+        <h3>Still not found on disk</h3>
+        <ol id="disk-not-found-list"></ol>
+      </div>
 
       <div class="row">
         <button id="disk-download-btn" disabled>Download playlist</button>
