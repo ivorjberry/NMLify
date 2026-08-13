@@ -131,9 +131,10 @@ describe('collection entry file details', () => {
     expect(getBitrateKbps(entry)).toBeNull();
   });
 
-  it('detects entries with stem metadata', () => {
+  it('detects both .stem.mp4 and Traktor-generated stem entries', () => {
     expect(isStemEntry(makeEntry('Track', 'Artist', 'track.mp3'))).toBe(false);
-    expect(isStemEntry(makeEntry('Stem', 'Artist', 'track.stem.mp4', true))).toBe(true);
+    expect(isStemEntry(makeEntry('Packaged Stem', 'Artist', 'track.stem.mp4', true))).toBe(true);
+    expect(isStemEntry(makeEntry('Generated Stem', 'Artist', 'track.m4a', true))).toBe(true);
   });
 });
 
