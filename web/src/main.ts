@@ -73,7 +73,9 @@ import {
 } from './crates';
 import {
   buildNmlPlaylist,
+  getBitrateKbps,
   getPlayCount,
+  isStemEntry,
   loadCollection,
   type NmlEntry,
   sanitizePlaylistFilename,
@@ -789,9 +791,10 @@ function renderCandidate(view: ReviewView, groupIndex: number, candidateIndex: n
   // the Spotify query that was stamped onto @ARTIST/@TITLE for export.
   const primary = match.display?.primary ?? `${artist} — ${title}`;
   const pathLine = match.display?.path ?? fallbackPath;
-  // Play count is only meaningful for real collection entries; disk matches
-  // (which set `display`) carry no <INFO> node.
+  // Collection metadata is unavailable for disk matches, which set `display`.
   const playCount = match.display ? null : getPlayCount(entry);
+  const bitrateKbps = match.display ? null : getBitrateKbps(entry);
+  const isStem = !match.display && isStemEntry(entry);
 
   const li = document.createElement('li');
   li.className = 'review-candidate';
@@ -816,10 +819,17 @@ function renderCandidate(view: ReviewView, groupIndex: number, candidateIndex: n
     playCount !== null
       ? ` <span class="playcount">${playCount} play${playCount === 1 ? '' : 's'}</span>`
       : '';
+  const bitrateHtml =
+    bitrateKbps !== null
+      ? ` <span class="file-detail">${bitrateKbps} kbps</span>`
+      : '';
+  const stemHtml = isStem ? ' <span class="file-detail">STEM</span>' : '';
   text.innerHTML =
     `<strong>${escapeHtml(primary)}</strong> ` +
     `<span class="score">score ${match.score}</span>` +
     playCountHtml +
+    bitrateHtml +
+    stemHtml +
     `<br><span class="path">${escapeHtml(pathLine)}</span>`;
   label.appendChild(text);
 

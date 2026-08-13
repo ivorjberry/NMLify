@@ -72,6 +72,19 @@ export function getPlayCount(entry: NmlEntry): number | null {
   return Number.isFinite(n) ? n : null;
 }
 
+/** Return the entry's audio bitrate in rounded kbps, or null when unavailable. */
+export function getBitrateKbps(entry: NmlEntry): number | null {
+  const raw = entry.INFO?.['@BITRATE'];
+  const bitrate =
+    typeof raw === 'number' ? raw : typeof raw === 'string' ? Number(raw) : NaN;
+  return Number.isFinite(bitrate) && bitrate >= 0 ? Math.round(bitrate / 1000) : null;
+}
+
+/** Traktor identifies stem tracks by including a child <STEMS> node. */
+export function isStemEntry(entry: NmlEntry): boolean {
+  return 'STEMS' in entry;
+}
+
 /**
  * Strip characters Windows / NTFS won't allow in filenames. Falls back to
  * "playlist" when the input collapses to an empty string.
