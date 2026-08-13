@@ -239,7 +239,8 @@ a { color: var(--accent); }
   font-weight: 400;
   margin-left: 6px;
 }
-.review-candidate-text .playcount {
+.review-candidate-text .playcount,
+.review-candidate-text .file-detail {
   color: var(--muted);
   font-weight: 400;
   margin-left: 6px;
@@ -499,4 +500,3 @@ a { color: var(--accent); }
   pointer-events: none;
   user-select: none;
 }
-

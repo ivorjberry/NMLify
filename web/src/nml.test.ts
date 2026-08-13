@@ -6,7 +6,9 @@ import { XMLParser } from 'fast-xml-parser';
 
 import {
   buildNmlPlaylist,
+  getBitrateKbps,
   getPlayCount,
+  isStemEntry,
   loadCollection,
   type NmlEntry,
   sanitizePlaylistFilename,
@@ -112,6 +114,27 @@ describe('getPlayCount', () => {
 
   it('returns null for non-numeric PLAYCOUNT', () => {
     expect(getPlayCount(baseEntry({ '@PLAYCOUNT': 'lots' }))).toBeNull();
+  });
+});
+
+describe('collection entry file details', () => {
+  it('returns the rounded bitrate in kbps', () => {
+    const entry = makeEntry('Track', 'Artist', 'track.mp3');
+    entry.INFO = { '@BITRATE': '299672' };
+    expect(getBitrateKbps(entry)).toBe(300);
+  });
+
+  it('returns null when bitrate is missing or invalid', () => {
+    const entry = makeEntry('Track', 'Artist', 'track.mp3');
+    expect(getBitrateKbps(entry)).toBeNull();
+    entry.INFO = { '@BITRATE': 'unknown' };
+    expect(getBitrateKbps(entry)).toBeNull();
+  });
+
+  it('detects both .stem.mp4 and Traktor-generated stem entries', () => {
+    expect(isStemEntry(makeEntry('Track', 'Artist', 'track.mp3'))).toBe(false);
+    expect(isStemEntry(makeEntry('Packaged Stem', 'Artist', 'track.stem.mp4', true))).toBe(true);
+    expect(isStemEntry(makeEntry('Generated Stem', 'Artist', 'track.m4a', true))).toBe(true);
   });
 });
 
