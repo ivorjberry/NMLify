@@ -126,9 +126,12 @@ npm run preview  # serves the built bundle
 2. Pick your `collection.nml` (typically in
    `Documents\Native Instruments\Traktor Pro <version>\`). The file is read
    locally in your browser — nothing is uploaded.
-3. Click **Match playlist against collection**. The top match per track is
+3. Optionally connect Traktor's generated stems folder (typically
+   `Music\Traktor\Stems`). NMLify scans filenames locally and identifies
+   generated stem sidecars associated with collection entries.
+4. Click **Match playlist against collection**. The top match per track is
    auto-picked.
-4. Click **Download playlist** to save the crate, then drop it into Traktor's
+5. Click **Download playlist** to save the crate, then drop it into Traktor's
    Playlists section.
 
 ## Project layout
@@ -148,6 +151,7 @@ web/
 │   ├── collectionSearch.ts  # ported from desktop/collection_search.py
 │   ├── review.ts       # selection state (ported from desktop/crate.py)
 │   ├── diskSearch.ts   # ported from desktop/disk_search.py
+│   ├── generatedStems.ts  # AUDIO_ID sidecar paths + folder scanning
 │   ├── nml.ts          # load + build .nml (browser-safe)
 │   ├── nmlWriter.ts    # Node-only writer used by tests
 │   └── *.test.ts       # Vitest suites mirroring the pytest suites

@@ -252,6 +252,20 @@ a { color: var(--accent); }
   word-break: break-all;
 }
 
+.generated-stems-connect {
+  margin: 12px 0;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: #11151c;
+}
+.generated-stems-connect .hint {
+  margin-top: 0;
+}
+.generated-stems-connect .status {
+  margin-bottom: 0;
+}
+
 .not-found-section {
   margin-top: 16px;
 }

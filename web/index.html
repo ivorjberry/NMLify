@@ -79,6 +79,29 @@
       </div>
       <p id="collection-status" class="status"></p>
 
+      <div class="generated-stems-connect">
+        <p class="hint">
+          Optional: connect Traktor's <code>Music\Traktor\Stems</code> folder to identify
+          collection tracks with generated stem sidecars. NMLify reads filenames only.
+        </p>
+        <div class="row">
+          <button id="generated-stems-pick-btn" type="button">Connect generated stems folder…</button>
+          <button id="generated-stems-refresh-btn" type="button" class="secondary hidden">Refresh stems</button>
+          <button id="generated-stems-forget-btn" type="button" class="secondary hidden">Forget folder</button>
+          <input
+            id="generated-stems-folder-input"
+            class="hidden"
+            type="file"
+            webkitdirectory
+            directory
+            multiple
+          />
+        </div>
+        <p id="generated-stems-status" class="status">
+          Generated stem status is unchecked until a folder is connected.
+        </p>
+      </div>
+
       <div class="row">
         <label for="fuzzy-ratio-input">Match threshold</label>
         <input id="fuzzy-ratio-input" type="number" min="0" max="100" step="1" value="70" />
@@ -230,7 +253,7 @@
     </section>
   </main>
 
-  <div id="version-badge">v1.2.7</div>
+  <div id="version-badge">v1.3.0</div>
 
   <script type="module" src="/src/main.ts"></script>
 </body>
