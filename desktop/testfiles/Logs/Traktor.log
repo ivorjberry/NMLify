@@ -1,0 +1,839 @@
+2025-07-09 12:26:43 - 
+2025-07-09 12:26:43 - >>> LOG OPEN, Wed Jul  9 12:26:43 2025
+2025-07-09 12:26:43 - Executable path: C:\Program Files\Native Instruments\Traktor Pro 4\Traktor Pro 4.exe
+2025-07-09 12:26:43 - Starting Traktor Pro 4 (4.2.0.34).
+2025-07-09 12:26:43 - Current URI scheme: C:\Program Files\Native Instruments\Traktor Pro 4\Traktor Pro 4.exe %1
+2025-07-09 12:26:57 - Applying preferences.
+2025-07-09 12:27:05 - *** Traktor CPU Info ***
+Packages: 1
+Cores: 6
+Processing Units: 12
+Requested Render Threads: 5
+Optimized Processing: false
+
+2025-07-09 12:27:05 - *** Traktor CPU Info ***
+Packages: 1
+Cores: 6
+Processing Units: 12
+Requested Render Threads: 5
+Optimized Processing: true
+
+2025-07-09 12:27:08 - Collection load time: 3.20 seconds.
+2025-08-17 00:27:02 - 
+2025-08-17 00:27:02 - >>> LOG OPEN, Sun Aug 17 00:27:02 2025
+2025-08-17 00:27:02 - Executable path: C:\Program Files\Native Instruments\Traktor Pro 4\Traktor Pro 4.exe
+2025-08-17 00:27:02 - Starting Traktor Pro 4 (4.2.0.34).
+2025-08-17 00:27:02 - Current URI scheme: C:\Program Files\Native Instruments\Traktor Pro 4\Traktor Pro 4.exe %1
+2025-08-17 00:27:04 - Applying preferences.
+2025-08-17 00:27:10 - *** Traktor CPU Info ***
+Packages: 1
+Cores: 6
+Processing Units: 12
+Requested Render Threads: 5
+Optimized Processing: false
+
+2025-08-17 00:27:10 - *** Traktor CPU Info ***
+Packages: 1
+Cores: 6
+Processing Units: 12
+Requested Render Threads: 5
+Optimized Processing: true
+
+2025-08-17 00:27:15 - Collection load time: 4.31 seconds.
+2025-08-17 00:35:19 - 
+2025-08-17 00:35:19 - <<< LOG CLOSE, Sun Aug 17 00:35:19 2025
+2025-11-24 12:30:12 - 
+2025-11-24 12:30:12 - >>> LOG OPEN, Mon Nov 24 12:30:12 2025
+2025-11-24 12:30:12 - Executable path: C:\Program Files\Native Instruments\Traktor Pro 4\Traktor Pro 4.exe
+2025-11-24 12:30:12 - Starting Traktor Pro 4 (4.2.0.34).
+2025-11-24 12:30:12 - Current URI scheme: C:\Program Files\Native Instruments\Traktor Pro 4\Traktor Pro 4.exe %1
+2025-11-24 12:30:13 - Applying preferences.
+2025-11-24 12:30:19 - *** Traktor CPU Info ***
+Packages: 1
+Cores: 6
+Processing Units: 12
+Requested Render Threads: 5
+Optimized Processing: false
+
+2025-11-24 12:30:19 - *** Traktor CPU Info ***
+Packages: 1
+Cores: 6
+Processing Units: 12
+Requested Render Threads: 5
+Optimized Processing: true
+
+2025-11-24 12:30:22 - Collection load time: 3.17 seconds.
+2025-11-24 12:38:58 - 
+2025-11-24 12:38:58 - <<< LOG CLOSE, Mon Nov 24 12:38:58 2025
+2026-02-25 09:42:28 - 
+2026-02-25 09:42:28 - >>> LOG OPEN, Wed Feb 25 09:42:28 2026
+2026-02-25 09:42:28 - Executable path: C:\Program Files\Native Instruments\Traktor Pro 4\Traktor Pro 4.exe
+2026-02-25 09:42:28 - Starting Traktor Pro 4 (4.2.0.34).
+2026-02-25 09:42:28 - Current URI scheme: C:\Program Files\Native Instruments\Traktor Pro 4\Traktor Pro 4.exe %1
+2026-02-25 09:42:29 - Applying preferences.
+2026-02-25 09:42:32 - *** Traktor CPU Info ***
+Packages: 1
+Cores: 6
+Processing Units: 12
+Requested Render Threads: 5
+Optimized Processing: false
+
+2026-02-25 09:42:32 - *** Traktor CPU Info ***
+Packages: 1
+Cores: 6
+Processing Units: 12
+Requested Render Threads: 5
+Optimized Processing: true
+
+2026-02-25 09:42:35 - Collection load time: 2.97 seconds.
+2026-02-25 09:48:38 - Finalized stem separation process for track "RATATA - DJ Smerk Clap Intro (Dirty)" - result: aborted by request, elapsed time: 1m 2s
+2026-02-25 09:48:38 - WARNING: Stem version could not be created for: M:\Music\DJ City\Skrillex, Missy Elliott & Mr. Oizo - RATATA - DJ Smerk Clap Intro (Dirty).mp3
+2026-02-25 09:50:17 - Finalized stem separation process for track "RATATA - DJ Smerk Clap Intro (Dirty)" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\Skrillex, Missy Elliott & Mr. Oizo - RATATA - DJ Smerk Clap Intro (Dirty).stem.mp4", "no warnings issued.", elapsed time: 1m 35s
+2026-02-25 09:50:17 - Finished stem separation job for track "RATATA - DJ Smerk Clap Intro (Dirty)" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\124\\2PGEQYA4MYVHEAFA1BO1CSU0HQYD.stem.mp4", with offset 0µs, elapsed time: 1m 35s
+2026-02-25 14:58:32 - 
+2026-02-25 14:58:32 - <<< LOG CLOSE, Wed Feb 25 14:58:32 2026
+2026-02-26 20:27:45 - 
+2026-02-26 20:27:45 - >>> LOG OPEN, Thu Feb 26 20:27:45 2026
+2026-02-26 20:27:45 - Executable path: C:\Program Files\Native Instruments\Traktor Pro 4\Traktor Pro 4.exe
+2026-02-26 20:27:45 - Starting Traktor Pro 4 (4.2.0.34).
+2026-02-26 20:27:45 - Current URI scheme: C:\Program Files\Native Instruments\Traktor Pro 4\Traktor Pro 4.exe %1
+2026-02-26 20:27:46 - Applying preferences.
+2026-02-26 20:27:50 - *** Traktor CPU Info ***
+Packages: 1
+Cores: 6
+Processing Units: 12
+Requested Render Threads: 5
+Optimized Processing: false
+
+2026-02-26 20:27:50 - *** Traktor CPU Info ***
+Packages: 1
+Cores: 6
+Processing Units: 12
+Requested Render Threads: 5
+Optimized Processing: true
+
+2026-02-26 20:27:53 - Collection load time: 3.07 seconds.
+2026-02-26 20:51:49 - Finalized stem separation process for track "Heat Waves (HH Clean Intro)" - result: aborted by request, elapsed time: 0m 22s
+2026-02-26 20:51:49 - WARNING: Stem version could not be created for: M:\Music\iTunes\iTunes Media\Music\Glass Animals\@HEAVYHITSPOOL\Heat Waves (HH Clean Intro).mp3
+2026-02-26 20:54:04 - Finalized stem separation process for track "Heat Waves (HH Clean Intro)" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\Heat Waves (HH Clean Intro).stem.mp4", "no warnings issued.", elapsed time: 2m 10s
+2026-02-26 20:54:04 - Finished stem separation job for track "Heat Waves (HH Clean Intro)" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\044\\MBYHDUBUTU1SWAUB3Z2ZAEOHBFBB.stem.mp4", with offset 0µs, elapsed time: 2m 10s
+2026-02-26 20:58:13 - Finalized stem separation process for track "You & Me (feat. Eliza Doolittle) [Flume Remix]" - result: aborted by request, elapsed time: 1m 11s
+2026-02-26 20:58:13 - WARNING: Stem version could not be created for: M:\Music\iTunes\iTunes Media\Music\Disclosure\Settle (The Remixes)\08 You & Me (feat. Eliza Doolittle).m4a
+2026-02-26 20:58:58 - Finalized stem separation process for track "You & Me (feat. Eliza Doolittle) [Flume Remix]" - result: aborted by request, elapsed time: 0m 42s
+2026-02-26 20:58:58 - WARNING: Stem version could not be created for: M:\Music\iTunes\iTunes Media\Music\Disclosure\Settle (The Remixes)\08 You & Me (feat. Eliza Doolittle).m4a
+2026-02-26 21:00:33 - Finalized stem separation process for track "On My Mind x Heads Will Roll (Switch Disco Edit)" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\On My Mind x Heads Will Roll (Switch.stem.mp4", "no warnings issued.", elapsed time: 1m 32s
+2026-02-26 21:00:33 - Finished stem separation job for track "On My Mind x Heads Will Roll (Switch Disco Edit)" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\096\\A13O31CVKKGF4BSTVYLZBJWYZZDC.stem.mp4", with offset 0µs, elapsed time: 1m 32s
+2026-02-26 21:03:18 - Finalized stem separation process for track "You & Me (feat. Eliza Doolittle) [Flume Remix]" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\08 You & Me (feat. Eliza Doolittle).stem.mp4", "no warnings issued.", elapsed time: 2m 44s
+2026-02-26 21:03:18 - Finished stem separation job for track "You & Me (feat. Eliza Doolittle) [Flume Remix]" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\052\\UBAG1DC2DNWESAVNPSHWCQTINPTB.stem.mp4", with offset 0µs, elapsed time: 2m 44s
+2026-02-26 21:07:52 - Finalized stem separation process for track "Halo" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\Beyonce - Halo(1).stem.mp4", "no warnings issued.", elapsed time: 2m 38s
+2026-02-26 21:07:52 - Finished stem separation job for track "Halo" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\072\\IKI5O4DTY1PHNBNUWV2FBLRNL4VA.stem.mp4", with offset 0µs, elapsed time: 2m 38s
+2026-02-26 21:13:40 - Finalized stem separation process for track "Cocaine Inside My Blunts" - result: aborted by request, elapsed time: 0m 1s
+2026-02-26 21:13:40 - WARNING: Stem version could not be created for: C:\Users\ivorj\Music\iTunes\iTunes Media\Music\Disco Lines\Cocaine Inside My Blunts - Single\01 Cocaine Inside My Blunts.m4a
+2026-02-26 21:15:20 - Finalized stem separation process for track "No Broke Boys" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\01 No Broke Boys.stem.mp4", "no warnings issued.", elapsed time: 1m 37s
+2026-02-26 21:15:20 - Finished stem separation job for track "No Broke Boys" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\107\\LDCAPIC10DTQICN1N0QKAEOUFFGC.stem.mp4", with offset 0µs, elapsed time: 1m 37s
+2026-02-26 21:17:11 - Finalized stem separation process for track "Cocaine Inside My Blunts" - result: aborted by request, elapsed time: 1m 50s
+2026-02-26 21:17:11 - WARNING: Stem version could not be created for: C:\Users\ivorj\Music\iTunes\iTunes Media\Music\Disco Lines\Cocaine Inside My Blunts - Single\01 Cocaine Inside My Blunts.m4a
+2026-02-26 21:17:27 - WARNING: ID3-Tags could not be read for D:\Music\iTunes\iTunes Media\Music\The Hood Internet\The Mixtape Volume Two\04 Dr. Dre (feat. Snoop Dogg, Nate D.mp3.
+2026-02-26 21:17:27 - WARNING: File can not be played : The file may be missing, corrupt or unsupported.
+2026-02-26 21:17:36 - Finalized stem separation process for track "Cocaine Inside My Blunts" - result: aborted by request, elapsed time: 0m 22s
+2026-02-26 21:17:36 - WARNING: Stem version could not be created for: C:\Users\ivorj\Music\iTunes\iTunes Media\Music\Disco Lines\Cocaine Inside My Blunts - Single\01 Cocaine Inside My Blunts.m4a
+2026-02-26 21:18:25 - Finalized stem separation process for track "Cocaine Inside My Blunts" - result: aborted by request, elapsed time: 0m 42s
+2026-02-26 21:18:25 - WARNING: Stem version could not be created for: C:\Users\ivorj\Music\iTunes\iTunes Media\Music\Disco Lines\Cocaine Inside My Blunts - Single\01 Cocaine Inside My Blunts.m4a
+2026-02-26 21:18:57 - Finalized stem separation process for track "Cocaine Inside My Blunts" - result: aborted by request, elapsed time: 0m 30s
+2026-02-26 21:18:57 - WARNING: Stem version could not be created for: C:\Users\ivorj\Music\iTunes\iTunes Media\Music\Disco Lines\Cocaine Inside My Blunts - Single\01 Cocaine Inside My Blunts.m4a
+2026-02-26 21:20:56 - Finalized stem separation process for track "Cocaine Inside My Blunts" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\01 Cocaine Inside My Blunts.stem.mp4", "no warnings issued.", elapsed time: 1m 51s
+2026-02-26 21:20:56 - Finished stem separation job for track "Cocaine Inside My Blunts" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\010\\KAQGEPDPK3H4ABRPRHFNALQY2GOA.stem.mp4", with offset 0µs, elapsed time: 1m 51s
+2026-03-03 21:08:02 - 
+2026-03-03 21:08:02 - >>> LOG OPEN, Tue Mar  3 21:08:02 2026
+2026-03-03 21:08:02 - Executable path: C:\Program Files\Native Instruments\Traktor Pro 4\Traktor Pro 4.exe
+2026-03-03 21:08:02 - Starting Traktor Pro 4 (4.2.0.34).
+2026-03-03 21:08:02 - Current URI scheme: C:\Program Files\Native Instruments\Traktor Pro 4\Traktor Pro 4.exe %1
+2026-03-03 21:08:03 - Applying preferences.
+2026-03-03 21:08:10 - *** Traktor CPU Info ***
+Packages: 1
+Cores: 6
+Processing Units: 12
+Requested Render Threads: 5
+Optimized Processing: false
+
+2026-03-03 21:08:10 - *** Traktor CPU Info ***
+Packages: 1
+Cores: 6
+Processing Units: 12
+Requested Render Threads: 5
+Optimized Processing: true
+
+2026-03-03 21:08:12 - Collection load time: 4.04 seconds.
+2026-03-03 21:10:43 - 
+2026-03-03 21:10:43 - <<< LOG CLOSE, Tue Mar  3 21:10:43 2026
+2026-03-03 21:28:16 - 
+2026-03-03 21:28:16 - >>> LOG OPEN, Tue Mar  3 21:28:16 2026
+2026-03-03 21:28:16 - Executable path: C:\Program Files\Native Instruments\Traktor Pro 4\Traktor Pro 4.exe
+2026-03-03 21:28:16 - Starting Traktor Pro 4 (4.2.0.34).
+2026-03-03 21:28:16 - Current URI scheme: C:\Program Files\Native Instruments\Traktor Pro 4\Traktor Pro 4.exe %1
+2026-03-03 21:28:17 - Applying preferences.
+2026-03-03 21:28:21 - *** Traktor CPU Info ***
+Packages: 1
+Cores: 6
+Processing Units: 12
+Requested Render Threads: 5
+Optimized Processing: false
+
+2026-03-03 21:28:21 - *** Traktor CPU Info ***
+Packages: 1
+Cores: 6
+Processing Units: 12
+Requested Render Threads: 5
+Optimized Processing: true
+
+2026-03-03 21:28:26 - Collection load time: 4.44 seconds.
+2026-03-03 21:38:23 - Finalized stem separation process for track "Crave You (Adventure Club Remix)" - result: aborted by request, elapsed time: 1m 42s
+2026-03-03 21:38:23 - WARNING: Stem version could not be created for: C:\Users\ivorj\Music\iTunes\iTunes Media\Music\Flight Facilities\Crave You (Remixes) [feat. Giselle]\08 Crave You (Adventure Club Remix).m4a
+2026-03-03 21:38:27 - Finalized stem separation process for track "Cocaine Inside My Blunts" - result: aborted by request, elapsed time: 0m 1s
+2026-03-03 21:38:27 - WARNING: Stem version could not be created for: C:\Users\ivorj\Music\iTunes\iTunes Media\Music\Disco Lines\Cocaine Inside My Blunts - Single\01 Cocaine Inside My Blunts.m4a
+2026-03-03 21:41:09 - Finalized stem separation process for track "RATATA" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\02 RATATA.stem.mp4", "no warnings issued.", elapsed time: 2m 37s
+2026-03-03 21:41:09 - Finished stem separation job for track "RATATA" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\029\\3QDVQHCS05TY0BHQYR4JBNBK10RC.stem.mp4", with offset 0µs, elapsed time: 2m 37s
+2026-03-03 21:41:32 - Finalized stem separation process for track "No Broke Boys" - result: aborted by request, elapsed time: 0m 23s
+2026-03-03 21:41:32 - WARNING: Stem version could not be created for: C:\Users\ivorj\Music\iTunes\iTunes Media\Music\Disco Lines\No Broke Boys - Single\01 No Broke Boys.m4a
+2026-03-03 21:42:38 - Finalized stem separation process for track "There She Goes" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\01 There She Goes.stem.mp4", "no warnings issued.", elapsed time: 1m 4s
+2026-03-03 21:42:38 - Finished stem separation job for track "There She Goes" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\119\\XTX5AXAQ0SSBSALUIKSGCCNLAQZC.stem.mp4", with offset 0µs, elapsed time: 1m 4s
+2026-03-03 21:44:40 - Finalized stem separation process for track "Crave You (Adventure Club Remix)" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\08 Crave You (Adventure Club Remix).stem.mp4", "no warnings issued.", elapsed time: 2m 1s
+2026-03-03 21:44:40 - Finished stem separation job for track "Crave You (Adventure Club Remix)" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\032\\AVZSFBBVLWGX3DTYBNEWBP4FAQCD.stem.mp4", with offset 0µs, elapsed time: 2m 1s
+2026-03-03 21:45:30 - Finalized stem separation process for track "I Wanna Go - John Summit Remix" - result: aborted by request, elapsed time: 0m 49s
+2026-03-03 21:45:30 - WARNING: Stem version could not be created for: C:\Users\ivorj\Music\iTunes\iTunes Media\Music\John Summit & Britney Spears\I Wanna Go - John Summit Remix - Single\01 I Wanna Go - John Summit Remix.m4a
+2026-03-03 21:45:36 - Finalized stem separation process for track "Cocaine Inside My Blunts" - result: aborted by request, elapsed time: 0m 4s
+2026-03-03 21:45:36 - WARNING: Stem version could not be created for: C:\Users\ivorj\Music\iTunes\iTunes Media\Music\Disco Lines\Cocaine Inside My Blunts - Single\01 Cocaine Inside My Blunts.m4a
+2026-03-03 21:45:39 - Finalized stem separation process for track "Silence (John Summit Remix)" - result: aborted by request, elapsed time: 0m 0s
+2026-03-03 21:45:39 - WARNING: Stem version could not be created for: C:\Users\ivorj\Music\iTunes\iTunes Media\Music\Delerium\Silence (John Summit Remix) - Single\01 Silence (John Summit Remix).m4a
+2026-03-03 21:46:53 - Finalized stem separation process for track "Orgasmic" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\01 Orgasmic.stem.mp4", "no warnings issued.", elapsed time: 1m 12s
+2026-03-03 21:46:53 - Finished stem separation job for track "Orgasmic" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\019\\TYURMMCSDJFXWAOZYDH3BQLTTQKA.stem.mp4", with offset 0µs, elapsed time: 1m 12s
+2026-03-03 21:48:20 - Finalized stem separation process for track "No Broke Boys" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\01 No Broke Boys.stem.mp4", "no warnings issued.", elapsed time: 1m 27s
+2026-03-03 21:48:20 - Finished stem separation job for track "No Broke Boys" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\107\\LDCAPIC10DTQICN1N0QKAEOUFFGC.stem.mp4", with offset 0µs, elapsed time: 1m 27s
+2026-03-03 21:49:28 - Finalized stem separation process for track "I Run" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\01 I Run.stem.mp4", "no warnings issued.", elapsed time: 1m 8s
+2026-03-03 21:49:28 - Finished stem separation job for track "I Run" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\029\\3UNW3SCHNKYO4ALFMK20ANF3CFLC.stem.mp4", with offset 0µs, elapsed time: 1m 8s
+2026-03-03 21:50:55 - Finalized stem separation process for track "I Wanna Go - John Summit Remix" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\01 I Wanna Go - John Summit Remix.stem.mp4", "no warnings issued.", elapsed time: 1m 27s
+2026-03-03 21:50:55 - Finished stem separation job for track "I Wanna Go - John Summit Remix" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\103\\HDE1NMAA4A3VYB5YPZ0GDSWHHXXA.stem.mp4", with offset 0µs, elapsed time: 1m 27s
+2026-03-03 21:51:59 - Finalized stem separation process for track "Pool (Gravagerz Version)" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\01 Pool (Gravagerz Version).stem.mp4", "no warnings issued.", elapsed time: 1m 3s
+2026-03-03 21:51:59 - Finished stem separation job for track "Pool (Gravagerz Version)" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\019\\TMTS10CBHC1XEA24PAKUDBYDA4KC.stem.mp4", with offset 0µs, elapsed time: 1m 4s
+2026-03-03 21:53:37 - Finalized stem separation process for track "Cocaine Inside My Blunts" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\01 Cocaine Inside My Blunts.stem.mp4", "no warnings issued.", elapsed time: 1m 37s
+2026-03-03 21:53:37 - Finished stem separation job for track "Cocaine Inside My Blunts" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\010\\KAQGEPDPK3H4ABRPRHFNALQY2GOA.stem.mp4", with offset 0µs, elapsed time: 1m 37s
+2026-03-03 21:55:00 - Finalized stem separation process for track "Desire" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\01 Desire.stem.mp4", "no warnings issued.", elapsed time: 1m 23s
+2026-03-03 21:55:00 - Finished stem separation job for track "Desire" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\059\\1BM530CWBFWBIB40KTHPBGIBHUPA.stem.mp4", with offset 0µs, elapsed time: 1m 23s
+2026-03-03 21:57:23 - Finalized stem separation process for track "Silence (John Summit Remix)" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\01 Silence (John Summit Remix).stem.mp4", "no warnings issued.", elapsed time: 2m 22s
+2026-03-03 21:57:23 - Finished stem separation job for track "Silence (John Summit Remix)" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\124\\21VOZVDWETZMSAUHZMNIBNWXCI3D.stem.mp4", with offset 0µs, elapsed time: 2m 22s
+2026-03-03 22:15:53 - Finalized stem separation process for track "I RUN (FUTURE TRAP)" - result: aborted by request, elapsed time: 0m 4s
+2026-03-03 22:15:53 - WARNING: Stem version could not be created for: C:\Users\ivorj\Music\iTunes\iTunes Media\Music\AVELLO\I RUN (FUTURE TRAP) - Single\01 I RUN (FUTURE TRAP).m4a
+2026-03-03 22:15:56 - Finalized stem separation process for track "Dreamin (feat. Daya)" - result: aborted by request, elapsed time: 0m 0s
+2026-03-03 22:15:56 - WARNING: Stem version could not be created for: C:\Users\ivorj\Music\iTunes\iTunes Media\Music\Dom Dolla\Dreamin (feat. Daya) - Single\01 Dreamin (feat. Daya).m4a
+2026-03-03 22:16:06 - Finalized stem separation process for track "Buy U a Drank (Shawty Snappin') [feat. Yung Joc]" - result: aborted by request, elapsed time: 0m 4s
+2026-03-03 22:16:06 - WARNING: Stem version could not be created for: M:\Music\iTunes\iTunes Media\Music\T-Pain feat. Yung Joc\Buy U a Drank (Shawty Snappin') [feat. Y\01 Buy U a Drank (Shawty Snappin') [.m4a
+2026-03-03 22:17:17 - Finalized stem separation process for track "I RUN (FUTURE TRAP)" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\01 I RUN (FUTURE TRAP).stem.mp4", "no warnings issued.", elapsed time: 1m 4s
+2026-03-03 22:17:17 - Finished stem separation job for track "I RUN (FUTURE TRAP)" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\110\\OXSHAZAD4D0VAB01YWCRDJAW1HZD.stem.mp4", with offset 0µs, elapsed time: 1m 4s
+2026-03-03 22:19:00 - Finalized stem separation process for track "Sofa King" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\02 Sofa King.stem.mp4", "no warnings issued.", elapsed time: 1m 42s
+2026-03-03 22:19:00 - Finished stem separation job for track "Sofa King" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\010\\KQYXF5C434UT1C4SSUYSAHO1LXMB.stem.mp4", with offset 0µs, elapsed time: 1m 42s
+2026-03-03 22:20:30 - Finalized stem separation process for track "Dreamin (feat. Daya)" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\01 Dreamin (feat. Daya).stem.mp4", "no warnings issued.", elapsed time: 1m 30s
+2026-03-03 22:20:30 - Finished stem separation job for track "Dreamin (feat. Daya)" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\070\\GOEHCZDFG4XI0ANWOSM3AEC2CJID.stem.mp4", with offset 0µs, elapsed time: 1m 30s
+2026-03-03 22:22:31 - Finalized stem separation process for track "The Days (NOTION Remix)" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\01 The Days (NOTION Remix).stem.mp4", "no warnings issued.", elapsed time: 2m 0s
+2026-03-03 22:22:31 - Finished stem separation job for track "The Days (NOTION Remix)" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\099\\D5ISFGD5NJASWDDTORBIBIKB4PMC.stem.mp4", with offset 0µs, elapsed time: 2m 0s
+2026-03-03 22:24:17 - Finalized stem separation process for track "BILLIE EILISH LEGENDS MIX. (feat. Ludacris, Busta Rhymes & N.O.R.E.)" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\09 BILLIE EILISH LEGENDS MIX. (feat..stem.mp4", "no warnings issued.", elapsed time: 1m 45s
+2026-03-03 22:24:17 - Finished stem separation job for track "BILLIE EILISH LEGENDS MIX. (feat. Ludacris, Busta Rhymes & N.O.R.E.)" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\038\\GZRFPQAVQRLAODKRZBJ3AWGWC4BC.stem.mp4", with offset 0µs, elapsed time: 1m 45s
+2026-03-03 22:26:17 - Finalized stem separation process for track "Buy U a Drank (Shawty Snappin') [feat. Yung Joc]" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\01 Buy U a Drank (Shawty Snappin') [.stem.mp4", "no warnings issued.", elapsed time: 2m 0s
+2026-03-03 22:26:17 - Finished stem separation job for track "Buy U a Drank (Shawty Snappin') [feat. Yung Joc]" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\016\\QM041NDZDVK5JDNHNG01ADP20EAA.stem.mp4", with offset 0µs, elapsed time: 2m 0s
+2026-03-03 22:28:18 - Finalized stem separation process for track "Hot & Mysterious (Extended Mix)" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\02 Hot & Mysterious (Extended Mix).stem.mp4", "no warnings issued.", elapsed time: 2m 0s
+2026-03-03 22:28:18 - Finished stem separation job for track "Hot & Mysterious (Extended Mix)" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\122\\05BMTGCSQPEZBCQ0XI2MBSTSXQMA.stem.mp4", with offset 0µs, elapsed time: 2m 0s
+2026-03-03 22:30:08 - Finalized stem separation process for track "messy" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\01 messy.stem.mp4", "no warnings issued.", elapsed time: 1m 49s
+2026-03-03 22:30:08 - Finished stem separation job for track "messy" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\076\\MOBKVCAWNU0A1DSUALJMAA0N4QAB.stem.mp4", with offset 0µs, elapsed time: 1m 49s
+2026-03-03 22:39:33 - Finalized stem separation process for track "Peace Love & Wubz" - result: aborted by request, elapsed time: 0m 4s
+2026-03-03 22:39:33 - WARNING: Stem version could not be created for: C:\Users\ivorj\Music\iTunes\iTunes Media\Music\LSDREAM\Peace Love & Wubz\02 Peace Love & Wubz.m4a
+2026-03-03 22:41:31 - Finalized stem separation process for track "Stumblin' In" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\01 Stumblin' In.stem.mp4", "no warnings issued.", elapsed time: 1m 49s
+2026-03-03 22:41:31 - Finished stem separation job for track "Stumblin' In" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\014\\OMTAPJBNG1EUBASLRW4BBAVBJSTB.stem.mp4", with offset 0µs, elapsed time: 1m 49s
+2026-03-03 22:42:28 - Finalized stem separation process for track "No Brakes" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\01 No Brakes.stem.mp4", "no warnings issued.", elapsed time: 0m 56s
+2026-03-03 22:42:28 - Finished stem separation job for track "No Brakes" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\103\\HLVXS0CCBVPCEDMHZ5HSAUKDHXDB.stem.mp4", with offset 0µs, elapsed time: 0m 56s
+2026-03-03 22:43:28 - Finalized stem separation process for track "Baby Girl" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\01 Baby Girl.stem.mp4", "no warnings issued.", elapsed time: 1m 0s
+2026-03-03 22:43:28 - Finished stem separation job for track "Baby Girl" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\076\\MWK5TZDDFPPC5A4CHSH4BXOFPYPC.stem.mp4", with offset 0µs, elapsed time: 1m 0s
+2026-03-03 22:45:18 - Finalized stem separation process for track "Pick Up The Phone" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\01 Pick Up The Phone.stem.mp4", "no warnings issued.", elapsed time: 1m 49s
+2026-03-03 22:45:18 - Finished stem separation job for track "Pick Up The Phone" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\075\\LCM1HCDVG1EQ2DSI5JGLD35KRBZC.stem.mp4", with offset 0µs, elapsed time: 1m 49s
+2026-03-03 22:46:45 - Finalized stem separation process for track "Fancy $hit" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\01 Fancy $hit.stem.mp4", "no warnings issued.", elapsed time: 1m 26s
+2026-03-03 22:46:45 - Finished stem separation job for track "Fancy $hit" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\077\\NSF4YKB1JVOBHA1KDIPQBOWVRW3C.stem.mp4", with offset 0µs, elapsed time: 1m 26s
+2026-03-03 22:48:49 - Finalized stem separation process for track "Peace Love & Wubz" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\02 Peace Love & Wubz.stem.mp4", "no warnings issued.", elapsed time: 2m 4s
+2026-03-03 22:48:50 - Finished stem separation job for track "Peace Love & Wubz" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\098\\CX0BAKB0MMR5JD41KE22CKO3OBGA.stem.mp4", with offset 0µs, elapsed time: 2m 4s
+2026-03-03 22:50:17 - Finalized stem separation process for track "Say My Name (Remix)" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\01 Say My Name (Remix).stem.mp4", "no warnings issued.", elapsed time: 1m 27s
+2026-03-03 22:50:17 - Finished stem separation job for track "Say My Name (Remix)" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\126\\4LI3VBDMOXLKWA1FP5BRAX2UD1AB.stem.mp4", with offset 0µs, elapsed time: 1m 27s
+2026-03-03 22:51:59 - Finalized stem separation process for track "Pop Off" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\01 Pop Off.stem.mp4", "no warnings issued.", elapsed time: 1m 42s
+2026-03-03 22:52:00 - Finished stem separation job for track "Pop Off" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\054\\WZABRRDHHIUZRDODC5ICBXNY0DWC.stem.mp4", with offset 0µs, elapsed time: 1m 42s
+2026-03-03 22:53:57 - Finalized stem separation process for track "Fuck Your Sunshine (Adventure Club Remix) [Adventure Club Remix]" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\01 Fuck Your Sunshine (Adventure Clu.stem.mp4", "no warnings issued.", elapsed time: 1m 57s
+2026-03-03 22:53:57 - Finished stem separation job for track "Fuck Your Sunshine (Adventure Club Remix) [Adventure Club Remix]" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\064\\ASR5ZLA3D0YOGDAQIU3CAPQCID5D.stem.mp4", with offset 0µs, elapsed time: 1m 57s
+2026-03-03 22:59:34 - Finalized stem separation process for track "Unwritten (Vibey)" - result: aborted by request, elapsed time: 0m 0s
+2026-03-03 22:59:34 - WARNING: Stem version could not be created for: C:\Users\ivorj\Music\iTunes\iTunes Media\Music\Sunset Party\Unwritten (Vibey) - Single\01 Unwritten (Vibey).m4a
+2026-03-03 22:59:42 - Finalized stem separation process for track "Antibodies (feat. Cara Melín) [Lp Giobbi Remix]" - result: aborted by request, elapsed time: 0m 4s
+2026-03-03 22:59:42 - WARNING: Stem version could not be created for: C:\Users\ivorj\Music\iTunes\iTunes Media\Music\Tensnake\Antibodies (feat. Cara Melin)\02 Antibodies (feat. Cara Melín) [Lp.m4a
+2026-03-03 22:59:48 - Finalized stem separation process for track "Unwritten (Vibey)" - result: aborted by request, elapsed time: 0m 4s
+2026-03-03 22:59:48 - WARNING: Stem version could not be created for: C:\Users\ivorj\Music\iTunes\iTunes Media\Music\Sunset Party\Unwritten (Vibey) - Single\01 Unwritten (Vibey).m4a
+2026-03-03 23:00:59 - Finalized stem separation process for track "Fuck It Up" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\01 Fuck It Up.stem.mp4", "no warnings issued.", elapsed time: 1m 7s
+2026-03-03 23:00:59 - Finished stem separation job for track "Fuck It Up" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\127\\5HFAIGCUHB4QSDORIUJMBAWSKLDC.stem.mp4", with offset 0µs, elapsed time: 1m 7s
+2026-03-03 23:03:40 - Finalized stem separation process for track "Antibodies (feat. Cara Melín) [Lp Giobbi Remix]" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\02 Antibodies (feat. Cara Melín) [Lp.stem.mp4", "no warnings issued.", elapsed time: 2m 41s
+2026-03-03 23:03:40 - Finished stem separation job for track "Antibodies (feat. Cara Melín) [Lp Giobbi Remix]" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\121\\ZDBYNYBH23NTYA3K5UGYB5RMYRYA.stem.mp4", with offset 0µs, elapsed time: 2m 41s
+2026-03-03 23:05:37 - Finalized stem separation process for track "Lose Control (feat. Ciara & Fat Man Scoop)" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\04 Lose Control (feat. Ciara & Fat M.stem.mp4", "no warnings issued.", elapsed time: 1m 56s
+2026-03-03 23:05:37 - Finished stem separation job for track "Lose Control (feat. Ciara & Fat Man Scoop)" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\122\\0LJ0T3ANGHFHTCWHWHC3DKXZ0GFA.stem.mp4", with offset 0µs, elapsed time: 1m 56s
+2026-03-03 23:06:49 - Finalized stem separation process for track "Unwritten (Vibey)" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\01 Unwritten (Vibey).stem.mp4", "no warnings issued.", elapsed time: 1m 12s
+2026-03-03 23:06:49 - Finished stem separation job for track "Unwritten (Vibey)" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\038\\GNI0FYDLXWW4QBPTNFEGCJ1C2E1B.stem.mp4", with offset 0µs, elapsed time: 1m 12s
+2026-03-04 00:11:44 - 
+2026-03-04 00:11:44 - <<< LOG CLOSE, Wed Mar  4 00:11:44 2026
+2026-03-04 13:10:58 - 
+2026-03-04 13:10:58 - >>> LOG OPEN, Wed Mar  4 13:10:58 2026
+2026-03-04 13:10:58 - Executable path: C:\Program Files\Native Instruments\Traktor Pro 4\Traktor Pro 4.exe
+2026-03-04 13:10:58 - Starting Traktor Pro 4 (4.2.0.34).
+2026-03-04 13:10:58 - Current URI scheme: C:\Program Files\Native Instruments\Traktor Pro 4\Traktor Pro 4.exe %1
+2026-03-04 13:10:59 - Applying preferences.
+2026-03-04 13:11:03 - *** Traktor CPU Info ***
+Packages: 1
+Cores: 6
+Processing Units: 12
+Requested Render Threads: 5
+Optimized Processing: false
+
+2026-03-04 13:11:03 - *** Traktor CPU Info ***
+Packages: 1
+Cores: 6
+Processing Units: 12
+Requested Render Threads: 5
+Optimized Processing: true
+
+2026-03-04 13:11:05 - Collection load time: 2.91 seconds.
+2026-03-04 14:05:58 - Finalized stem separation process for track "Stay For It" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\Stay For It.stem.mp4", "no warnings issued.", elapsed time: 2m 21s
+2026-03-04 14:05:58 - Finished stem separation job for track "Stay For It" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\035\\DJBQ12DSH0NAYA4QE5O0DXXKCTOA.stem.mp4", with offset 0µs, elapsed time: 2m 21s
+2026-03-05 21:00:00 - Finalized stem separation process for track "Wildest Dreams (R3hab Remix)" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\01 Wildest Dreams (R3hab Remix).stem.mp4", "no warnings issued.", elapsed time: 1m 59s
+2026-03-05 21:00:01 - Finished stem separation job for track "Wildest Dreams (R3hab Remix)" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\026\\0ANBOOBLZXYRRBNYLNECAFXW0EEA.stem.mp4", with offset 0µs, elapsed time: 1m 59s
+2026-03-05 21:14:13 - Finalized stem separation process for track "Intoxicated" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\01 Intoxicated.stem.mp4", "no warnings issued.", elapsed time: 2m 23s
+2026-03-05 21:14:13 - Finished stem separation job for track "Intoxicated" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\105\\JXWRG1CF1YM5WA4FAS2UDYYF4H4C.stem.mp4", with offset 0µs, elapsed time: 2m 23s
+2026-03-05 21:18:30 - Finalized stem separation process for track "Wannabe (Smochi Grind)" - result: aborted by request, elapsed time: 1m 34s
+2026-03-05 21:18:30 - WARNING: Stem version could not be created for: M:\Music\Downloads\01. Wannabe (Smochi Grind).mp3
+2026-03-05 21:18:44 - Finalized stem separation process for track "Wannabe (Smochi Grind)" - result: aborted by request, elapsed time: 0m 13s
+2026-03-05 21:18:44 - WARNING: Stem version could not be created for: M:\Music\Downloads\01. Wannabe (Smochi Grind).mp3
+2026-03-05 21:18:54 - Finalized stem separation process for track "Wannabe (Smochi Grind)" - result: aborted by request, elapsed time: 0m 9s
+2026-03-05 21:18:54 - WARNING: Stem version could not be created for: M:\Music\Downloads\01. Wannabe (Smochi Grind).mp3
+2026-03-05 21:19:14 - Finalized stem separation process for track "Wannabe (Smochi Grind)" - result: aborted by request, elapsed time: 0m 17s
+2026-03-05 21:19:14 - WARNING: Stem version could not be created for: M:\Music\Downloads\01. Wannabe (Smochi Grind).mp3
+2026-03-05 21:19:31 - Finalized stem separation process for track "Wannabe (Smochi Grind)" - result: aborted by request, elapsed time: 0m 13s
+2026-03-05 21:19:31 - WARNING: Stem version could not be created for: M:\Music\Downloads\01. Wannabe (Smochi Grind).mp3
+2026-03-05 21:19:59 - Finalized stem separation process for track "Wannabe (Smochi Grind)" - result: aborted by request, elapsed time: 0m 25s
+2026-03-05 21:19:59 - WARNING: Stem version could not be created for: M:\Music\Downloads\01. Wannabe (Smochi Grind).mp3
+2026-03-05 21:20:19 - Finalized stem separation process for track "Wannabe (Smochi Grind)" - result: aborted by request, elapsed time: 0m 17s
+2026-03-05 21:20:19 - WARNING: Stem version could not be created for: M:\Music\Downloads\01. Wannabe (Smochi Grind).mp3
+2026-03-05 21:22:09 - Finalized stem separation process for track "Wannabe (Smochi Grind)" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\01. Wannabe (Smochi Grind).stem.mp4", "no warnings issued.", elapsed time: 1m 48s
+2026-03-05 21:22:09 - Finished stem separation job for track "Wannabe (Smochi Grind)" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\120\\YH2JRFCUG5HMDCSGPY0GAKU1QQ2A.stem.mp4", with offset 0µs, elapsed time: 1m 48s
+2026-03-05 21:23:11 - Finalized stem separation process for track "Sunday Best" - result: aborted by request, elapsed time: 0m 24s
+2026-03-05 21:23:11 - WARNING: Stem version could not be created for: M:\Music\iTunes\iTunes Media\Music\Surfaces\Where the Light Is\07 Sunday Best.m4a
+2026-03-05 21:24:54 - Finalized stem separation process for track "Sunday Best" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\01 Sunday Best.stem.mp4", "no warnings issued.", elapsed time: 1m 36s
+2026-03-05 21:24:54 - Finished stem separation job for track "Sunday Best" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\101\\FPTRQIBVDRMSYAH1HOLSDNLBFAIA.stem.mp4", with offset 0µs, elapsed time: 1m 36s
+2026-03-05 21:26:29 - Finalized stem separation process for track "ELECTRIC LOVE" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\01 ELECTRIC LOVE.stem.mp4", "no warnings issued.", elapsed time: 1m 34s
+2026-03-05 21:26:29 - Finished stem separation job for track "ELECTRIC LOVE" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\021\\V22FKIAXAX5JXCQ4HUEFBQ4C4HGD.stem.mp4", with offset 0µs, elapsed time: 1m 34s
+2026-03-05 21:26:35 - Finalized stem separation process for track "Good Feeling (feat. Rhys Lewis)" - result: aborted by request, elapsed time: 0m 5s
+2026-03-05 21:26:35 - WARNING: Stem version could not be created for: C:\Users\ivorj\Music\iTunes\iTunes Media\Music\Bakermat\Good Feeling (feat. Rhys Lewis) - Single\01 Good Feeling (feat. Rhys Lewis).m4a
+2026-03-05 21:28:13 - Finalized stem separation process for track "Sunday Best" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\07 Sunday Best.stem.mp4", "no warnings issued.", elapsed time: 1m 30s
+2026-03-05 21:28:13 - Finished stem separation job for track "Sunday Best" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\099\\DLLCY2ANN0MYTC0A3XL0CDGTEYBA.stem.mp4", with offset 0µs, elapsed time: 1m 30s
+2026-03-05 21:29:39 - Finalized stem separation process for track "think you're someone new (Remix)" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\01 think you're someone new (Remix).stem.mp4", "no warnings issued.", elapsed time: 1m 25s
+2026-03-05 21:29:39 - Finished stem separation job for track "think you're someone new (Remix)" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\101\\FPPI1ABRQCKOYC04OKQKADTUCDUB.stem.mp4", with offset 0µs, elapsed time: 1m 25s
+2026-03-05 21:31:41 - Finalized stem separation process for track "crystallized (feat. Inez) - Subtronics Remix" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\01 crystallized (feat. Inez) - Subtr.stem.mp4", "no warnings issued.", elapsed time: 2m 2s
+2026-03-05 21:31:41 - Finished stem separation job for track "crystallized (feat. Inez) - Subtronics Remix" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\038\\GB2OPPCSTIC4NBVEZBD3B0IOZFMB.stem.mp4", with offset 0µs, elapsed time: 2m 2s
+2026-03-05 21:33:43 - Finalized stem separation process for track "Good Feeling (feat. Rhys Lewis)" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\01 Good Feeling (feat. Rhys Lewis).stem.mp4", "no warnings issued.", elapsed time: 2m 1s
+2026-03-05 21:33:43 - Finished stem separation job for track "Good Feeling (feat. Rhys Lewis)" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\072\\IO5MQ2CPZMUOPADOHWRWAW4O51EC.stem.mp4", with offset 0µs, elapsed time: 2m 1s
+2026-03-05 22:41:10 - Finalized stem separation process for track "We Groovin" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\01 We Groovin.stem.mp4", "no warnings issued.", elapsed time: 1m 43s
+2026-03-05 22:41:10 - Finished stem separation job for track "We Groovin" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\023\\XQ03TEB5PNOCKB22LSYWCVII5N5A.stem.mp4", with offset 0µs, elapsed time: 1m 43s
+2026-03-05 22:43:06 - Finalized stem separation process for track "Dreaming (Gibson Parker Remix)" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\08 Dreaming (Gibson Parker Remix).stem.mp4", "no warnings issued.", elapsed time: 1m 55s
+2026-03-05 22:43:06 - Finished stem separation job for track "Dreaming (Gibson Parker Remix)" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\055\\XNSME5AK2E5HJATINZCHBKNBDODB.stem.mp4", with offset 0µs, elapsed time: 1m 55s
+2026-03-05 22:44:40 - Finalized stem separation process for track "Blue Berries" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\01 Blue Berries.stem.mp4", "no warnings issued.", elapsed time: 1m 34s
+2026-03-05 22:44:40 - Finished stem separation job for track "Blue Berries" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\069\\FOZLNFAC1TFMEAGHONK0CJTF1MQC.stem.mp4", with offset 0µs, elapsed time: 1m 34s
+2026-03-06 15:39:09 - ERROR: Cannot execute BPM-detection due to missing transients ! Please analyze first.
+2026-03-06 15:44:13 - Finalized stem separation process for track "By Your Side (feat. Tom Grennan)" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\01 By Your Side (feat. Tom Grennan).stem.mp4", "no warnings issued.", elapsed time: 1m 43s
+2026-03-06 15:44:13 - Finished stem separation job for track "By Your Side (feat. Tom Grennan)" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\031\\5UQGLQCSFAAUJDXCOQGED4E5PZ5D.stem.mp4", with offset 0µs, elapsed time: 1m 44s
+2026-03-06 19:26:36 - Finalized stem separation process for track "Lavender Haze (Snakehips Remix)" - result: aborted by request, elapsed time: 1m 23s
+2026-03-06 19:26:36 - WARNING: Stem version could not be created for: C:\Users\ivorj\Music\iTunes\iTunes Media\Music\Taylor Swift & Snakehips\Lavender Haze (Snakehips Remix) - Single\01 Lavender Haze (Snakehips Remix).m4a
+2026-03-06 19:28:29 - Finalized stem separation process for track "Lavender Haze (Snakehips Remix)" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\01 Lavender Haze (Snakehips Remix).stem.mp4", "no warnings issued.", elapsed time: 1m 46s
+2026-03-06 19:28:29 - Finished stem separation job for track "Lavender Haze (Snakehips Remix)" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\058\\034A4DCTYXPJKD4VYF3PDJHLGZFD.stem.mp4", with offset 0µs, elapsed time: 1m 46s
+2026-03-06 23:23:39 - Finalized stem separation process for track "Get Busy (Odd Mob Club Mix)" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\01 Get Busy (Odd Mob Club Mix).stem.mp4", "no warnings issued.", elapsed time: 1m 32s
+2026-03-06 23:23:39 - Finished stem separation job for track "Get Busy (Odd Mob Club Mix)" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\032\\AZWUAADTSQJMID2QYJTIAUIAH1PD.stem.mp4", with offset 0µs, elapsed time: 1m 32s
+2026-03-06 23:24:13 - Finalized stem separation process for track "Higher Love" - result: aborted by request, elapsed time: 0m 4s
+2026-03-06 23:24:13 - WARNING: Stem version could not be created for: M:\Music\Additional from old computer\01 Higher Love.m4a
+2026-03-06 23:24:21 - Finalized stem separation process for track "First Time" - result: aborted by request, elapsed time: 0m 4s
+2026-03-06 23:24:21 - WARNING: Stem version could not be created for: M:\Music\iTunes\iTunes Media\Music\Kygo & Ellie Goulding\Unknown Album\First Time.mp3
+2026-03-06 23:24:24 - Finalized stem separation process for track "Higher Love" - result: aborted by request, elapsed time: 0m 1s
+2026-03-06 23:24:24 - WARNING: Stem version could not be created for: M:\Music\Additional from old computer\01 Higher Love.m4a
+2026-03-06 23:26:05 - Finalized stem separation process for track "Coming Over (feat. James Hersey)" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\05 Coming Over (feat. James Hersey).stem.mp4", "no warnings issued.", elapsed time: 1m 39s
+2026-03-06 23:26:05 - Finished stem separation job for track "Coming Over (feat. James Hersey)" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\045\\N3N3UPCPZH2RAD10G000DL4J1KZC.stem.mp4", with offset 0µs, elapsed time: 1m 39s
+2026-03-06 23:27:51 - Finalized stem separation process for track "First Time" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\First Time.stem.mp4", "no warnings issued.", elapsed time: 1m 45s
+2026-03-06 23:27:51 - Finished stem separation job for track "First Time" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\050\\SJHGTRBIKAKEACZALC1RAGFBXFGB.stem.mp4", with offset 0µs, elapsed time: 1m 45s
+2026-03-06 23:29:53 - Finalized stem separation process for track "Higher Love" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\01 Higher Love.stem.mp4", "no warnings issued.", elapsed time: 2m 2s
+2026-03-06 23:29:53 - Finished stem separation job for track "Higher Love" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\009\\J2C10ED1PINLZAOJSCYVCZGMRX2B.stem.mp4", with offset 0µs, elapsed time: 2m 2s
+2026-03-07 11:37:37 - 
+2026-03-07 11:37:37 - >>> LOG OPEN, Sat Mar  7 11:37:37 2026
+2026-03-07 11:37:37 - Executable path: C:\Program Files\Native Instruments\Traktor Pro 4\Traktor Pro 4.exe
+2026-03-07 11:37:37 - Starting Traktor Pro 4 (4.2.0.34).
+2026-03-07 11:37:37 - Current URI scheme: C:\Program Files\Native Instruments\Traktor Pro 4\Traktor Pro 4.exe %1
+2026-03-07 11:37:38 - Applying preferences.
+2026-03-07 11:37:42 - *** Traktor CPU Info ***
+Packages: 1
+Cores: 6
+Processing Units: 12
+Requested Render Threads: 5
+Optimized Processing: false
+
+2026-03-07 11:37:42 - *** Traktor CPU Info ***
+Packages: 1
+Cores: 6
+Processing Units: 12
+Requested Render Threads: 5
+Optimized Processing: true
+
+2026-03-07 11:37:45 - Collection load time: 2.98 seconds.
+2026-03-07 11:40:28 - Applying preferences.
+2026-03-07 11:47:54 - Applying preferences.
+2026-03-07 11:50:04 - Finalized stem separation process for track "September (One Love Bootleg)" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\September-One-Love.stem.mp4", "no warnings issued.", elapsed time: 3m 7s
+2026-03-07 11:50:04 - Finished stem separation job for track "September (One Love Bootleg)" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\017\\REAGBMDLQ1EM3BY1AR34DDLAZ0MC.stem.mp4", with offset 0µs, elapsed time: 3m 7s
+2026-03-07 11:53:06 - Finalized stem separation process for track "RESPECT My Girl (2Bays Edit)" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\RESPECT My Girl (2Bays Edit).stem.mp4", "no warnings issued.", elapsed time: 2m 28s
+2026-03-07 11:53:06 - Finished stem separation job for track "RESPECT My Girl (2Bays Edit)" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\050\\SZRSMHD3KF21VBIT1WMBASI0ARIC.stem.mp4", with offset 0µs, elapsed time: 2m 28s
+2026-03-07 12:38:05 - ERROR: Cannot execute BPM-detection due to missing transients ! Please analyze first.
+2026-03-07 17:05:43 - 
+2026-03-07 17:05:43 - <<< LOG CLOSE, Sat Mar  7 17:05:43 2026
+2026-06-10 12:54:16 - 
+2026-06-10 12:54:16 - >>> LOG OPEN, Wed Jun 10 12:54:16 2026
+2026-06-10 12:54:16 - Executable path: C:\Program Files\Native Instruments\Traktor Pro 4\Traktor Pro 4.exe
+2026-06-10 12:54:16 - Starting Traktor Pro 4 (4.2.0.34).
+2026-06-10 12:54:16 - Current URI scheme: C:\Program Files\Native Instruments\Traktor Pro 4\Traktor Pro 4.exe %1
+2026-06-10 12:54:17 - Applying preferences.
+2026-06-10 12:54:24 - *** Traktor CPU Info ***
+Packages: 1
+Cores: 6
+Processing Units: 12
+Requested Render Threads: 5
+Optimized Processing: false
+
+2026-06-10 12:54:24 - *** Traktor CPU Info ***
+Packages: 1
+Cores: 6
+Processing Units: 12
+Requested Render Threads: 5
+Optimized Processing: true
+
+2026-06-10 12:54:28 - Collection load time: 4.46 seconds.
+2026-06-10 12:56:32 - 
+2026-06-10 12:56:32 - <<< LOG CLOSE, Wed Jun 10 12:56:32 2026
+2026-06-10 13:59:29 - 
+2026-06-10 13:59:29 - >>> LOG OPEN, Wed Jun 10 13:59:29 2026
+2026-06-10 13:59:29 - Executable path: C:\Program Files\Native Instruments\Traktor Pro 4\Traktor Pro 4.exe
+2026-06-10 13:59:29 - Starting Traktor Pro 4 (4.2.0.34).
+2026-06-10 13:59:29 - Current URI scheme: C:\Program Files\Native Instruments\Traktor Pro 4\Traktor Pro 4.exe %1
+2026-06-10 13:59:31 - Applying preferences.
+2026-06-10 13:59:37 - *** Traktor CPU Info ***
+Packages: 1
+Cores: 6
+Processing Units: 12
+Requested Render Threads: 5
+Optimized Processing: false
+
+2026-06-10 13:59:37 - *** Traktor CPU Info ***
+Packages: 1
+Cores: 6
+Processing Units: 12
+Requested Render Threads: 5
+Optimized Processing: true
+
+2026-06-10 13:59:42 - Collection load time: 4.65 seconds.
+2026-07-27 01:13:42 - 
+2026-07-27 01:13:42 - <<< LOG CLOSE, Mon Jul 27 01:13:42 2026
+2026-07-28 15:05:56 - 
+2026-07-28 15:05:56 - >>> LOG OPEN, Tue Jul 28 15:05:56 2026
+2026-07-28 15:05:56 - Executable path: C:\Program Files\Native Instruments\Traktor Pro 4\Traktor Pro 4.exe
+2026-07-28 15:05:56 - Starting Traktor Pro 4 (4.2.0.34).
+2026-07-28 15:05:56 - Current URI scheme: C:\Program Files\Native Instruments\Traktor Pro 4\Traktor Pro 4.exe %1
+2026-07-28 15:05:57 - Applying preferences.
+2026-07-28 15:06:01 - *** Traktor CPU Info ***
+Packages: 1
+Cores: 6
+Processing Units: 12
+Requested Render Threads: 5
+Optimized Processing: false
+
+2026-07-28 15:06:01 - *** Traktor CPU Info ***
+Packages: 1
+Cores: 6
+Processing Units: 12
+Requested Render Threads: 5
+Optimized Processing: true
+
+2026-07-28 15:06:04 - Collection load time: 2.99 seconds.
+2026-07-28 15:13:10 - WARNING: The track 01 Hypnosis.mp4 could not be deleted! Make sure that the track is not loaded in a deck or opened in another application.
+2026-07-28 15:34:35 - WARNING: ID3-Tags could not be read for M:\iTunes\iTunes Media\Music\Compilations\Any Port in a Storm (Special Edition)\20 Lay Me Down (feat. Rome).m4a.
+2026-07-28 15:34:35 - WARNING: ID3-Tags could not be read for M:\iTunes\iTunes Media\Music\Kygo ft. Conrad\Unknown Album\Firestone.mp3.
+2026-07-28 15:34:35 - WARNING: ID3-Tags could not be read for M:\iTunes\iTunes Media\Music\Sublime\Sublime\06 Santeria.m4a.
+2026-07-28 15:34:35 - WARNING: ID3-Tags could not be read for M:\iTunes\iTunes Media\Music\The Beach Boys\Sounds of Summer - The Very Best of The\03 Surfin Safari.m4a.
+2026-07-28 15:34:35 - WARNING: ID3-Tags could not be read for M:\iTunes\iTunes Media\Music\The Beach Boys\Sounds of Summer_ The Very Best of the B\02 I Get Around.m4a.
+2026-07-28 15:34:35 - WARNING: ID3-Tags could not be read for M:\Quantized\I Get Around (Quantized).mp3.
+2026-07-28 15:34:35 - WARNING: ID3-Tags could not be read for M:\Downloads\Hunter\01 Fresh (House of Prayers Poolside.mp4.
+2026-07-28 15:34:35 - WARNING: ID3-Tags could not be read for M:\Downloads\Hunter\Fred again.. & Obongjayar - adore u.mp3.
+2026-07-28 15:34:35 - WARNING: ID3-Tags could not be read for M:\iTunes\iTunes Media\Music\Sigala\Unknown Album\Sweet Lovin'.mp3.
+2026-07-28 15:35:11 - WARNING: ID3-Tags could not be read for M:\iTunes\iTunes Media\Music\Compilations\Any Port in a Storm (Special Edition)\20 Lay Me Down (feat. Rome).m4a.
+2026-07-28 16:02:30 - Finalized stem separation process for track "Lay Me Down (feat. Rome)" - result: aborted by request, elapsed time: 0m 11s
+2026-07-28 16:02:30 - WARNING: Stem version could not be created for: M:\Music\iTunes\iTunes Media\Music\Compilations\Any Port in a Storm (Special Edition)\20 Lay Me Down (feat. Rome).m4a
+2026-07-28 16:02:33 - Finalized stem separation process for track "Firestone" - result: aborted by request, elapsed time: 0m 1s
+2026-07-28 16:02:33 - WARNING: Stem version could not be created for: M:\Music\iTunes\iTunes Media\Music\Kygo ft. Conrad\Unknown Album\Firestone.mp3
+2026-07-28 16:02:45 - Finalized stem separation process for track "Santeria" - result: aborted by request, elapsed time: 0m 5s
+2026-07-28 16:02:45 - WARNING: Stem version could not be created for: M:\Music\iTunes\iTunes Media\Music\Sublime\Sublime\06 Santeria.m4a
+2026-07-28 16:04:09 - Finalized stem separation process for track "Surfin Safari" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\03 Surfin Safari.stem.mp4", "no warnings issued.", elapsed time: 1m 12s
+2026-07-28 16:04:09 - Finished stem separation job for track "Surfin Safari" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\027\\1QETI4CTUGNMODCCA0XRDKEJSNJA.stem.mp4", with offset 0µs, elapsed time: 1m 12s
+2026-07-28 16:05:30 - Finalized stem separation process for track "I Get Around (Quantized)" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\I Get Around (Quantized).stem.mp4", "no warnings issued.", elapsed time: 1m 20s
+2026-07-28 16:05:30 - Finished stem separation job for track "I Get Around (Quantized)" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\057\\ZRPTJYDJGXYIMAJO3B50CF3RYO2C.stem.mp4", with offset 0µs, elapsed time: 1m 20s
+2026-07-28 16:07:31 - Finalized stem separation process for track "Lay Me Down (feat. Rome)" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\20 Lay Me Down (feat. Rome).stem.mp4", "no warnings issued.", elapsed time: 2m 0s
+2026-07-28 16:07:31 - Finished stem separation job for track "Lay Me Down (feat. Rome)" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\077\\NO0F3RC3VWCFCBLSUKMIDDHUKKRD.stem.mp4", with offset 0µs, elapsed time: 2m 0s
+2026-07-28 16:10:06 - Finalized stem separation process for track "Fresh (House of Prayers Poolside Edit)" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\01 Fresh (House of Prayers Poolside.stem.mp4", "no warnings issued.", elapsed time: 2m 35s
+2026-07-28 16:10:06 - Finished stem separation job for track "Fresh (House of Prayers Poolside Edit)" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\089\\Z0ABIHAFOSFVVA5RFKLOBCVHNO5D.stem.mp4", with offset 0µs, elapsed time: 2m 35s
+2026-07-28 16:12:36 - Finalized stem separation process for track "Firestone" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\Firestone.stem.mp4", "no warnings issued.", elapsed time: 2m 30s
+2026-07-28 16:12:36 - Finished stem separation job for track "Firestone" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\050\\SJTIWJDXNBF4JCKH31COATF0SOTA.stem.mp4", with offset 0µs, elapsed time: 2m 30s
+2026-07-28 16:14:37 - Finalized stem separation process for track "adore u" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\Fred again.. & Obongjayar - adore u.stem.mp4", "no warnings issued.", elapsed time: 2m 0s
+2026-07-28 16:14:37 - Finished stem separation job for track "adore u" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\077\\NSCXGOAN0BVITB1C3WVYAI5VYB2A.stem.mp4", with offset 0µs, elapsed time: 2m 0s
+2026-07-28 16:17:18 - Finalized stem separation process for track "Easy Love" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\Sweet Lovin'.stem.mp4", "no warnings issued.", elapsed time: 2m 41s
+2026-07-28 16:17:18 - Finished stem separation job for track "Sweet Lovin'" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\043\\LBDJ3SBXDQJHVBG2ZHBPAF5GMGPC.stem.mp4", with offset 0µs, elapsed time: 2m 41s
+2026-07-28 16:20:37 - Finalized stem separation process for track "More Than A Woman (SG's Paradise Edit)" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\01 More Than A Woman (SG's Paradise.stem.mp4", "no warnings issued.", elapsed time: 3m 18s
+2026-07-28 16:20:37 - Finished stem separation job for track "More Than A Woman (SG's Paradise Edit)" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\008\\IEUQV4BZDJSXADKUJMLRCIDSC1ZD.stem.mp4", with offset 0µs, elapsed time: 3m 18s
+2026-07-28 16:22:18 - Finalized stem separation process for track "Santeria" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\06 Santeria.stem.mp4", "no warnings issued.", elapsed time: 1m 40s
+2026-07-28 16:22:18 - Finished stem separation job for track "Santeria" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\121\\ZLEI3LCKIKINSBZ44LMQB5DK2XPD.stem.mp4", with offset 0µs, elapsed time: 1m 40s
+2026-07-28 16:23:45 - Finalized stem separation process for track "Summer In New York" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\03 Summer In New York.stem.mp4", "no warnings issued.", elapsed time: 1m 26s
+2026-07-28 16:23:45 - Finished stem separation job for track "Summer In New York" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\087\\XWX2EOBYNZQDKDMMCKAEDLIKFWPA.stem.mp4", with offset 0µs, elapsed time: 1m 26s
+2026-07-28 16:26:22 - Finalized stem separation process for track "Could You Be Loved (with LP Giobbi)" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\01 Could You Be Loved (with LP Giobb.stem.mp4", "no warnings issued.", elapsed time: 2m 37s
+2026-07-28 16:26:22 - Finished stem separation job for track "Could You Be Loved (with LP Giobbi)" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\090\\0424GPBIER5INDL0I4TSB05M3OYB.stem.mp4", with offset 0µs, elapsed time: 2m 37s
+2026-07-28 16:27:51 - Finalized stem separation process for track "Jacaré" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\01 Jacaré.stem.mp4", "no warnings issued.", elapsed time: 1m 28s
+2026-07-28 16:27:51 - Finished stem separation job for track "Jacaré" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\099\\D11LD0BLGLGHMDBOTP3OB13BROQC.stem.mp4", with offset 0µs, elapsed time: 1m 28s
+2026-07-29 15:33:32 - Finalized stem separation process for track "Stole the Show (feat. Parson James)" - result: aborted by request, elapsed time: 0m 1s
+2026-07-29 15:33:32 - WARNING: Stem version could not be created for: M:\Music\iTunes\iTunes Media\Music\Kygo\Stole the Show (feat. Parson James) - Si\01 Stole the Show (feat. Parson Jame.m4a
+2026-07-29 15:33:40 - Finalized stem separation process for track "Fireball (feat. John Ryan)" - result: aborted by request, elapsed time: 0m 4s
+2026-07-29 15:33:40 - WARNING: Stem version could not be created for: M:\Music\iTunes\iTunes Media\Music\Pitbull\Fireball (feat. John Ryan) - Single\01 Fireball (feat. John Ryan).m4a
+2026-07-29 15:34:06 - Finalized stem separation process for track "Stole the Show (feat. Parson James)" - result: aborted by request, elapsed time: 0m 23s
+2026-07-29 15:34:06 - WARNING: Stem version could not be created for: M:\Music\iTunes\iTunes Media\Music\Kygo\Stole the Show (feat. Parson James) - Si\01 Stole the Show (feat. Parson Jame.m4a
+2026-07-29 15:34:18 - Finalized stem separation process for track "Havana (feat. Young Thug)" - result: aborted by request, elapsed time: 0m 8s
+2026-07-29 15:34:18 - WARNING: Stem version could not be created for: M:\Music\iTunes\iTunes Media\Music\Camila Cabello\Camila\04 Havana (feat. Young Thug).m4a
+2026-07-29 15:36:06 - Finalized stem separation process for track "Fireball (feat. John Ryan)" - result: aborted by request, elapsed time: 1m 42s
+2026-07-29 15:36:06 - WARNING: Stem version could not be created for: M:\Music\iTunes\iTunes Media\Music\Pitbull\Fireball (feat. John Ryan) - Single\01 Fireball (feat. John Ryan).m4a
+2026-07-29 15:36:13 - Finalized stem separation process for track "Margaritaville" - result: aborted by request, elapsed time: 0m 0s
+2026-07-29 15:36:13 - WARNING: Stem version could not be created for: M:\Music\iTunes\iTunes Media\Music\Jimmy Buffett\Songs You Know By Heart\06 Margaritaville.m4a
+2026-07-29 15:36:19 - Finalized stem separation process for track "Stole the Show (feat. Parson James)" - result: aborted by request, elapsed time: 0m 0s
+2026-07-29 15:36:19 - WARNING: Stem version could not be created for: M:\Music\iTunes\iTunes Media\Music\Kygo\Stole the Show (feat. Parson James) - Si\01 Stole the Show (feat. Parson Jame.m4a
+2026-07-29 15:38:14 - Finalized stem separation process for track "Feel So Close (Radio Edit)" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\01 Feel So Close (Radio Edit).stem.mp4", "no warnings issued.", elapsed time: 1m 49s
+2026-07-29 15:38:14 - Finished stem separation job for track "Feel So Close (Radio Edit)" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\068\\EGYL5IDG0MKV0AMCTGGXCGFUMM1C.stem.mp4", with offset 0µs, elapsed time: 1m 49s
+2026-07-29 15:40:07 - Finalized stem separation process for track "Dancing Feet (feat. DNCE)" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\01 Dancing Feet (feat. DNCE).stem.mp4", "no warnings issued.", elapsed time: 1m 53s
+2026-07-29 15:40:07 - Finished stem separation job for track "Dancing Feet (feat. DNCE)" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\014\\OITEV2ANR5T5ZCDZLXIXCYJ1VSVA.stem.mp4", with offset 0µs, elapsed time: 1m 53s
+2026-07-29 15:42:01 - Finalized stem separation process for track "Havana (feat. Young Thug)" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\04 Havana (feat. Young Thug).stem.mp4", "no warnings issued.", elapsed time: 1m 54s
+2026-07-29 15:42:02 - Finished stem separation job for track "Havana (feat. Young Thug)" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\092\\2GBIJXDONATUWBQG4DRBAHKIMGIA.stem.mp4", with offset 0µs, elapsed time: 1m 54s
+2026-07-29 15:44:03 - Finalized stem separation process for track "Macarena" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\Macarena.stem.mp4", "no warnings issued.", elapsed time: 2m 1s
+2026-07-29 15:44:03 - Finished stem separation job for track "Macarena" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\000\\AEANJ4DZJMXOPCHCQO3EBNPBLERD.stem.mp4", with offset 0µs, elapsed time: 2m 1s
+2026-07-29 15:46:05 - Finalized stem separation process for track "Fireball (feat. John Ryan)" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\01 Fireball (feat. John Ryan).stem.mp4", "no warnings issued.", elapsed time: 2m 1s
+2026-07-29 15:46:05 - Finished stem separation job for track "Fireball (feat. John Ryan)" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\003\\DQ3CIECOML4HJA5JZXA2DHX01JLA.stem.mp4", with offset 0µs, elapsed time: 2m 1s
+2026-07-29 15:47:47 - Finalized stem separation process for track "Who Let the Dogs Out" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\01 Who Let the Dogs Out.stem.mp4", "no warnings issued.", elapsed time: 1m 42s
+2026-07-29 15:47:47 - Finished stem separation job for track "Who Let the Dogs Out" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\048\\QVEXB4AJJR44ZDEIBPB5BMHBFNFD.stem.mp4", with offset 0µs, elapsed time: 1m 42s
+2026-07-29 15:49:41 - Finalized stem separation process for track "Kokomo" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\Kokomo.stem.mp4", "no warnings issued.", elapsed time: 1m 54s
+2026-07-29 15:49:42 - Finished stem separation job for track "Kokomo" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\024\\YYBOUHB3M0S4WCY5ST5LCK1KIHYD.stem.mp4", with offset 0µs, elapsed time: 1m 54s
+2026-07-29 15:51:50 - Finalized stem separation process for track "Margaritaville" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\06 Margaritaville.stem.mp4", "no warnings issued.", elapsed time: 2m 8s
+2026-07-29 15:51:50 - Finished stem separation job for track "Margaritaville" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\091\\1OH3NNDMWI4Q4B5U2UGOAJ0JESKC.stem.mp4", with offset 0µs, elapsed time: 2m 8s
+2026-07-29 15:53:45 - Finalized stem separation process for track "Good Vibrations" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\2-25 Good Vibrations.stem.mp4", "no warnings issued.", elapsed time: 1m 54s
+2026-07-29 15:53:45 - Finished stem separation job for track "Good Vibrations" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\007\\HIAYUNCO4CLT2AEIPMDFAAQXKZJB.stem.mp4", with offset 0µs, elapsed time: 1m 54s
+2026-07-29 15:56:55 - Finalized stem separation process for track "Sexual Healing - Kygo Remix" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\Sexual Healing - Kygo Remix.stem.mp4", "no warnings issued.", elapsed time: 3m 10s
+2026-07-29 15:56:55 - Finished stem separation job for track "Sexual Healing - Kygo Remix" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\056\\YJKAUFAWODPTODY1XHMZASTHEUQC.stem.mp4", with offset 0µs, elapsed time: 3m 10s
+2026-07-29 15:58:53 - Finalized stem separation process for track "Stole the Show (feat. Parson James)" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\01 Stole the Show (feat. Parson Jame.stem.mp4", "no warnings issued.", elapsed time: 1m 57s
+2026-07-29 15:58:53 - Finished stem separation job for track "Stole the Show (feat. Parson James)" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\058\\0FRF30CA24FHOCB1DYYTBRJ0KRMC.stem.mp4", with offset 0µs, elapsed time: 1m 57s
+2026-07-30 11:09:24 - 
+2026-07-30 11:09:24 - >>> LOG OPEN, Thu Jul 30 11:09:24 2026
+2026-07-30 11:09:24 - Executable path: C:\Program Files\Native Instruments\Traktor Pro 4\Traktor Pro 4.exe
+2026-07-30 11:09:24 - Starting Traktor Pro 4 (4.2.0.34).
+2026-07-30 11:09:24 - Current URI scheme: C:\Program Files\Native Instruments\Traktor Pro 4\Traktor Pro 4.exe %1
+2026-07-30 11:09:25 - Applying preferences.
+2026-07-30 11:09:29 - *** Traktor CPU Info ***
+Packages: 1
+Cores: 6
+Processing Units: 12
+Requested Render Threads: 5
+Optimized Processing: false
+
+2026-07-30 11:09:29 - *** Traktor CPU Info ***
+Packages: 1
+Cores: 6
+Processing Units: 12
+Requested Render Threads: 5
+Optimized Processing: true
+
+2026-07-30 11:09:32 - Collection load time: 3.04 seconds.
+2026-07-30 11:11:01 - Finalized stem separation process for track "Summer Love" - result: aborted by request, elapsed time: 0m 8s
+2026-07-30 11:11:01 - WARNING: Stem version could not be created for: C:\Users\ivorj\Music\iTunes\iTunes Media\Music\Justin Timberlake\FutureSex_LoveSounds\09 Summer Love.m4a
+2026-07-30 11:13:03 - Finalized stem separation process for track "Stole the Show (feat. Parson James)" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\01 Stole the Show (feat. Parson Jame.stem.mp4", "no warnings issued.", elapsed time: 1m 57s
+2026-07-30 11:13:04 - Finished stem separation job for track "Stole the Show (feat. Parson James)" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\058\\0FRF30CA24FHOCB1DYYTBRJ0KRMC.stem.mp4", with offset 0µs, elapsed time: 1m 57s
+2026-07-30 11:15:11 - Finalized stem separation process for track "Margaritaville" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\06 Margaritaville.stem.mp4", "no warnings issued.", elapsed time: 2m 7s
+2026-07-30 11:15:11 - Finished stem separation job for track "Margaritaville" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\091\\1OH3NNDMWI4Q4B5U2UGOAJ0JESKC.stem.mp4", with offset 0µs, elapsed time: 2m 7s
+2026-07-30 11:17:23 - Finalized stem separation process for track "Summer Love" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\09 Summer Love.stem.mp4", "no warnings issued.", elapsed time: 2m 11s
+2026-07-30 11:17:23 - Finished stem separation job for track "Summer Love" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\062\\4RGRSGD30W2YNCKICP3NDQJTMLCC.stem.mp4", with offset 0µs, elapsed time: 2m 11s
+2026-07-30 14:45:49 - WARNING: ID3-Tags could not be read for D:\Music\iTunes\iTunes Media\Music\Michael Franti & Spearhead\All Rebel Rockers\06 Say Hey (I Love You).mp3.
+2026-07-30 14:49:48 - Finalized stem separation process for track "Macarena" - result: aborted by request, elapsed time: 0m 5s
+2026-07-30 14:49:48 - WARNING: Stem version could not be created for: M:\Music\iTunes\iTunes Media\Music\Los Del Rio\Unknown Album\Macarena.mp3
+2026-07-30 14:51:39 - Finalized stem separation process for track "Who Let the Dogs Out" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\01 Who Let the Dogs Out.stem.mp4", "no warnings issued.", elapsed time: 1m 43s
+2026-07-30 14:51:40 - Finished stem separation job for track "Who Let the Dogs Out" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\048\\QVEXB4AJJR44ZDEIBPB5BMHBFNFD.stem.mp4", with offset 0µs, elapsed time: 1m 43s
+2026-07-30 14:53:24 - Finalized stem separation process for track "Jamming (Deville Club Mix) Clean - No Hype Edit" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\Jammin_Club_Mix_NHE.stem.mp4", "no warnings issued.", elapsed time: 1m 44s
+2026-07-30 14:53:24 - Finished stem separation job for track "Jamming (Deville Club Mix) Clean - No Hype Edit" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\045\\NFJETWD0DTVD1DHLUQ1ICGYI5IRA.stem.mp4", with offset 0µs, elapsed time: 1m 44s
+2026-07-30 14:55:27 - Finalized stem separation process for track "Macarena" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\Macarena.stem.mp4", "no warnings issued.", elapsed time: 2m 3s
+2026-07-30 14:55:27 - Finished stem separation job for track "Macarena" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\000\\AEANJ4DZJMXOPCHCQO3EBNPBLERD.stem.mp4", with offset 0µs, elapsed time: 2m 3s
+2026-07-30 14:57:22 - Finalized stem separation process for track "Kokomo" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\Kokomo.stem.mp4", "no warnings issued.", elapsed time: 1m 55s
+2026-07-30 14:57:23 - Finished stem separation job for track "Kokomo" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\024\\YYBOUHB3M0S4WCY5ST5LCK1KIHYD.stem.mp4", with offset 0µs, elapsed time: 1m 55s
+2026-07-30 14:59:18 - Finalized stem separation process for track "Good Vibrations" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\2-25 Good Vibrations.stem.mp4", "no warnings issued.", elapsed time: 1m 55s
+2026-07-30 14:59:19 - Finished stem separation job for track "Good Vibrations" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\007\\HIAYUNCO4CLT2AEIPMDFAAQXKZJB.stem.mp4", with offset 0µs, elapsed time: 1m 56s
+2026-07-30 15:49:49 - Finalized stem separation process for track "Sexual Healing - Kygo Remix" - result: aborted by request, elapsed time: 0m 28s
+2026-07-30 15:49:49 - WARNING: Stem version could not be created for: M:\Music\iTunes\iTunes Media\Music\Marvin Gaye\Unknown Album\Sexual Healing - Kygo Remix.mp3
+2026-07-30 15:50:01 - Finalized stem separation process for track "Sexual Healing - SNBRN Remix" - result: aborted by request, elapsed time: 0m 8s
+2026-07-30 15:50:01 - WARNING: Stem version could not be created for: M:\Music\iTunes\iTunes Media\Music\Marvin Gaye\Unknown Album\Sexual Healing - SNBRN Remix.mp3
+2026-07-30 15:52:07 - Finalized stem separation process for track "Let You Go" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\Diplo & TSHA - Let You Go.stem.mp4", "no warnings issued.", elapsed time: 2m 3s
+2026-07-30 15:52:07 - Finished stem separation job for track "Let You Go" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\000\\AANIMRDRSABDAAFDYVDQAEVYZP0B.stem.mp4", with offset 0µs, elapsed time: 2m 3s
+2026-07-30 15:53:40 - Finalized stem separation process for track "Jacaré (Cat Dealers Remix)" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\01 Jacaré (Cat Dealers Remix).stem.mp4", "no warnings issued.", elapsed time: 1m 32s
+2026-07-30 15:53:40 - Finished stem separation job for track "Jacaré (Cat Dealers Remix)" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\009\\JIKC3FDHYZOTABEG5W2BBVICIQPD.stem.mp4", with offset 0µs, elapsed time: 1m 32s
+2026-07-30 15:55:48 - Finalized stem separation process for track "Could You Be Loved" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\03 Could You Be Loved.stem.mp4", "no warnings issued.", elapsed time: 2m 7s
+2026-07-30 15:55:48 - Finished stem separation job for track "Could You Be Loved" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\094\\4432NZCP11ZZBAR3GODVDYW4MJSC.stem.mp4", with offset 0µs, elapsed time: 2m 7s
+2026-07-30 15:59:01 - Finalized stem separation process for track "Sexual Healing - Kygo Remix" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\Sexual Healing - Kygo Remix.stem.mp4", "no warnings issued.", elapsed time: 3m 12s
+2026-07-30 15:59:01 - Finished stem separation job for track "Sexual Healing - Kygo Remix" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\056\\YJKAUFAWODPTODY1XHMZASTHEUQC.stem.mp4", with offset 0µs, elapsed time: 3m 13s
+2026-07-30 16:01:30 - Finalized stem separation process for track "Pepas" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\01 Pepas.stem.mp4", "no warnings issued.", elapsed time: 2m 29s
+2026-07-30 16:01:30 - Finished stem separation job for track "Pepas" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\061\\3JC34RBMK1W3YAYZCOOAA0AZ4ZIB.stem.mp4", with offset 0µs, elapsed time: 2m 29s
+2026-07-30 16:03:07 - Finalized stem separation process for track "Sexual Healing - SNBRN Remix" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\Sexual Healing - SNBRN Remix.stem.mp4", "no warnings issued.", elapsed time: 1m 36s
+2026-07-30 16:03:07 - Finished stem separation job for track "Sexual Healing - SNBRN Remix" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\080\\QGZBZ3BXZVNQ2AHZV1AQD5PEAIMB.stem.mp4", with offset 0µs, elapsed time: 1m 36s
+2026-07-30 16:09:09 - Finalized stem separation process for track "Dancing Feet (feat. DNCE)" - result: aborted by request, elapsed time: 0m 1s
+2026-07-30 16:09:09 - WARNING: Stem version could not be created for: M:\Music\iTunes\iTunes Media\Music\Kygo\Dancing Feet (feat. DNCE) - Single\01 Dancing Feet (feat. DNCE).m4a
+2026-07-30 16:09:16 - Finalized stem separation process for track "Feel So Close (Radio Edit)" - result: aborted by request, elapsed time: 0m 4s
+2026-07-30 16:09:16 - WARNING: Stem version could not be created for: M:\Music\iTunes\iTunes Media\Music\Calvin Harris\Feel So Close\01 Feel So Close (Radio Edit).m4a
+2026-07-30 16:11:18 - Finalized stem separation process for track "Dancing Feet (feat. DNCE)" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\01 Dancing Feet (feat. DNCE).stem.mp4", "no warnings issued.", elapsed time: 1m 56s
+2026-07-30 16:11:18 - Finished stem separation job for track "Dancing Feet (feat. DNCE)" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\014\\OITEV2ANR5T5ZCDZLXIXCYJ1VSVA.stem.mp4", with offset 0µs, elapsed time: 1m 56s
+2026-07-30 16:13:14 - Finalized stem separation process for track "Havana (feat. Young Thug)" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\04 Havana (feat. Young Thug).stem.mp4", "no warnings issued.", elapsed time: 1m 55s
+2026-07-30 16:13:14 - Finished stem separation job for track "Havana (feat. Young Thug)" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\092\\2GBIJXDONATUWBQG4DRBAHKIMGIA.stem.mp4", with offset 0µs, elapsed time: 1m 56s
+2026-07-30 16:15:05 - Finalized stem separation process for track "Feel So Close (Radio Edit)" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\01 Feel So Close (Radio Edit).stem.mp4", "no warnings issued.", elapsed time: 1m 51s
+2026-07-30 16:15:05 - Finished stem separation job for track "Feel So Close (Radio Edit)" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\068\\EGYL5IDG0MKV0AMCTGGXCGFUMM1C.stem.mp4", with offset 0µs, elapsed time: 1m 51s
+2026-07-30 16:17:08 - Finalized stem separation process for track "Fireball (feat. John Ryan)" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\01 Fireball (feat. John Ryan).stem.mp4", "no warnings issued.", elapsed time: 2m 2s
+2026-07-30 16:17:08 - Finished stem separation job for track "Fireball (feat. John Ryan)" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\003\\DQ3CIECOML4HJA5JZXA2DHX01JLA.stem.mp4", with offset 0µs, elapsed time: 2m 2s
+2026-07-30 16:23:19 - Finalized stem separation process for track "September" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\September.stem.mp4", "no warnings issued.", elapsed time: 1m 54s
+2026-07-30 16:23:19 - Finished stem separation job for track "September" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\072\\ICMHQHA53XSELDX4G2WQA3KC3IOC.stem.mp4", with offset 0µs, elapsed time: 1m 54s
+2026-07-30 16:27:22 - Applying preferences.
+2026-07-30 16:34:07 - Finalized stem separation process for track "Shake Senora (feat. T-Pain & Sean Paul)" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\07 Shake Senora (feat. T-Pain & Sean.stem.mp4", "no warnings issued.", elapsed time: 1m 53s
+2026-07-30 16:34:07 - Finished stem separation job for track "Shake Senora (feat. T-Pain & Sean Paul)" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\062\\4BN1WEA2SGIYNA4TFI2ZCL0KKBBB.stem.mp4", with offset 0µs, elapsed time: 1m 53s
+2026-07-30 16:55:31 - Finalized stem separation process for track "Cake By The Ocean (Hook First - Clean)" - result: aborted by request, elapsed time: 0m 4s
+2026-07-30 16:55:31 - WARNING: Stem version could not be created for: M:\Music\iTunes\iTunes Media\Music\DNCE\Unknown Album\Cake By The Ocean (Hook First - Clea.mp3
+2026-07-30 16:56:02 - Finalized stem separation process for track "Somewhere Over the Rainbow" - result: aborted by request, elapsed time: 0m 23s
+2026-07-30 16:56:02 - WARNING: Stem version could not be created for: M:\Music\iTunes\iTunes Media\Music\Israel Kamakawiwo'ole\Alone in IZ World\10 Somewhere Over the Rainbow.m4a
+2026-07-30 16:57:59 - Finalized stem separation process for track "Cake By The Ocean (Hook First - Clean)" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\Cake By The Ocean (Hook First - Clea.stem.mp4", "no warnings issued.", elapsed time: 1m 54s
+2026-07-30 16:57:59 - Finished stem separation job for track "Cake By The Ocean (Hook First - Clean)" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\107\\LLKG0RDHPSZPMBVY2PPVAJNQN1QB.stem.mp4", with offset 0µs, elapsed time: 1m 54s
+2026-07-30 16:59:49 - Finalized stem separation process for track "Island In The Sun" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\04 Island In The Sun.stem.mp4", "no warnings issued.", elapsed time: 1m 50s
+2026-07-30 16:59:49 - Finished stem separation job for track "Island In The Sun" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\091\\10DBULAROQFZ3AJES50PBTKDZQVB.stem.mp4", with offset 0µs, elapsed time: 1m 50s
+2026-07-30 17:01:28 - Finalized stem separation process for track "Castaway" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\08 Castaway.stem.mp4", "no warnings issued.", elapsed time: 1m 38s
+2026-07-30 17:01:28 - Finished stem separation job for track "Castaway" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\051\\TRGSHOAD1PCUVBDTRKJNA43RE4WB.stem.mp4", with offset 0µs, elapsed time: 1m 38s
+2026-07-30 17:03:11 - Finalized stem separation process for track "Don't Stop (Quantized)" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\Don't Stop (Quantized).stem.mp4", "no warnings issued.", elapsed time: 1m 43s
+2026-07-30 17:03:11 - Finished stem separation job for track "Don't Stop (Quantized)" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\076\\MCUOVABQ54IPCBEVP2Q0B4JGLX2B.stem.mp4", with offset 0µs, elapsed time: 1m 43s
+2026-07-30 17:05:01 - Finalized stem separation process for track "Somewhere Over the Rainbow" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\10 Somewhere Over the Rainbow.stem.mp4", "no warnings issued.", elapsed time: 1m 49s
+2026-07-30 17:05:01 - Finished stem separation job for track "Somewhere Over the Rainbow" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\039\\HR0OOSBRUD0R2DGQIZ4XC4PDZACC.stem.mp4", with offset 0µs, elapsed time: 1m 49s
+2026-07-30 19:37:15 - Finalized stem separation process for track "I'm Yours" - result: aborted by request, elapsed time: 0m 16s
+2026-07-30 19:37:15 - WARNING: Stem version could not be created for: M:\Music\Additional from old computer\Jason Mraz - I'm Yours.mp3
+2026-07-30 19:38:19 - Finalized stem separation process for track "I Can See Clearly Now" - result: aborted by request, elapsed time: 1m 1s
+2026-07-30 19:38:19 - WARNING: Stem version could not be created for: M:\Music\iTunes\iTunes Media\Music\Compilations\Radio Hits of the '70s\02 I Can See Clearly Now.m4a
+2026-07-30 19:39:06 - Finalized stem separation process for track "I'm Yours" - result: aborted by request, elapsed time: 0m 43s
+2026-07-30 19:39:06 - WARNING: Stem version could not be created for: M:\Music\Additional from old computer\Jason Mraz - I'm Yours.mp3
+2026-07-30 19:39:21 - Finalized stem separation process for track "I Can See Clearly Now" - result: aborted by request, elapsed time: 0m 12s
+2026-07-30 19:39:21 - WARNING: Stem version could not be created for: M:\Music\iTunes\iTunes Media\Music\Compilations\Radio Hits of the '70s\02 I Can See Clearly Now.m4a
+2026-07-30 19:39:46 - Finalized stem separation process for track "You Should Be Dancing - Louis X Remix" - result: aborted by request, elapsed time: 0m 19s
+2026-07-30 19:39:46 - WARNING: Stem version could not be created for: M:\Music\DJ City\Bee Gees - You Should Be Dancing - Louis X Remix.mp3
+2026-07-30 19:41:13 - Finalized stem separation process for track "Come and Get Your Love (Quantized)" - result: aborted by request, elapsed time: 1m 24s
+2026-07-30 19:41:13 - WARNING: Stem version could not be created for: M:\Music\Quantized\Come and Get Your Love (Quantized).mp3
+2026-07-30 19:42:59 - Finalized stem separation process for track "I'm Yours" - result: aborted by request, elapsed time: 1m 43s
+2026-07-30 19:42:59 - WARNING: Stem version could not be created for: M:\Music\Additional from old computer\Jason Mraz - I'm Yours.mp3
+2026-07-30 19:44:14 - Finalized stem separation process for track "Knee Deep (feat. Jimmy Buffett)" - result: aborted by request, elapsed time: 1m 10s
+2026-07-30 19:44:14 - WARNING: Stem version could not be created for: M:\Music\iTunes\iTunes Media\Music\Zac Brown Band\You Get What You Give (Deluxe Version)\02 Knee Deep (feat. Jimmy Buffett).m4a
+2026-07-30 19:45:56 - Finalized stem separation process for track "I Can See Clearly Now" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\02 I Can See Clearly Now.stem.mp4", "no warnings issued.", elapsed time: 1m 38s
+2026-07-30 19:45:56 - Finished stem separation job for track "I Can See Clearly Now" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\108\\M1KODTBIK1IBQCRQ0JO3A3WJJKUB.stem.mp4", with offset 0µs, elapsed time: 1m 38s
+2026-07-30 19:47:53 - Finalized stem separation process for track "Where the Boat Leaves From" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\03 Where the Boat Leaves From.stem.mp4", "no warnings issued.", elapsed time: 1m 57s
+2026-07-30 19:47:53 - Finished stem separation job for track "Where the Boat Leaves From" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\092\\2CFAXFC2XUPYLBCKVU0AB1ECSC5D.stem.mp4", with offset 0µs, elapsed time: 1m 57s
+2026-07-30 19:49:35 - Finalized stem separation process for track "You Should Be Dancing - Louis X Remix" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\Bee Gees - You Should Be Dancing - Louis X Remix.stem.mp4", "no warnings issued.", elapsed time: 1m 42s
+2026-07-30 19:49:35 - Finished stem separation job for track "You Should Be Dancing - Louis X Remix" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\038\\GRI41PANGCTH2DLT5KFQBCWMJCEA.stem.mp4", with offset 0µs, elapsed time: 1m 42s
+2026-07-30 19:51:26 - Finalized stem separation process for track "Come and Get Your Love (Quantized)" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\Come and Get Your Love (Quantized).stem.mp4", "no warnings issued.", elapsed time: 1m 50s
+2026-07-30 19:51:26 - Finished stem separation job for track "Come and Get Your Love (Quantized)" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\072\\I0BS5YCJMW5XGAJQZPJOBKQBI4NA.stem.mp4", with offset 0µs, elapsed time: 1m 50s
+2026-07-30 19:53:37 - Finalized stem separation process for track "I'm Yours" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\Jason Mraz - I'm Yours.stem.mp4", "no warnings issued.", elapsed time: 2m 11s
+2026-07-30 19:53:37 - Finished stem separation job for track "I'm Yours" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\006\\GYLV5IBVDN4LACC5AQ25CDGADQ4D.stem.mp4", with offset 0µs, elapsed time: 2m 11s
+2026-07-30 19:55:23 - Finalized stem separation process for track "Knee Deep (feat. Jimmy Buffett)" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\02 Knee Deep (feat. Jimmy Buffett).stem.mp4", "no warnings issued.", elapsed time: 1m 46s
+2026-07-30 19:55:23 - Finished stem separation job for track "Knee Deep (feat. Jimmy Buffett)" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\080\\QS5MLPDI240ADDHDBUTWDQJJ33AD.stem.mp4", with offset 0µs, elapsed time: 1m 46s
+2026-07-30 20:06:25 - Finalized stem separation process for track "Three Little Birds" - result: aborted by request, elapsed time: 0m 12s
+2026-07-30 20:06:25 - WARNING: Stem version could not be created for: M:\Music\iTunes\iTunes Media\Music\Bob Marley & The Wailers\Legend (Remastered) [Bonus Tracks]\04 Three Little Birds.m4a
+2026-07-30 20:07:48 - Finalized stem separation process for track "Three Little Birds" - result: aborted by request, elapsed time: 1m 20s
+2026-07-30 20:07:48 - WARNING: Stem version could not be created for: M:\Music\iTunes\iTunes Media\Music\Bob Marley & The Wailers\Legend (Remastered) [Bonus Tracks]\04 Three Little Birds.m4a
+2026-07-30 20:09:33 - Finalized stem separation process for track "Three Little Birds" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\04 Three Little Birds.stem.mp4", "no warnings issued.", elapsed time: 1m 40s
+2026-07-30 20:09:33 - Finished stem separation job for track "Three Little Birds" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\116\\ULSJ42CC0250GAFIMECZBKCP1JRB.stem.mp4", with offset 0µs, elapsed time: 1m 40s
+2026-07-30 20:11:06 - Finalized stem separation process for track "Toes" - result: aborted by request, elapsed time: 1m 32s
+2026-07-30 20:11:06 - WARNING: Stem version could not be created for: M:\Music\iTunes\iTunes Media\Music\Zac Brown Band\The Foundation (Deluxe Version)\01 Toes.m4a
+2026-07-30 20:11:45 - Finalized stem separation process for track "Toes" - result: aborted by request, elapsed time: 0m 32s
+2026-07-30 20:11:45 - WARNING: Stem version could not be created for: M:\Music\iTunes\iTunes Media\Music\Zac Brown Band\The Foundation (Deluxe Version)\01 Toes.m4a
+2026-07-30 20:11:49 - Finalized stem separation process for track "December, 1963 (Oh What a Night!) (Quantized)" - result: aborted by request, elapsed time: 0m 1s
+2026-07-30 20:11:49 - WARNING: Stem version could not be created for: M:\Music\Quantized\December, 1963 (Oh What a Night!) (Quantized).mp3
+2026-07-30 20:12:44 - Finalized stem separation process for track "Take a Chance On Me (Quantized)" - result: aborted by request, elapsed time: 0m 52s
+2026-07-30 20:12:44 - WARNING: Stem version could not be created for: M:\Music\Quantized\Take a Chance On Me (Quantized).mp3
+2026-07-30 20:13:16 - Finalized stem separation process for track "Toes" - result: aborted by request, elapsed time: 0m 28s
+2026-07-30 20:13:16 - WARNING: Stem version could not be created for: M:\Music\iTunes\iTunes Media\Music\Zac Brown Band\The Foundation (Deluxe Version)\01 Toes.m4a
+2026-07-30 20:15:13 - Finalized stem separation process for track "December, 1963 (Oh What a Night!) (Quantized)" - result: aborted by request, elapsed time: 1m 55s
+2026-07-30 20:15:13 - WARNING: Stem version could not be created for: M:\Music\Quantized\December, 1963 (Oh What a Night!) (Quantized).mp3
+2026-07-30 20:15:46 - Finalized stem separation process for track "Take a Chance On Me (Quantized)" - result: aborted by request, elapsed time: 0m 28s
+2026-07-30 20:15:46 - WARNING: Stem version could not be created for: M:\Music\Quantized\Take a Chance On Me (Quantized).mp3
+2026-07-30 20:16:17 - Finalized stem separation process for track "Toes" - result: aborted by request, elapsed time: 0m 28s
+2026-07-30 20:16:17 - WARNING: Stem version could not be created for: M:\Music\iTunes\iTunes Media\Music\Zac Brown Band\The Foundation (Deluxe Version)\01 Toes.m4a
+2026-07-30 20:16:56 - Finalized stem separation process for track "December, 1963 (Oh What a Night!) (Quantized)" - result: aborted by request, elapsed time: 0m 36s
+2026-07-30 20:16:56 - WARNING: Stem version could not be created for: M:\Music\Quantized\December, 1963 (Oh What a Night!) (Quantized).mp3
+2026-07-30 20:17:23 - Finalized stem separation process for track "Take a Chance On Me (Quantized)" - result: aborted by request, elapsed time: 0m 24s
+2026-07-30 20:17:23 - WARNING: Stem version could not be created for: M:\Music\Quantized\Take a Chance On Me (Quantized).mp3
+2026-07-30 20:17:52 - Finalized stem separation process for track "Toes" - result: aborted by request, elapsed time: 0m 24s
+2026-07-30 20:17:52 - WARNING: Stem version could not be created for: M:\Music\iTunes\iTunes Media\Music\Zac Brown Band\The Foundation (Deluxe Version)\01 Toes.m4a
+2026-07-30 20:18:27 - Finalized stem separation process for track "December, 1963 (Oh What a Night!) (Quantized)" - result: aborted by request, elapsed time: 0m 32s
+2026-07-30 20:18:27 - WARNING: Stem version could not be created for: M:\Music\Quantized\December, 1963 (Oh What a Night!) (Quantized).mp3
+2026-07-30 20:20:42 - Finalized stem separation process for track "Take a Chance On Me (Quantized)" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\Take a Chance On Me (Quantized).stem.mp4", "no warnings issued.", elapsed time: 2m 13s
+2026-07-30 20:20:42 - Finished stem separation job for track "Take a Chance On Me (Quantized)" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\071\\HGRK1SCI2DB5ZA2OPDBDA20MHWSD.stem.mp4", with offset 0µs, elapsed time: 2m 13s
+2026-07-30 20:23:06 - Finalized stem separation process for track "Toes" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\01 Toes.stem.mp4", "no warnings issued.", elapsed time: 2m 24s
+2026-07-30 20:23:06 - Finished stem separation job for track "Toes" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\114\\SLDK4MAIXLDX2BM1U3CADOSFOZLD.stem.mp4", with offset 0µs, elapsed time: 2m 24s
+2026-07-30 20:25:03 - Finalized stem separation process for track "December, 1963 (Oh What a Night!) (Quantized)" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\December, 1963 (Oh What a Night!) (Quantized).stem.mp4", "no warnings issued.", elapsed time: 1m 57s
+2026-07-30 20:25:03 - Finished stem separation job for track "December, 1963 (Oh What a Night!) (Quantized)" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\106\\KDZ2WGDG5JBOXAFNAB53AZUX0VZC.stem.mp4", with offset 0µs, elapsed time: 1m 57s
+2026-07-30 20:54:29 - Finalized stem separation process for track "You're Welcome" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\1-07 You're Welcome.stem.mp4", "no warnings issued.", elapsed time: 1m 36s
+2026-07-30 20:54:29 - Finished stem separation job for track "You're Welcome" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\075\\L4W221DH0YF1KCPPT5NQBRQSQIEB.stem.mp4", with offset 0µs, elapsed time: 1m 36s
+2026-07-30 20:55:04 - Finalized stem separation process for track "Jaws - Main Title (2025 Mix)" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\01 Jaws - Main Title (2025 Mix).stem.mp4", "no warnings issued.", elapsed time: 0m 35s
+2026-07-30 20:55:04 - Finished stem separation job for track "Jaws - Main Title (2025 Mix)" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\091\\1SNUNODJ5CNQUD4HKRJ0DXPKCRWB.stem.mp4", with offset 0µs, elapsed time: 0m 35s
+2026-07-30 20:55:35 - Finalized stem separation process for track "Time Bomb" - result: aborted by request, elapsed time: 0m 30s
+2026-07-30 20:55:35 - WARNING: Stem version could not be created for: C:\Users\ivorj\Music\iTunes\iTunes Media\Music\Iration\Time Bomb\01 Time Bomb.m4a
+2026-07-30 20:56:03 - Finalized stem separation process for track "Falling" - result: aborted by request, elapsed time: 0m 26s
+2026-07-30 20:56:03 - WARNING: Stem version could not be created for: C:\Users\ivorj\Music\iTunes\iTunes Media\Music\Iration\Sample This - EP\01 Falling.m4a
+2026-07-30 20:56:45 - Finalized stem separation process for track "Automatic" - result: aborted by request, elapsed time: 0m 38s
+2026-07-30 20:56:45 - WARNING: Stem version could not be created for: C:\Users\ivorj\Music\iTunes\iTunes Media\Music\Iration\Automatic\01 Automatic.m4a
+2026-07-30 20:57:55 - Finalized stem separation process for track "Time Bomb" - result: aborted by request, elapsed time: 1m 7s
+2026-07-30 20:57:55 - WARNING: Stem version could not be created for: C:\Users\ivorj\Music\iTunes\iTunes Media\Music\Iration\Time Bomb\01 Time Bomb.m4a
+2026-07-30 21:00:19 - Finalized stem separation process for track "Falling" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\01 Falling.stem.mp4", "no warnings issued.", elapsed time: 2m 21s
+2026-07-30 21:00:19 - Finished stem separation job for track "Falling" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\020\\UUSTJVCCPVZKTC02XC40ALOYG2SD.stem.mp4", with offset 0µs, elapsed time: 2m 21s
+2026-07-30 21:03:01 - Finalized stem separation process for track "Automatic" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\01 Automatic.stem.mp4", "no warnings issued.", elapsed time: 2m 39s
+2026-07-30 21:03:01 - Finished stem separation job for track "Automatic" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\087\\XKTD1JALNBRPXCJKCRZZBHL4D0EA.stem.mp4", with offset 0µs, elapsed time: 2m 39s
+2026-07-30 21:04:36 - Finalized stem separation process for track "Sunroof" - result: aborted by request, elapsed time: 1m 34s
+2026-07-30 21:04:36 - WARNING: Stem version could not be created for: M:\Music\iTunes\iTunes Media\Music\Nicky Youre & Dazy\Sunroof - Single\01 Sunroof.m4a
+2026-07-30 21:06:34 - Finalized stem separation process for track "Time Bomb" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\01 Time Bomb.stem.mp4", "no warnings issued.", elapsed time: 1m 50s
+2026-07-30 21:06:34 - Finished stem separation job for track "Time Bomb" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\113\\RTBFMAA5D2R24B0DJADCCNTHJIXC.stem.mp4", with offset 0µs, elapsed time: 1m 50s
+2026-07-30 21:08:13 - Finalized stem separation process for track "Sunroof" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\01 Sunroof.stem.mp4", "no warnings issued.", elapsed time: 1m 39s
+2026-07-30 21:08:13 - Finished stem separation job for track "Sunroof" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\050\\SNVKILC1WOPDZBM0ZIUEBS5WTXRD.stem.mp4", with offset 0µs, elapsed time: 1m 39s
+2026-07-30 21:26:23 - Finalized stem separation process for track "Wipe Out" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\03 Wipe Out.stem.mp4", "no warnings issued.", elapsed time: 1m 38s
+2026-07-30 21:26:23 - Finished stem separation job for track "Wipe Out" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\095\\5SHJ2ABOVBQP1CXKVVQVANZHLURA.stem.mp4", with offset 0µs, elapsed time: 1m 38s
+2026-07-30 21:28:41 - Finalized stem separation process for track "Summer Nights" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\05 Summer Nights.stem.mp4", "no warnings issued.", elapsed time: 2m 17s
+2026-07-30 21:28:41 - Finished stem separation job for track "Summer Nights" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\091\\1KHRBOD2MVPKYB0H4CLWAE2PZSBA.stem.mp4", with offset 0µs, elapsed time: 2m 17s
+2026-07-30 21:30:30 - Finalized stem separation process for track "Boat Drinks" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\12 Boat Drinks.stem.mp4", "no warnings issued.", elapsed time: 1m 34s
+2026-07-30 21:30:30 - Finished stem separation job for track "Boat Drinks" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\114\\S5BESABSSLFFEDGASVM5BAZIAUQD.stem.mp4", with offset 0µs, elapsed time: 1m 34s
+2026-07-30 21:46:19 - Finalized stem separation process for track "Dancing In The Moonlight (feat. NEIMY) [Tiësto Remix]" - result: aborted by request, elapsed time: 0m 5s
+2026-07-30 21:46:19 - WARNING: Stem version could not be created for: M:\Music\iTunes\iTunes Media\Music\Jubël\Dancing In The Moonlight (feat. NEIMY) [\01 Dancing In The Moonlight (feat. N.m4a
+2026-07-30 21:47:41 - Finalized stem separation process for track "Tequila" - result: aborted by request, elapsed time: 1m 12s
+2026-07-30 21:47:41 - WARNING: Stem version could not be created for: M:\Music\iTunes\iTunes Media\Music\Compilations\Greatest Hits _ Tequila\01 Tequila.m4a
+2026-07-30 21:50:13 - Finalized stem separation process for track "Superstition" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\05 Superstition.stem.mp4", "no warnings issued.", elapsed time: 2m 27s
+2026-07-30 21:50:14 - Finished stem separation job for track "Superstition" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\021\\VA3XCJA5SWCASD4WM0E0AZXXUNSC.stem.mp4", with offset 0µs, elapsed time: 2m 28s
+2026-07-30 21:53:02 - Finalized stem separation process for track "Come On Eileen (Quantized)" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\Come On Eileen (Quantized).stem.mp4", "no warnings issued.", elapsed time: 2m 48s
+2026-07-30 21:53:03 - Finished stem separation job for track "Come On Eileen (Quantized)" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\028\\2U11YZAP3L3SEAOTFX5CC4MFFAYC.stem.mp4", with offset 0µs, elapsed time: 2m 48s
+2026-07-30 21:54:29 - Finalized stem separation process for track "Dancing In The Moonlight (feat. NEIMY) [Tiësto Remix]" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\01 Dancing In The Moonlight (feat. N.stem.mp4", "no warnings issued.", elapsed time: 1m 26s
+2026-07-30 21:54:29 - Finished stem separation job for track "Dancing In The Moonlight (feat. NEIMY) [Tiësto Remix]" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\049\\R32G25AAZYRVXCSWS4XNDEXNG4PC.stem.mp4", with offset 0µs, elapsed time: 1m 26s
+2026-07-30 21:56:13 - Finalized stem separation process for track "You Make Me Feel Like Dancing" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\06 You Make Me Feel Like Dancing.stem.mp4", "no warnings issued.", elapsed time: 1m 44s
+2026-07-30 21:56:13 - Finished stem separation job for track "You Make Me Feel Like Dancing" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\029\\3I0E2BCOC33SLAWVDLV1ALK3HEID.stem.mp4", with offset 0µs, elapsed time: 1m 44s
+2026-07-30 21:57:36 - Finalized stem separation process for track "Tequila" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\01 Tequila.stem.mp4", "no warnings issued.", elapsed time: 1m 22s
+2026-07-30 21:57:36 - Finished stem separation job for track "Tequila" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\032\\AVWR1RD4YDZ0SBKBSUJNBJRZJ0ZC.stem.mp4", with offset 0µs, elapsed time: 1m 22s
+2026-07-30 22:08:04 - Finalized stem separation process for track "Ooh La La" - result: aborted by request, elapsed time: 0m 9s
+2026-07-30 22:08:04 - WARNING: Stem version could not be created for: M:\Music\iTunes\iTunes Media\Music\Compilations\The Best of Faces_ Good Boys... When The\16 Ooh La La.m4a
+2026-07-30 22:08:12 - Finalized stem separation process for track "CAN'T STOP THE FEELING! (Original Song From DreamWorks Animation's \"Trolls\")" - result: aborted by request, elapsed time: 0m 5s
+2026-07-30 22:08:12 - WARNING: Stem version could not be created for: M:\Music\iTunes\iTunes Media\Music\Justin Timberlake\CAN'T STOP THE FEELING! (Original Song F\01 CAN'T STOP THE FEELING! (Original.m4a
+2026-07-30 22:10:17 - Finalized stem separation process for track "Ooh La La" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\16 Ooh La La.stem.mp4", "no warnings issued.", elapsed time: 2m 1s
+2026-07-30 22:10:17 - Finished stem separation job for track "Ooh La La" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\047\\PNRY3VA2FNFVICKFZATGB0S0LVMA.stem.mp4", with offset 0µs, elapsed time: 2m 1s
+2026-07-30 22:12:22 - Finalized stem separation process for track "CAN'T STOP THE FEELING! (Original Song From DreamWorks Animation's \"Trolls\")" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\01 CAN'T STOP THE FEELING! (Original.stem.mp4", "no warnings issued.", elapsed time: 2m 5s
+2026-07-30 22:12:22 - Finished stem separation job for track "CAN'T STOP THE FEELING! (Original Song From DreamWorks Animation's \"Trolls\")" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\023\\XEW4OGDX1LJ1CBJHFYHEAZ4IDBQC.stem.mp4", with offset 0µs, elapsed time: 2m 5s
+2026-07-31 15:09:52 - Finalized stem separation process for track "Fun, Fun, Fun" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\05 Fun, Fun, Fun.stem.mp4", "no warnings issued.", elapsed time: 1m 19s
+2026-07-31 15:09:52 - Finished stem separation job for track "Fun, Fun, Fun" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\019\\TMM3SUAOKUAOMADMUL4DBIC0EUBC.stem.mp4", with offset 0µs, elapsed time: 1m 19s
+2026-07-31 15:12:30 - Finalized stem separation process for track "Sunny" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\02 Sunny.stem.mp4", "no warnings issued.", elapsed time: 2m 37s
+2026-07-31 15:12:30 - Finished stem separation job for track "Sunny" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\010\\KIDVXRD05A4ERCND3ER5CSNOJUZC.stem.mp4", with offset 0µs, elapsed time: 2m 38s
+2026-07-31 15:14:53 - Finalized stem separation process for track "Rising Tides" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\01 Rising Tides.stem.mp4", "no warnings issued.", elapsed time: 2m 22s
+2026-07-31 15:14:53 - Finished stem separation job for track "Rising Tides" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\060\\2FLJJ5CP4BXEFAVG3HNIBWFLWAHB.stem.mp4", with offset 0µs, elapsed time: 2m 22s
+2026-07-31 15:16:13 - Finalized stem separation process for track "Wahejo" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\01 Wahejo.stem.mp4", "no warnings issued.", elapsed time: 1m 19s
+2026-07-31 15:16:13 - Finished stem separation job for track "Wahejo" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\031\\52DLF3DELEE5YDBOA2L3BPEWM5CA.stem.mp4", with offset 0µs, elapsed time: 1m 19s
+2026-07-31 15:17:48 - Finalized stem separation process for track "Move" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\01 Move.stem.mp4", "no warnings issued.", elapsed time: 1m 34s
+2026-07-31 15:17:48 - Finished stem separation job for track "Move" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\126\\4TQ1JUCC0ZSE1DOAOMX2CZTVGBWA.stem.mp4", with offset 0µs, elapsed time: 1m 35s
+2026-07-31 15:19:39 - Finalized stem separation process for track "Weak" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\06 Weak.stem.mp4", "no warnings issued.", elapsed time: 1m 51s
+2026-07-31 15:19:39 - Finished stem separation job for track "Weak" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\063\\5NB21WDUC5ISJCC05SJ2DVM4OCHD.stem.mp4", with offset 0µs, elapsed time: 1m 51s
+2026-07-31 15:21:04 - Finalized stem separation process for track "Riptide" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\01 Riptide.stem.mp4", "no warnings issued.", elapsed time: 1m 24s
+2026-07-31 15:21:04 - Finished stem separation job for track "Riptide" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\010\\KQXE1SBICPKUZASROXZTDBXWY1MA.stem.mp4", with offset 0µs, elapsed time: 1m 24s
+2026-07-31 15:22:47 - Finalized stem separation process for track "Endless Summer" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\01 Endless Summer.stem.mp4", "no warnings issued.", elapsed time: 1m 43s
+2026-07-31 15:22:47 - Finished stem separation job for track "Endless Summer" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\079\\P4GY4RBERYW4MDYOUDPUCMBQJA5C.stem.mp4", with offset 0µs, elapsed time: 1m 43s
+2026-07-31 15:35:26 - Finalized stem separation process for track "get down on it" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\04 get down on it.stem.mp4", "no warnings issued.", elapsed time: 1m 53s
+2026-07-31 15:35:26 - Finished stem separation job for track "get down on it" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\045\\N3DNU2ARAPEEVBMICW5RBHF3SN4A.stem.mp4", with offset 0µs, elapsed time: 1m 53s
+2026-07-31 15:37:13 - Finalized stem separation process for track "How You Feel (feat. Leven Kali)" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\03 How You Feel (feat. Leven Kali).stem.mp4", "no warnings issued.", elapsed time: 1m 46s
+2026-07-31 15:37:13 - Finished stem separation job for track "How You Feel (feat. Leven Kali)" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\079\\PKL50SA2ZXHRCAMSCUQ1DRCOLPLB.stem.mp4", with offset 0µs, elapsed time: 1m 46s
+2026-07-31 15:38:35 - Finalized stem separation process for track "How You Samba" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\01 How You Samba.stem.mp4", "no warnings issued.", elapsed time: 1m 22s
+2026-07-31 15:38:35 - Finished stem separation job for track "How You Samba" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\015\\PYXXFWDBI0BRADA23PTLA04U3TRB.stem.mp4", with offset 0µs, elapsed time: 1m 22s
+2026-07-31 15:46:22 - 
+2026-07-31 15:46:22 - >>> LOG OPEN, Fri Jul 31 15:46:22 2026
+2026-07-31 15:46:22 - Executable path: C:\Program Files\Native Instruments\Traktor Pro 4\Traktor Pro 4.exe
+2026-07-31 15:46:22 - Starting Traktor Pro 4 (4.2.0.34).
+2026-07-31 15:46:22 - Current URI scheme: C:\Program Files\Native Instruments\Traktor Pro 4\Traktor Pro 4.exe %1
+2026-07-31 15:46:24 - Applying preferences.
+2026-07-31 15:46:28 - *** Traktor CPU Info ***
+Packages: 1
+Cores: 6
+Processing Units: 12
+Requested Render Threads: 5
+Optimized Processing: false
+
+2026-07-31 15:46:28 - *** Traktor CPU Info ***
+Packages: 1
+Cores: 6
+Processing Units: 12
+Requested Render Threads: 5
+Optimized Processing: true
+
+2026-07-31 15:46:30 - Collection load time: 3.15 seconds.
+2026-07-31 15:48:38 - Finalized stem separation process for track "get down on it" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\04 get down on it.stem.mp4", "no warnings issued.", elapsed time: 1m 54s
+2026-07-31 15:48:38 - Finished stem separation job for track "get down on it" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\045\\N3DNU2ARAPEEVBMICW5RBHF3SN4A.stem.mp4", with offset 0µs, elapsed time: 1m 54s
+2026-07-31 15:50:25 - Finalized stem separation process for track "How You Feel (feat. Leven Kali)" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\03 How You Feel (feat. Leven Kali).stem.mp4", "no warnings issued.", elapsed time: 1m 47s
+2026-07-31 15:50:26 - Finished stem separation job for track "How You Feel (feat. Leven Kali)" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\079\\PKL50SA2ZXHRCAMSCUQ1DRCOLPLB.stem.mp4", with offset 0µs, elapsed time: 1m 47s
+2026-07-31 15:51:50 - Finalized stem separation process for track "How You Samba" - result: successful: stem file written to "C:\\Users\\ivorj\\AppData\\Local\\Native Instruments\\Traktor\\StemFilesTempDir\\01 How You Samba.stem.mp4", "no warnings issued.", elapsed time: 1m 24s
+2026-07-31 15:51:50 - Finished stem separation job for track "How You Samba" - result: successful: stem file stored to "C:\\Users\\ivorj\\Music\\Traktor\\Stems\\015\\PYXXFWDBI0BRADA23PTLA04U3TRB.stem.mp4", with offset 0µs, elapsed time: 1m 24s
+2026-07-31 15:58:17 - 
+2026-07-31 15:58:17 - <<< LOG CLOSE, Fri Jul 31 15:58:17 2026
+2026-07-31 16:55:00 - 
+2026-07-31 16:55:00 - >>> LOG OPEN, Fri Jul 31 16:55:00 2026
+2026-07-31 16:55:00 - Executable path: C:\Program Files\Native Instruments\Traktor Pro 4\Traktor Pro 4.exe
+2026-07-31 16:55:00 - Starting Traktor Pro 4 (4.2.0.34).
+2026-07-31 16:55:00 - Current URI scheme: C:\Program Files\Native Instruments\Traktor Pro 4\Traktor Pro 4.exe %1
+2026-07-31 16:55:01 - Applying preferences.
+2026-07-31 16:55:04 - *** Traktor CPU Info ***
+Packages: 1
+Cores: 6
+Processing Units: 12
+Requested Render Threads: 5
+Optimized Processing: false
+
+2026-07-31 16:55:04 - *** Traktor CPU Info ***
+Packages: 1
+Cores: 6
+Processing Units: 12
+Requested Render Threads: 5
+Optimized Processing: true
+
+2026-07-31 16:55:07 - Collection load time: 3.01 seconds.
+2026-07-31 20:43:51 - Finalized stem separation process for track "Sk8er Boi" - result: aborted by request, elapsed time: 1m 18s
+2026-07-31 20:43:51 - WARNING: Stem version could not be created for: M:\Music\iTunes\iTunes Media\Music\Avril Lavigne\Let Go\03 Sk8er Boi.m4a
+2026-07-31 20:43:59 - 
+2026-07-31 20:43:59 - >>> LOG OPEN, Fri Jul 31 20:43:59 2026
+2026-07-31 20:43:59 - Executable path: C:\Program Files\Native Instruments\Traktor Pro 4\Traktor Pro 4.exe
+2026-07-31 20:43:59 - Starting Traktor Pro 4 (4.2.0.34).
+2026-07-31 20:43:59 - Current URI scheme: C:\Program Files\Native Instruments\Traktor Pro 4\Traktor Pro 4.exe %1
+2026-07-31 20:44:00 - Applying preferences.
+2026-07-31 20:44:03 - *** Traktor CPU Info ***
+Packages: 1
+Cores: 6
+Processing Units: 12
+Requested Render Threads: 5
+Optimized Processing: false
+
+2026-07-31 20:44:03 - *** Traktor CPU Info ***
+Packages: 1
+Cores: 6
+Processing Units: 12
+Requested Render Threads: 5
+Optimized Processing: true
+
+2026-07-31 20:44:06 - Collection load time: 2.87 seconds.
