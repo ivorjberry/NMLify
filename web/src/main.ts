@@ -823,8 +823,12 @@ function refreshCollectionStemIndicators(): void {
 function prioritizeCollectionStemMatches(): void {
   prioritizeCandidates(
     collectionView.groups,
-    (match) => isStemEntry(match.entry) || generatedStemEntries.has(match.entry),
+    (match) => isStemBackedEntry(match.entry),
   );
+}
+
+function isStemBackedEntry(entry: NmlEntry): boolean {
+  return isStemEntry(entry) || generatedStemEntries.has(entry);
 }
 
 async function scanConnectedGeneratedStemsFolder(
@@ -1181,13 +1185,55 @@ function renderGroup(view: ReviewView, groupIndex: number): HTMLElement {
     `(${group.candidates.length} match${group.candidates.length === 1 ? '' : 'es'})`;
   wrap.appendChild(header);
 
+  const candidateIndices = group.candidates.map((_, index) => index);
+  if (view === collectionView) {
+    const stemIndices = candidateIndices.filter((index) =>
+      isStemBackedEntry(group.candidates[index]!.entry),
+    );
+    if (stemIndices.length > 0) {
+      const stemIndexSet = new Set(stemIndices);
+      const otherIndices = candidateIndices.filter((index) => !stemIndexSet.has(index));
+      wrap.appendChild(renderCandidateSection(view, groupIndex, 'Stem matches', stemIndices, true));
+      if (otherIndices.length > 0) {
+        wrap.appendChild(
+          renderCandidateSection(view, groupIndex, 'Other matches', otherIndices, false),
+        );
+      }
+      return wrap;
+    }
+  }
+
+  wrap.appendChild(renderCandidateList(view, groupIndex, candidateIndices));
+  return wrap;
+}
+
+function renderCandidateSection(
+  view: ReviewView,
+  groupIndex: number,
+  heading: string,
+  candidateIndices: number[],
+  stemSection: boolean,
+): HTMLElement {
+  const section = document.createElement('section');
+  section.className = `review-candidate-section${stemSection ? ' stem-match-section' : ''}`;
+  const title = document.createElement('h4');
+  title.textContent = heading;
+  section.appendChild(title);
+  section.appendChild(renderCandidateList(view, groupIndex, candidateIndices));
+  return section;
+}
+
+function renderCandidateList(
+  view: ReviewView,
+  groupIndex: number,
+  candidateIndices: number[],
+): HTMLUListElement {
   const list = document.createElement('ul');
   list.className = 'review-candidates';
-  for (let ci = 0; ci < group.candidates.length; ci += 1) {
-    list.appendChild(renderCandidate(view, groupIndex, ci));
+  for (const candidateIndex of candidateIndices) {
+    list.appendChild(renderCandidate(view, groupIndex, candidateIndex));
   }
-  wrap.appendChild(list);
-  return wrap;
+  return list;
 }
 
 function renderCandidate(view: ReviewView, groupIndex: number, candidateIndex: number): HTMLLIElement {

@@ -21,7 +21,7 @@ body {
 }
 
 main {
-  max-width: 780px;
+  max-width: 1040px;
   margin: 32px auto;
   padding: 0 16px;
 }
@@ -211,6 +211,27 @@ a { color: var(--accent); }
   font-weight: 600;
   color: var(--accent);
   margin-bottom: 6px;
+}
+
+.review-candidate-section {
+  margin-top: 10px;
+}
+.review-candidate-section h4 {
+  margin: 0 0 4px;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.stem-match-section {
+  padding: 8px 10px;
+  border-left: 3px solid var(--accent);
+  border-radius: 4px;
+  background: rgb(29 185 84 / 8%);
+}
+.stem-match-section h4 {
+  color: var(--ok);
 }
 
 .review-candidates {
