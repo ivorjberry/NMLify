@@ -6,6 +6,7 @@ import {
   buildReviewGroups,
   collectSelectedEntries,
   deselectAll,
+  prioritizeCandidates,
   selectAll,
   selectTopN,
   setCandidateSelected,
@@ -51,6 +52,58 @@ describe('buildReviewGroups', () => {
 
   it('returns [] for an empty map', () => {
     expect(buildReviewGroups(new Map())).toEqual([]);
+  });
+});
+
+describe('prioritizeCandidates', () => {
+  it('puts preferred matches first and preserves score order within each tier', () => {
+    const groups = buildReviewGroups(
+      makeGrouped([
+        {
+          spotifyTitle: 'A',
+          spotifyArtists: 'X',
+          matches: [
+            { title: 'ordinary high', file: 'ordinary-high.mp3', score: 98 },
+            { title: 'stem high', file: 'stem-high.mp4', score: 90 },
+            { title: 'stem low', file: 'stem-low.mp4', score: 75 },
+            { title: 'ordinary low', file: 'ordinary-low.mp3', score: 70 },
+          ],
+        },
+      ]),
+    );
+
+    prioritizeCandidates(groups, (match) => match.entry.LOCATION['@FILE'].endsWith('.mp4'));
+
+    expect(groups[0]?.candidates.map((match) => match.entry['@TITLE'])).toEqual([
+      'stem high',
+      'stem low',
+      'ordinary high',
+      'ordinary low',
+    ]);
+  });
+
+  it('keeps selection attached to its candidate while reordering', () => {
+    const groups = buildReviewGroups(
+      makeGrouped([
+        {
+          spotifyTitle: 'A',
+          spotifyArtists: 'X',
+          matches: [
+            { title: 'ordinary', file: 'ordinary.mp3', score: 99 },
+            { title: 'stem', file: 'stem.mp4', score: 80 },
+          ],
+        },
+      ]),
+    );
+    groups[0]!.selected = [true, false];
+
+    prioritizeCandidates(groups, (match) => match.entry.LOCATION['@FILE'].endsWith('.mp4'));
+
+    expect(groups[0]?.candidates.map((match) => match.entry['@TITLE'])).toEqual([
+      'stem',
+      'ordinary',
+    ]);
+    expect(groups[0]?.selected).toEqual([false, true]);
   });
 });
 

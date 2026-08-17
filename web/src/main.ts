@@ -97,6 +97,7 @@ import {
   buildReviewGroups,
   collectSelectedEntries,
   deselectAll,
+  prioritizeCandidates,
   type ReviewGroup,
   selectAll,
   selectTopN,
@@ -802,7 +803,17 @@ function renderGeneratedStemsStatus(): void {
 function refreshCollectionStemIndicators(): void {
   rebuildGeneratedStemMatches();
   renderGeneratedStemsStatus();
-  if (collectionView.groups.length > 0) renderReview(collectionView);
+  if (collectionView.groups.length > 0) {
+    prioritizeCollectionStemMatches();
+    renderReview(collectionView);
+  }
+}
+
+function prioritizeCollectionStemMatches(): void {
+  prioritizeCandidates(
+    collectionView.groups,
+    (match) => isStemEntry(match.entry) || generatedStemEntries.has(match.entry),
+  );
 }
 
 async function scanConnectedGeneratedStemsFolder(
@@ -1094,6 +1105,7 @@ matchBtn.addEventListener('click', () => {
     );
 
     collectionView.groups = buildReviewGroups(groupedResults);
+    prioritizeCollectionStemMatches();
     selectTopN(collectionView.groups, 1);
     renderReview(collectionView);
 

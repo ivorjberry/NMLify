@@ -128,7 +128,8 @@ npm run preview  # serves the built bundle
    locally in your browser — nothing is uploaded.
 3. Optionally connect Traktor's generated stems folder (typically
    `Music\Traktor\Stems`). NMLify scans filenames locally and identifies
-   generated stem sidecars associated with collection entries.
+   generated stem sidecars associated with collection entries. Matches backed
+   by packaged or generated stems are shown before ordinary matches.
 4. Click **Match playlist against collection**. The top match per track is
    auto-picked.
 5. Click **Download playlist** to save the crate, then drop it into Traktor's
