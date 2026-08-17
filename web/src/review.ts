@@ -11,7 +11,7 @@ export interface ReviewGroup {
   spotifyKey: string;
   spotifyArtists: string;
   spotifyTitle: string;
-  /** Already sorted descending by score by {@link fuzzySearch}. */
+  /** Sorted for display; initially descending by score from {@link fuzzySearch}. */
   candidates: CollectionMatch[];
   /** Parallel to `candidates`; `true` means include in the crate. */
   selected: boolean[];
@@ -41,6 +41,32 @@ export function buildReviewGroups(groupedResults: Map<string, GroupedResult>): R
     });
   }
   return out;
+}
+
+/**
+ * Put preferred candidates first, then sort each tier by descending match
+ * score. Selection follows its candidate when an existing review is reordered.
+ */
+export function prioritizeCandidates(
+  groups: ReviewGroup[],
+  isPreferred: (candidate: CollectionMatch) => boolean,
+): void {
+  for (const group of groups) {
+    const rows = group.candidates.map((candidate, index) => ({
+      candidate,
+      selected: group.selected[index] === true,
+      originalIndex: index,
+      preferred: isPreferred(candidate),
+    }));
+    rows.sort(
+      (a, b) =>
+        Number(b.preferred) - Number(a.preferred) ||
+        b.candidate.score - a.candidate.score ||
+        a.originalIndex - b.originalIndex,
+    );
+    group.candidates = rows.map((row) => row.candidate);
+    group.selected = rows.map((row) => row.selected);
+  }
 }
 
 /**

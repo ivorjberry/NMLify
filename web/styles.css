@@ -21,7 +21,7 @@ body {
 }
 
 main {
-  max-width: 780px;
+  max-width: 1040px;
   margin: 32px auto;
   padding: 0 16px;
 }
@@ -213,6 +213,27 @@ a { color: var(--accent); }
   margin-bottom: 6px;
 }
 
+.review-candidate-section {
+  margin-top: 10px;
+}
+.review-candidate-section h4 {
+  margin: 0 0 4px;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.stem-match-section {
+  padding: 8px 10px;
+  border-left: 3px solid var(--accent);
+  border-radius: 4px;
+  background: rgb(29 185 84 / 8%);
+}
+.stem-match-section h4 {
+  color: var(--ok);
+}
+
 .review-candidates {
   list-style: none;
   margin: 0;
@@ -250,6 +271,20 @@ a { color: var(--accent); }
   font-family: ui-monospace, Menlo, Consolas, monospace;
   font-size: 0.82rem;
   word-break: break-all;
+}
+
+.generated-stems-connect {
+  margin: 12px 0;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: #11151c;
+}
+.generated-stems-connect .hint {
+  margin-top: 0;
+}
+.generated-stems-connect .status {
+  margin-bottom: 0;
 }
 
 .not-found-section {

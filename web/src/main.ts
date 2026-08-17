@@ -63,6 +63,19 @@ import {
   updateSource as updateSourceRecord,
 } from './diskSources';
 import {
+  hasGeneratedStem,
+  scanGeneratedStemFileList,
+  scanGeneratedStemHandle,
+  type StemDirectoryHandle,
+} from './generatedStems';
+import {
+  clearGeneratedStemsHandle,
+  type GeneratedStemsHandleRecord,
+  isGeneratedStemsHandleSupported,
+  loadGeneratedStemsHandle,
+  saveGeneratedStemsHandle,
+} from './generatedStemsHandle';
+import {
   type CrateMeta,
   type CrateSource,
   deleteCrate,
@@ -84,6 +97,7 @@ import {
   buildReviewGroups,
   collectSelectedEntries,
   deselectAll,
+  prioritizeCandidates,
   type ReviewGroup,
   selectAll,
   selectTopN,
@@ -130,6 +144,11 @@ const collectionPickBtn = el<HTMLButtonElement>('collection-pick-btn');
 const collectionForgetBtn = el<HTMLButtonElement>('collection-forget-btn');
 const collectionCachedInfo = el<HTMLElement>('collection-cached-info');
 const collectionStatus = el<HTMLElement>('collection-status');
+const generatedStemsPickBtn = el<HTMLButtonElement>('generated-stems-pick-btn');
+const generatedStemsRefreshBtn = el<HTMLButtonElement>('generated-stems-refresh-btn');
+const generatedStemsForgetBtn = el<HTMLButtonElement>('generated-stems-forget-btn');
+const generatedStemsFolderInput = el<HTMLInputElement>('generated-stems-folder-input');
+const generatedStemsStatus = el<HTMLElement>('generated-stems-status');
 const fuzzyRatioInput = el<HTMLInputElement>('fuzzy-ratio-input');
 const matchBtn = el<HTMLButtonElement>('match-btn');
 const matchStatus = el<HTMLElement>('match-status');
@@ -366,6 +385,15 @@ function redirectToLogin(url: string, message: string): void {
 
 let loadedCollection: NmlEntry[] | null = null;
 let collectionIndex: { titleIndex: TokenIndex; artistIndex: TokenIndex } | null = null;
+let generatedStemPaths: Set<string> | null = null;
+let generatedStemEntries = new WeakSet<NmlEntry>();
+let generatedStemLinkedEntries = 0;
+let generatedStemsHandle: FileSystemDirectoryHandle | null = null;
+let generatedStemsDisplayName = '';
+let generatedStemsNeedsPermission = false;
+let generatedStemsBusy = false;
+let generatedStemsError = '';
+let generatedStemsPersistenceWarning = '';
 let notFoundFromMatch: string[] = [];
 // Ordered "Artist - Title" labels for every track in the last collection
 // match, in playlist order, plus a live lookup to the ReviewGroup each one
@@ -425,6 +453,8 @@ async function loadCollectionFromFile(file: File): Promise<void> {
     const entries = loadCollection(xml);
     loadedCollection = entries;
     collectionIndex = buildCollectionIndex(entries);
+    rebuildGeneratedStemMatches();
+    renderGeneratedStemsStatus();
     collectionStatus.textContent = `Loaded ${entries.length} entries from ${file.name}.`;
     collectionStatus.className = 'status ok';
     refreshMatchButton();
@@ -433,6 +463,8 @@ async function loadCollectionFromFile(file: File): Promise<void> {
   } catch (err) {
     loadedCollection = null;
     collectionIndex = null;
+    rebuildGeneratedStemMatches();
+    renderGeneratedStemsStatus();
     collectionStatus.textContent =
       err instanceof Error ? `Failed to load: ${err.message}` : 'Failed to load collection.';
     collectionStatus.className = 'status err';
@@ -482,6 +514,8 @@ async function requestHandlePermission(handle: FileSystemFileHandle): Promise<'g
 }
 
 const supportsCollectionHandle = isCollectionHandleSupported();
+const collectionPickDefaultLabel = collectionPickBtn.textContent;
+let collectionRegrantHandler: ((event: Event) => void) | null = null;
 if (supportsCollectionHandle) {
   // Hide the legacy picker entirely on FSA browsers — the dedicated
   // button is friendlier and we can persist the chosen file.
@@ -569,6 +603,7 @@ collectionPickBtn.addEventListener('click', async () => {
 
 collectionForgetBtn.addEventListener('click', async () => {
   await clearCollectionHandle();
+  resetCollectionPicker();
   collectionForgetBtn.classList.add('hidden');
   renderCachedInfo(null);
   collectionStatus.textContent = 'Cleared cached collection file. Pick one above to load it again.';
@@ -625,13 +660,12 @@ function showRegrantButton(record: CollectionHandleRecord): void {
   // the layout doesn't shift. Clicking it asks the browser to renew
   // permission for the cached handle and then loads the file. If the
   // user denies, we fall back to the normal pick flow on the next click.
-  const originalLabel = collectionPickBtn.textContent;
+  resetCollectionPicker();
   collectionPickBtn.textContent = `Re-grant access to ${record.displayName}`;
   const onceHandler = async (e: Event) => {
     e.preventDefault();
     e.stopImmediatePropagation();
-    collectionPickBtn.removeEventListener('click', onceHandler, true);
-    collectionPickBtn.textContent = originalLabel;
+    resetCollectionPicker();
     const result = await requestHandlePermission(record.handle);
     if (result === 'granted') {
       try {
@@ -655,10 +689,292 @@ function showRegrantButton(record: CollectionHandleRecord): void {
       collectionStatus.className = 'status warn';
     }
   };
+  collectionRegrantHandler = onceHandler;
   collectionPickBtn.addEventListener('click', onceHandler, true);
 }
 
+function resetCollectionPicker(): void {
+  if (collectionRegrantHandler) {
+    collectionPickBtn.removeEventListener('click', collectionRegrantHandler, true);
+    collectionRegrantHandler = null;
+  }
+  collectionPickBtn.textContent = collectionPickDefaultLabel;
+}
+
 void restoreCachedCollection();
+
+// ---------- Generated stem sidecar detection ----------------------------
+
+type GeneratedStemsPickerWindow = Window & {
+  showDirectoryPicker: (opts?: { mode?: 'read' | 'readwrite' }) => Promise<FileSystemDirectoryHandle>;
+};
+
+interface PermissionDirectoryHandle extends FileSystemDirectoryHandle {
+  queryPermission?: (d: { mode: 'read' | 'readwrite' }) => Promise<'granted' | 'denied' | 'prompt'>;
+  requestPermission?: (d: { mode: 'read' | 'readwrite' }) => Promise<'granted' | 'denied' | 'prompt'>;
+}
+
+const supportsGeneratedStemsHandle = isGeneratedStemsHandleSupported();
+
+async function queryGeneratedStemsPermission(
+  handle: FileSystemDirectoryHandle,
+): Promise<'granted' | 'denied' | 'prompt' | 'unknown'> {
+  const permissionHandle = handle as PermissionDirectoryHandle;
+  if (typeof permissionHandle.queryPermission !== 'function') return 'unknown';
+  try {
+    return await permissionHandle.queryPermission({ mode: 'read' });
+  } catch {
+    return 'unknown';
+  }
+}
+
+async function requestGeneratedStemsPermission(
+  handle: FileSystemDirectoryHandle,
+): Promise<'granted' | 'denied' | 'prompt' | 'unknown'> {
+  const permissionHandle = handle as PermissionDirectoryHandle;
+  if (typeof permissionHandle.requestPermission !== 'function') return 'unknown';
+  try {
+    return await permissionHandle.requestPermission({ mode: 'read' });
+  } catch {
+    return 'denied';
+  }
+}
+
+function rebuildGeneratedStemMatches(): void {
+  generatedStemEntries = new WeakSet<NmlEntry>();
+  generatedStemLinkedEntries = 0;
+  if (!loadedCollection || !generatedStemPaths) return;
+
+  for (const entry of loadedCollection) {
+    if (hasGeneratedStem(entry, generatedStemPaths)) {
+      generatedStemEntries.add(entry);
+      generatedStemLinkedEntries += 1;
+    }
+  }
+}
+
+function renderGeneratedStemsStatus(): void {
+  generatedStemsPickBtn.disabled = generatedStemsBusy;
+  generatedStemsRefreshBtn.disabled = generatedStemsBusy;
+  generatedStemsForgetBtn.disabled = generatedStemsBusy;
+  generatedStemsRefreshBtn.classList.toggle(
+    'hidden',
+    !generatedStemsHandle || generatedStemsNeedsPermission,
+  );
+  generatedStemsForgetBtn.classList.toggle(
+    'hidden',
+    !generatedStemsHandle && generatedStemPaths === null,
+  );
+
+  if (generatedStemsBusy) return;
+  if (generatedStemsNeedsPermission && generatedStemsHandle) {
+    generatedStemsPickBtn.textContent = `Grant access to ${generatedStemsDisplayName}`;
+    generatedStemsStatus.textContent =
+      `"${generatedStemsDisplayName}" is remembered. Grant access to scan it again.`;
+    generatedStemsStatus.className = 'status';
+    return;
+  }
+
+  if (generatedStemsError) {
+    generatedStemsStatus.textContent = generatedStemsError;
+    generatedStemsStatus.className = 'status err';
+    return;
+  }
+
+  generatedStemsPickBtn.textContent =
+    generatedStemPaths === null
+      ? 'Connect generated stems folder…'
+      : 'Change generated stems folder…';
+
+  if (generatedStemPaths === null) {
+    generatedStemsStatus.textContent =
+      'Generated stem status is unchecked until a folder is connected.';
+    generatedStemsStatus.className = 'status';
+    return;
+  }
+
+  const fileCount = generatedStemPaths.size;
+  if (!loadedCollection) {
+    generatedStemsStatus.textContent =
+      `Found ${fileCount.toLocaleString()} generated stem file${fileCount === 1 ? '' : 's'}. ` +
+      'Load a collection to link them.';
+  } else {
+    generatedStemsStatus.textContent =
+      `Found ${fileCount.toLocaleString()} generated stem file${fileCount === 1 ? '' : 's'}; ` +
+      `linked ${generatedStemLinkedEntries.toLocaleString()} collection ` +
+      `entr${generatedStemLinkedEntries === 1 ? 'y' : 'ies'}.`;
+  }
+  if (generatedStemsPersistenceWarning) {
+    generatedStemsStatus.textContent += ` ${generatedStemsPersistenceWarning}`;
+  }
+  generatedStemsStatus.className =
+    fileCount > 0 && !generatedStemsPersistenceWarning ? 'status ok' : 'status warn';
+}
+
+function refreshCollectionStemIndicators(): void {
+  rebuildGeneratedStemMatches();
+  renderGeneratedStemsStatus();
+  if (collectionView.groups.length > 0) {
+    prioritizeCollectionStemMatches();
+    renderReview(collectionView);
+  }
+}
+
+function prioritizeCollectionStemMatches(): void {
+  prioritizeCandidates(
+    collectionView.groups,
+    (match) => isStemBackedEntry(match.entry),
+  );
+}
+
+function isStemBackedEntry(entry: NmlEntry): boolean {
+  return isStemEntry(entry) || generatedStemEntries.has(entry);
+}
+
+async function scanConnectedGeneratedStemsFolder(
+  handle: FileSystemDirectoryHandle,
+): Promise<void> {
+  generatedStemsBusy = true;
+  generatedStemsError = '';
+  generatedStemsStatus.textContent = `Scanning ${generatedStemsDisplayName}…`;
+  generatedStemsStatus.className = 'status';
+  renderGeneratedStemsStatus();
+  try {
+    generatedStemPaths = await scanGeneratedStemHandle(
+      handle as unknown as StemDirectoryHandle,
+      (seen) => {
+        generatedStemsStatus.textContent =
+          `Scanning ${generatedStemsDisplayName}… ${seen.toLocaleString()} files seen`;
+      },
+    );
+    generatedStemsNeedsPermission = false;
+    refreshCollectionStemIndicators();
+  } catch (err) {
+    generatedStemPaths = null;
+    generatedStemsError =
+      err instanceof Error ? `Generated stems scan failed: ${err.message}` : 'Generated stems scan failed.';
+  } finally {
+    generatedStemsBusy = false;
+    renderGeneratedStemsStatus();
+  }
+}
+
+async function chooseGeneratedStemsFolder(): Promise<void> {
+  if (generatedStemsNeedsPermission && generatedStemsHandle) {
+    const permission = await requestGeneratedStemsPermission(generatedStemsHandle);
+    if (permission === 'granted') {
+      await scanConnectedGeneratedStemsFolder(generatedStemsHandle);
+    } else {
+      generatedStemsStatus.textContent = 'Access to the generated stems folder was not granted.';
+      generatedStemsStatus.className = 'status warn';
+    }
+    return;
+  }
+
+  if (!supportsGeneratedStemsHandle) {
+    generatedStemsFolderInput.click();
+    return;
+  }
+
+  let handle: FileSystemDirectoryHandle;
+  try {
+    handle = await (window as unknown as GeneratedStemsPickerWindow).showDirectoryPicker({
+      mode: 'read',
+    });
+  } catch (err) {
+    if ((err as { name?: string })?.name === 'AbortError') return;
+    generatedStemsStatus.textContent =
+      err instanceof Error ? `Could not open folder: ${err.message}` : 'Could not open folder.';
+    generatedStemsStatus.className = 'status err';
+    return;
+  }
+
+  generatedStemsHandle = handle;
+  generatedStemsDisplayName = handle.name;
+  generatedStemsNeedsPermission = false;
+  generatedStemsError = '';
+  generatedStemsPersistenceWarning = '';
+  try {
+    await saveGeneratedStemsHandle({ displayName: handle.name, handle });
+  } catch (err) {
+    generatedStemsPersistenceWarning =
+      err instanceof Error
+        ? `The folder could not be remembered: ${err.message}`
+        : 'The folder could not be remembered.';
+  }
+  await scanConnectedGeneratedStemsFolder(handle);
+}
+
+generatedStemsPickBtn.addEventListener('click', () => {
+  void chooseGeneratedStemsFolder();
+});
+
+generatedStemsRefreshBtn.addEventListener('click', async () => {
+  if (!generatedStemsHandle) return;
+  const permission = await queryGeneratedStemsPermission(generatedStemsHandle);
+  if (permission === 'granted' || permission === 'unknown') {
+    await scanConnectedGeneratedStemsFolder(generatedStemsHandle);
+    return;
+  }
+  generatedStemsNeedsPermission = true;
+  renderGeneratedStemsStatus();
+});
+
+generatedStemsForgetBtn.addEventListener('click', async () => {
+  try {
+    await clearGeneratedStemsHandle();
+  } catch (err) {
+    generatedStemsStatus.textContent =
+      err instanceof Error ? `Could not forget folder: ${err.message}` : 'Could not forget folder.';
+    generatedStemsStatus.className = 'status err';
+    return;
+  }
+  generatedStemsHandle = null;
+  generatedStemsDisplayName = '';
+  generatedStemsNeedsPermission = false;
+  generatedStemsError = '';
+  generatedStemsPersistenceWarning = '';
+  generatedStemPaths = null;
+  refreshCollectionStemIndicators();
+});
+
+generatedStemsFolderInput.addEventListener('change', () => {
+  const files = generatedStemsFolderInput.files;
+  if (!files || files.length === 0) return;
+  generatedStemPaths = scanGeneratedStemFileList(Array.from(files));
+  generatedStemsDisplayName =
+    files[0]?.webkitRelativePath.split('/')[0] || 'selected folder';
+  generatedStemsError = '';
+  refreshCollectionStemIndicators();
+});
+
+async function restoreGeneratedStemsFolder(): Promise<void> {
+  if (!supportsGeneratedStemsHandle) return;
+  let record: GeneratedStemsHandleRecord | null;
+  try {
+    record = await loadGeneratedStemsHandle();
+  } catch (err) {
+    generatedStemsError =
+      err instanceof Error
+        ? `Could not restore the generated stems folder: ${err.message}`
+        : 'Could not restore the generated stems folder.';
+    renderGeneratedStemsStatus();
+    return;
+  }
+  if (!record) return;
+
+  generatedStemsHandle = record.handle;
+  generatedStemsDisplayName = record.displayName;
+  const permission = await queryGeneratedStemsPermission(record.handle);
+  if (permission === 'granted') {
+    await scanConnectedGeneratedStemsFolder(record.handle);
+  } else {
+    generatedStemsNeedsPermission = true;
+    renderGeneratedStemsStatus();
+  }
+}
+
+void restoreGeneratedStemsFolder();
 
 function refreshMatchButton(): void {
   matchBtn.disabled = !(loadedCollection && lastPlaylist);
@@ -804,6 +1120,7 @@ matchBtn.addEventListener('click', () => {
     );
 
     collectionView.groups = buildReviewGroups(groupedResults);
+    prioritizeCollectionStemMatches();
     selectTopN(collectionView.groups, 1);
     renderReview(collectionView);
 
@@ -868,13 +1185,55 @@ function renderGroup(view: ReviewView, groupIndex: number): HTMLElement {
     `(${group.candidates.length} match${group.candidates.length === 1 ? '' : 'es'})`;
   wrap.appendChild(header);
 
+  const candidateIndices = group.candidates.map((_, index) => index);
+  if (view === collectionView) {
+    const stemIndices = candidateIndices.filter((index) =>
+      isStemBackedEntry(group.candidates[index]!.entry),
+    );
+    if (stemIndices.length > 0) {
+      const stemIndexSet = new Set(stemIndices);
+      const otherIndices = candidateIndices.filter((index) => !stemIndexSet.has(index));
+      wrap.appendChild(renderCandidateSection(view, groupIndex, 'Stem matches', stemIndices, true));
+      if (otherIndices.length > 0) {
+        wrap.appendChild(
+          renderCandidateSection(view, groupIndex, 'Other matches', otherIndices, false),
+        );
+      }
+      return wrap;
+    }
+  }
+
+  wrap.appendChild(renderCandidateList(view, groupIndex, candidateIndices));
+  return wrap;
+}
+
+function renderCandidateSection(
+  view: ReviewView,
+  groupIndex: number,
+  heading: string,
+  candidateIndices: number[],
+  stemSection: boolean,
+): HTMLElement {
+  const section = document.createElement('section');
+  section.className = `review-candidate-section${stemSection ? ' stem-match-section' : ''}`;
+  const title = document.createElement('h4');
+  title.textContent = heading;
+  section.appendChild(title);
+  section.appendChild(renderCandidateList(view, groupIndex, candidateIndices));
+  return section;
+}
+
+function renderCandidateList(
+  view: ReviewView,
+  groupIndex: number,
+  candidateIndices: number[],
+): HTMLUListElement {
   const list = document.createElement('ul');
   list.className = 'review-candidates';
-  for (let ci = 0; ci < group.candidates.length; ci += 1) {
-    list.appendChild(renderCandidate(view, groupIndex, ci));
+  for (const candidateIndex of candidateIndices) {
+    list.appendChild(renderCandidate(view, groupIndex, candidateIndex));
   }
-  wrap.appendChild(list);
-  return wrap;
+  return list;
 }
 
 function renderCandidate(view: ReviewView, groupIndex: number, candidateIndex: number): HTMLLIElement {
@@ -893,6 +1252,7 @@ function renderCandidate(view: ReviewView, groupIndex: number, candidateIndex: n
   const playCount = match.display ? null : getPlayCount(entry);
   const bitrateKbps = match.display ? null : getBitrateKbps(entry);
   const isStem = !match.display && isStemEntry(entry);
+  const hasGeneratedSidecar = !match.display && generatedStemEntries.has(entry);
 
   const li = document.createElement('li');
   li.className = 'review-candidate';
@@ -923,13 +1283,17 @@ function renderCandidate(view: ReviewView, groupIndex: number, candidateIndex: n
     bitrateKbps !== null
       ? ` <span class="file-detail">${bitrateKbps} kbps</span>`
       : '';
-  const stemHtml = isStem ? ' <span class="file-detail">STEM</span>' : '';
+  const stemHtml = isStem ? ' <span class="file-detail">STEM file</span>' : '';
+  const generatedStemHtml = hasGeneratedSidecar
+    ? ' <span class="file-detail">Generated stem</span>'
+    : '';
   text.innerHTML =
     `<strong>${escapeHtml(primary)}</strong> ` +
     `<span class="score">score ${match.score}</span>` +
     playCountHtml +
     bitrateHtml +
     stemHtml +
+    generatedStemHtml +
     `<br><span class="path">${escapeHtml(pathLine)}</span>`;
   label.appendChild(text);
 

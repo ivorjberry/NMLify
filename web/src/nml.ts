@@ -14,6 +14,7 @@ export interface NmlLocation {
 }
 
 export interface NmlEntry {
+  '@AUDIO_ID'?: string;
   '@TITLE'?: string;
   '@ARTIST'?: string;
   LOCATION: NmlLocation;
