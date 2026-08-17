@@ -30,6 +30,25 @@ header { margin-bottom: 24px; }
 h1 { margin: 0 0 4px; font-size: 1.6rem; }
 .tagline { color: var(--muted); margin: 0; }
 
+.app-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 16px;
+  padding: 4px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #11151c;
+}
+.app-tab {
+  flex: 1 1 0;
+  background: transparent;
+  color: var(--muted);
+}
+.app-tab.active {
+  background: var(--accent);
+  color: #08110b;
+}
+
 .hint {
   color: var(--muted);
   font-size: 0.9rem;
@@ -285,6 +304,51 @@ a { color: var(--accent); }
 }
 .generated-stems-connect .status {
   margin-bottom: 0;
+}
+
+.sharing-step {
+  padding: 14px 0;
+  border-top: 1px solid var(--border);
+}
+.sharing-step:first-of-type {
+  border-top: 0;
+  padding-top: 4px;
+}
+.sharing-step h3 {
+  margin: 0 0 10px;
+  font-size: 0.95rem;
+}
+.stem-share-list {
+  max-height: 420px;
+  margin: 10px 0 0;
+  padding: 6px 10px;
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: #11151c;
+  list-style: none;
+}
+.stem-share-list:empty {
+  display: none;
+}
+.stem-share-list li {
+  padding: 6px 2px;
+  border-bottom: 1px solid var(--border);
+}
+.stem-share-list li:last-child {
+  border-bottom: 0;
+}
+.stem-share-list label {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  cursor: pointer;
+}
+.stem-share-list input {
+  margin-top: 4px;
+}
+.stem-share-list code {
+  color: var(--muted);
 }
 
 .not-found-section {

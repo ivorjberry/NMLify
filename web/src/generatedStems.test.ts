@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import {
   generatedStemPathForEntry,
   hasGeneratedStem,
+  indexGeneratedStemHandles,
   normalizeGeneratedStemPath,
   predictGeneratedStemPath,
   scanGeneratedStemFileList,
@@ -75,6 +76,14 @@ describe('generated stem path scanning', () => {
     ]);
     expect(await scanGeneratedStemHandle(root)).toEqual(
       new Set([ENDLESS_SUMMER_PATH.toLowerCase()]),
+    );
+  });
+
+  it('can retain file handles for later export', async () => {
+    const stem = file('P4GY4RBERYW4MDYOUDPUCMBQJA5C.stem.mp4');
+    const root = directory('Stems', [directory('079', [stem])]);
+    expect((await indexGeneratedStemHandles(root)).get(ENDLESS_SUMMER_PATH.toLowerCase())).toBe(
+      stem,
     );
   });
 
