@@ -514,6 +514,8 @@ async function requestHandlePermission(handle: FileSystemFileHandle): Promise<'g
 }
 
 const supportsCollectionHandle = isCollectionHandleSupported();
+const collectionPickDefaultLabel = collectionPickBtn.textContent;
+let collectionRegrantHandler: ((event: Event) => void) | null = null;
 if (supportsCollectionHandle) {
   // Hide the legacy picker entirely on FSA browsers — the dedicated
   // button is friendlier and we can persist the chosen file.
@@ -601,6 +603,7 @@ collectionPickBtn.addEventListener('click', async () => {
 
 collectionForgetBtn.addEventListener('click', async () => {
   await clearCollectionHandle();
+  resetCollectionPicker();
   collectionForgetBtn.classList.add('hidden');
   renderCachedInfo(null);
   collectionStatus.textContent = 'Cleared cached collection file. Pick one above to load it again.';
@@ -657,13 +660,12 @@ function showRegrantButton(record: CollectionHandleRecord): void {
   // the layout doesn't shift. Clicking it asks the browser to renew
   // permission for the cached handle and then loads the file. If the
   // user denies, we fall back to the normal pick flow on the next click.
-  const originalLabel = collectionPickBtn.textContent;
+  resetCollectionPicker();
   collectionPickBtn.textContent = `Re-grant access to ${record.displayName}`;
   const onceHandler = async (e: Event) => {
     e.preventDefault();
     e.stopImmediatePropagation();
-    collectionPickBtn.removeEventListener('click', onceHandler, true);
-    collectionPickBtn.textContent = originalLabel;
+    resetCollectionPicker();
     const result = await requestHandlePermission(record.handle);
     if (result === 'granted') {
       try {
@@ -687,7 +689,16 @@ function showRegrantButton(record: CollectionHandleRecord): void {
       collectionStatus.className = 'status warn';
     }
   };
+  collectionRegrantHandler = onceHandler;
   collectionPickBtn.addEventListener('click', onceHandler, true);
+}
+
+function resetCollectionPicker(): void {
+  if (collectionRegrantHandler) {
+    collectionPickBtn.removeEventListener('click', collectionRegrantHandler, true);
+    collectionRegrantHandler = null;
+  }
+  collectionPickBtn.textContent = collectionPickDefaultLabel;
 }
 
 void restoreCachedCollection();
