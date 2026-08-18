@@ -393,9 +393,15 @@
               Choose where to copy the originals, then enter that same folder's absolute
               path as Traktor sees it.
             </li>
-            <li>Install the originals to create <code>stem-share-ready.nml</code>.</li>
+            <li>
+              Install the originals. NMLify creates a new
+              <code>stem-share-ready.nml</code> with paths for this computer.
+            </li>
             <li>Install the stems into Traktor's configured generated stems folder.</li>
-            <li>Import <code>stem-share-ready.nml</code> into Traktor.</li>
+            <li>
+              Import the new <code>stem-share-ready.nml</code> into Traktor—not the
+              package's original <code>stem-share.nml</code>.
+            </li>
           </ol>
         </details>
         <div class="sharing-step">
@@ -422,8 +428,13 @@
             autocomplete="off"
           />
           <button id="share-install-originals-btn" type="button" disabled>
-            Install originals and create ready NML…
+            Install originals and create a new ready-to-import NML…
           </button>
+          <p class="hint">
+            This writes a new <code>stem-share-ready.nml</code> into the originals
+            destination. Import that new file into Traktor instead of the package's
+            <code>stem-share.nml</code>.
+          </p>
           <p id="share-originals-install-status" class="status"></p>
         </div>
         <div class="sharing-step">

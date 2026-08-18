@@ -150,8 +150,9 @@ their original music files:
 On the receiving computer, open **Stem Sharing**, choose the package, and
 choose an originals destination. Enter that same folder's absolute path as
 Traktor sees it—the browser grants folder access but cannot reveal the path.
-Install the originals to create `stem-share-ready.nml`, then separately install
-the sidecars into Traktor's generated stems folder.
+Installing the originals creates a new `stem-share-ready.nml` for the receiving
+computer. Import that new file—not the package's original `stem-share.nml`—after
+separately installing the sidecars into Traktor's generated stems folder.
 
 Folder export and installation require a Chromium-based browser with the File
 System Access API. All processing remains local.

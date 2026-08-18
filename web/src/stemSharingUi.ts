@@ -69,9 +69,9 @@ function packageInstructions(packageName: string, count: number): string {
     '1. Open the Stem Sharing tab.',
     '2. Choose this package folder under Install a received package.',
     '3. Choose the originals destination and enter that same folder’s absolute Traktor path.',
-    '4. Install the originals and create the ready NML.',
+    '4. Install the originals. NMLify creates a new stem-share-ready.nml for this computer.',
     "5. Install stems into Traktor's Generated Stems folder.",
-    '6. Import stem-share-ready.nml from the originals folder into Traktor.',
+    '6. Import the new stem-share-ready.nml, not the package’s original stem-share.nml.',
     '',
     'This package includes the original music files. Share only audio you may distribute.',
   ].join('\n');
