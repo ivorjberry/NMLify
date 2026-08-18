@@ -337,6 +337,11 @@ a { color: var(--accent); }
   margin: 0 0 10px;
   font-size: 0.95rem;
 }
+#share-recipient-root-path {
+  display: block;
+  width: 100%;
+  margin-top: 6px;
+}
 .stem-share-list {
   max-height: 420px;
   margin: 10px 0 0;

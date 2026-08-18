@@ -286,14 +286,12 @@
       <section class="card">
         <h2>Share Traktor-generated stems</h2>
         <p>
-          Create a portable package containing generated stem sidecars, an NML playlist,
-          and a verified manifest—or install a received package into this computer's
-          generated-stems folder.
+          Create a portable package containing original tracks, generated stem sidecars,
+          an NML playlist, and a verified manifest—or install a received package on
+          another computer.
         </p>
         <p class="hint">
-          Original music files are not included. The recipient must have matching originals
-          and may need to relocate them after importing the NML. Only share audio you have
-          permission to distribute.
+          Original music files are included. Only share audio you have permission to distribute.
         </p>
         <p id="stem-sharing-unsupported" class="status warn hidden">
           Stem Sharing requires a Chromium-based browser with folder read/write access.
@@ -339,9 +337,18 @@
         </div>
 
         <div class="sharing-step">
-          <h3>3. Select stems to export</h3>
+          <h3>3. Add folders containing the original music</h3>
+          <button id="share-originals-folder-btn" type="button">Add original music folder…</button>
+          <p class="hint">
+            Add as many folders as needed. NMLify matches files by their collection location.
+          </p>
+          <p id="share-originals-status" class="status"></p>
+        </div>
+
+        <div class="sharing-step">
+          <h3>4. Select stems to export</h3>
           <p id="share-match-summary" class="status">
-            Load a collection and choose its generated stems folder.
+            Load a collection, choose its generated stems folder, and add the original music.
           </p>
           <div class="row">
             <button id="share-select-all-btn" type="button" class="secondary" disabled>Select all</button>
@@ -351,7 +358,7 @@
         </div>
 
         <div class="sharing-step">
-          <h3>4. Write the package</h3>
+          <h3>5. Write the package</h3>
           <div class="row">
             <label for="share-package-name">Package name</label>
             <input id="share-package-name" type="text" />
@@ -374,9 +381,23 @@
           <p id="share-package-status" class="status"></p>
         </div>
         <div class="sharing-step">
-          <h3>2. Install into Traktor's generated stems folder</h3>
+          <h3>2. Set the originals destination</h3>
+          <label for="share-recipient-root-path">Absolute path Traktor will use</label>
+          <input
+            id="share-recipient-root-path"
+            type="text"
+            placeholder="D:\Music\Shared Stems"
+            autocomplete="off"
+          />
+          <p class="hint">
+            Enter the absolute path for the originals folder you will choose next. Installation
+            then asks for that folder followed by Traktor's generated stems folder.
+          </p>
+        </div>
+        <div class="sharing-step">
+          <h3>3. Install originals and generated stems</h3>
           <button id="share-install-btn" type="button" disabled>
-            Choose generated stems folder and install…
+            Choose destination folders and install…
           </button>
           <p id="share-install-status" class="status"></p>
         </div>

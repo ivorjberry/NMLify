@@ -154,6 +154,12 @@ export interface WalkableFileHandle {
   getFile?(): Promise<File>;
 }
 
+export interface IndexedAudioFileHandle {
+  relativeDir: string;
+  filename: string;
+  handle: WalkableFileHandle;
+}
+
 /** Async function that parses a file's audio metadata. Injected from
  *  diskTags.ts so this module stays free of the music-metadata dependency
  *  and remains trivially unit-testable. */
@@ -167,6 +173,34 @@ export interface CollectAudioFilesOptions {
   /** How many tag reads to overlap. Browser file I/O benefits a lot from
    *  parallelism on spinning disks; 4 is a safe default. */
   tagConcurrency?: number;
+}
+
+/** Recursively index audio file handles while retaining their relative paths. */
+export async function indexAudioFileHandles(
+  rootHandle: WalkableDirectoryHandle,
+  onProgress?: (filesSeen: number) => void,
+): Promise<IndexedAudioFileHandle[]> {
+  const files: IndexedAudioFileHandle[] = [];
+  let seen = 0;
+
+  async function walk(handle: WalkableDirectoryHandle, relativeDir: string): Promise<void> {
+    for await (const entry of handle.values()) {
+      if (entry.kind === 'file') {
+        seen += 1;
+        if (AUDIO_EXTENSIONS.has(extOf(entry.name))) {
+          files.push({ relativeDir, filename: entry.name, handle: entry });
+        }
+        if (onProgress && seen % 500 === 0) onProgress(seen);
+      } else {
+        const next = relativeDir ? `${relativeDir}/${entry.name}` : entry.name;
+        await walk(entry, next);
+      }
+    }
+  }
+
+  await walk(rootHandle, '');
+  onProgress?.(seen);
+  return files;
 }
 
 /**
@@ -187,35 +221,14 @@ export async function collectAudioFilesFromHandle(
   onProgress?: (filesSeen: number) => void,
   options: CollectAudioFilesOptions = {},
 ): Promise<DiskFile[]> {
-  const out: DiskFile[] = [];
-  // Parallel to out[]: holds the file handle so an optional tag-read pass
-  // can reach back into the file. Discarded before return.
-  const handles: WalkableFileHandle[] = [];
-  let seen = 0;
-
-  async function walk(handle: WalkableDirectoryHandle, relativeDir: string): Promise<void> {
-    for await (const entry of handle.values()) {
-      if (entry.kind === 'file') {
-        seen += 1;
-        if (AUDIO_EXTENSIONS.has(extOf(entry.name))) {
-          out.push({
-            rootPrefix,
-            relativeDir,
-            filename: entry.name,
-            parsedName: parseFilename(entry.name),
-          });
-          handles.push(entry);
-        }
-        if (onProgress && seen % 500 === 0) onProgress(seen);
-      } else if (entry.kind === 'directory') {
-        const next = relativeDir ? `${relativeDir}/${entry.name}` : entry.name;
-        await walk(entry, next);
-      }
-    }
-  }
-
-  await walk(rootHandle, '');
-  if (onProgress) onProgress(seen);
+  const indexed = await indexAudioFileHandles(rootHandle, onProgress);
+  const out = indexed.map(({ relativeDir, filename }) => ({
+    rootPrefix,
+    relativeDir,
+    filename,
+    parsedName: parseFilename(filename),
+  }));
+  const handles = indexed.map(({ handle }) => handle);
 
   const { readTags, onTagProgress, tagConcurrency = 4 } = options;
   if (readTags && out.length > 0) {

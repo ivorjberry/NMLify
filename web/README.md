@@ -137,18 +137,20 @@ npm run preview  # serves the built bundle
 
 ### Share generated stems
 
-The **Stem Sharing** tab packages generated Traktor sidecars without including
-the original music files:
+The **Stem Sharing** tab packages generated Traktor sidecars together with
+their original music files:
 
 1. Load the source `collection.nml`.
 2. Choose Traktor's configured generated-stems folder.
-3. Select the linked stems and choose an export destination.
-4. Share the resulting folder, which contains `manifest.json`,
-   `stem-share.nml`, installation instructions, and the hashed sidecars.
+3. Add the folders containing the original music, select the linked tracks,
+   and choose an export destination.
+4. Share the resulting folder, which contains `Originals`, `GeneratedStems`,
+   `manifest.json`, `stem-share.nml`, and installation instructions.
 
 On the receiving computer, open **Stem Sharing**, choose the package, and
-install it into that computer's configured generated-stems folder. Then import
-`stem-share.nml` into Traktor and relocate any missing original tracks.
+enter the absolute path where Traktor will see the originals. NMLify copies the
+originals and generated sidecars to separately selected destinations and writes
+`stem-share-ready.nml` beside the originals with recipient-specific locations.
 
 Folder export and installation require a Chromium-based browser with the File
 System Access API. All processing remains local.
