@@ -49,6 +49,25 @@ h1 { margin: 0 0 4px; font-size: 1.6rem; }
   color: #08110b;
 }
 
+.sharing-tabs {
+  display: flex;
+  gap: 6px;
+  margin-top: 16px;
+  padding: 4px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #11151c;
+}
+.sharing-tab {
+  flex: 1 1 0;
+  background: transparent;
+  color: var(--muted);
+}
+.sharing-tab.active {
+  background: var(--accent);
+  color: #08110b;
+}
+
 .hint {
   color: var(--muted);
   font-size: 0.9rem;

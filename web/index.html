@@ -298,9 +298,33 @@
         <p id="stem-sharing-unsupported" class="status warn hidden">
           Stem Sharing requires a Chromium-based browser with folder read/write access.
         </p>
+
+        <nav class="sharing-tabs" role="tablist" aria-label="Stem Sharing actions">
+          <button
+            id="share-export-tab-btn"
+            class="sharing-tab active"
+            type="button"
+            role="tab"
+            aria-controls="share-export-panel"
+            aria-selected="true"
+          >Export package</button>
+          <button
+            id="share-import-tab-btn"
+            class="sharing-tab"
+            type="button"
+            role="tab"
+            aria-controls="share-import-panel"
+            aria-selected="false"
+          >Import package</button>
+        </nav>
       </section>
 
-      <section class="card">
+      <section
+        id="share-export-panel"
+        class="card"
+        role="tabpanel"
+        aria-labelledby="share-export-tab-btn"
+      >
         <h2>Export a stem package</h2>
         <div class="sharing-step">
           <h3>1. Load the source collection</h3>
@@ -337,7 +361,12 @@
         </div>
       </section>
 
-      <section class="card">
+      <section
+        id="share-import-panel"
+        class="card hidden"
+        role="tabpanel"
+        aria-labelledby="share-import-tab-btn"
+      >
         <h2>Install a received stem package</h2>
         <div class="sharing-step">
           <h3>1. Choose the received package folder</h3>

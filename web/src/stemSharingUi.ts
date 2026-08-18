@@ -70,6 +70,10 @@ export function initStemSharing(): void {
   const stemSharingTabBtn = el<HTMLButtonElement>('stem-sharing-tab-btn');
   const playlistPanel = el<HTMLElement>('playlist-builder-tab');
   const sharingPanel = el<HTMLElement>('stem-sharing-tab');
+  const exportTabBtn = el<HTMLButtonElement>('share-export-tab-btn');
+  const importTabBtn = el<HTMLButtonElement>('share-import-tab-btn');
+  const exportPanel = el<HTMLElement>('share-export-panel');
+  const importPanel = el<HTMLElement>('share-import-panel');
 
   function showTab(tab: 'playlist' | 'sharing'): void {
     const sharing = tab === 'sharing';
@@ -82,6 +86,18 @@ export function initStemSharing(): void {
   }
   playlistTabBtn.addEventListener('click', () => showTab('playlist'));
   stemSharingTabBtn.addEventListener('click', () => showTab('sharing'));
+
+  function showSharingTab(tab: 'export' | 'import'): void {
+    const importing = tab === 'import';
+    exportPanel.classList.toggle('hidden', importing);
+    importPanel.classList.toggle('hidden', !importing);
+    exportTabBtn.classList.toggle('active', !importing);
+    importTabBtn.classList.toggle('active', importing);
+    exportTabBtn.setAttribute('aria-selected', String(!importing));
+    importTabBtn.setAttribute('aria-selected', String(importing));
+  }
+  exportTabBtn.addEventListener('click', () => showSharingTab('export'));
+  importTabBtn.addEventListener('click', () => showSharingTab('import'));
 
   const supported = typeof window !== 'undefined' && 'showDirectoryPicker' in window;
   const unsupported = el<HTMLElement>('stem-sharing-unsupported');
