@@ -329,6 +329,28 @@ a { color: var(--accent); }
   padding: 14px 0;
   border-top: 1px solid var(--border);
 }
+.sharing-instructions {
+  margin-bottom: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: #11151c;
+}
+.sharing-instructions > summary {
+  cursor: pointer;
+  color: var(--muted);
+  font-weight: 600;
+}
+.sharing-instructions[open] > summary {
+  color: var(--fg);
+}
+.sharing-instructions ol {
+  margin: 10px 0 0;
+  padding-left: 24px;
+}
+.sharing-instructions li + li {
+  margin-top: 6px;
+}
 .sharing-step:first-of-type {
   border-top: 0;
   padding-top: 4px;
@@ -340,7 +362,7 @@ a { color: var(--accent); }
 #share-recipient-root-path {
   display: block;
   width: 100%;
-  margin-top: 6px;
+  margin: 6px 0 10px;
 }
 .stem-share-list {
   max-height: 420px;
