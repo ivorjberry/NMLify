@@ -563,20 +563,52 @@ a { color: var(--accent); }
   margin: 0;
 }
 
-/* ---------- Auth section (collapsed by default) ------------------------- */
+/* ---------- Spotify access (collapsed by default) ----------------------- */
 
-.auth-header {
+#config-details > summary {
+  cursor: pointer;
+  list-style: none;
   display: flex;
-  align-items: baseline;
-  gap: 12px;
+  align-items: flex-start;
+  gap: 8px;
+  user-select: none;
 }
-.auth-header h2 { margin: 0; }
-.auth-header .status { margin: 0; }
+#config-details > summary::-webkit-details-marker {
+  display: none;
+}
+#config-details > summary::before {
+  content: "▸";
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.55rem;
+  transition: transform 120ms ease;
+}
+#config-details[open] > summary::before {
+  transform: rotate(90deg);
+}
 
-#auth-details {
-  margin-top: 10px;
+.auth-summary {
+  display: flex;
+  flex: 1 1 auto;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 12px;
+}
+.auth-summary h2 { margin: 0; }
+.auth-summary .hint { margin: 0; }
+.auth-summary .status {
+  flex-basis: 100%;
+  margin: 2px 0 0;
+}
+
+.auth-content {
+  margin-top: 12px;
   border-top: 1px solid var(--border);
   padding-top: 10px;
+}
+
+#auth-details {
+  margin-bottom: 8px;
 }
 #auth-details > summary {
   cursor: pointer;

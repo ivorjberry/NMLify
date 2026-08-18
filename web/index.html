@@ -34,41 +34,44 @@
 
     <div id="playlist-builder-tab" class="tab-panel" role="tabpanel" aria-labelledby="playlist-tab-btn">
     <section id="config-section" class="card">
-      <div class="auth-header">
-        <h2>1. Spotify access</h2>
-        <p id="auth-status" class="status"></p>
-      </div>
-      <p class="hint">
-        Public playlists need no login. Sign in only for private or
-        collaborative playlists.
-      </p>
+      <details id="config-details">
+        <summary>
+          <div class="auth-summary">
+            <h2>1. Spotify access</h2>
+            <p class="hint">Sign in only for private or collaborative playlists.</p>
+            <p id="auth-status" class="status"></p>
+          </div>
+        </summary>
 
-      <details id="auth-details">
-        <summary>Sign in / out</summary>
-        <div class="row">
-          <button id="login-btn">Log in with Spotify</button>
-          <button id="logout-btn" class="secondary">Log out</button>
-        </div>
-      </details>
+        <div class="auth-content">
+          <details id="auth-details">
+            <summary>Sign in / out</summary>
+            <div class="row">
+              <button id="login-btn">Log in with Spotify</button>
+              <button id="logout-btn" class="secondary">Log out</button>
+            </div>
+          </details>
 
-      <details id="byo-client-details">
-        <summary>Use my own Spotify developer app</summary>
-        <p>
-          Create a free app in the
-          <a href="https://developer.spotify.com/dashboard" target="_blank" rel="noopener">Spotify Developer Dashboard</a>
-          and register this exact Redirect URI in its settings
-          (character-for-character, trailing slash included):
-        </p>
-        <div class="row redirect-uri-row">
-          <code id="redirect-uri-display"></code>
-          <button id="copy-redirect-uri-btn" class="secondary" type="button">Copy</button>
+          <details id="byo-client-details">
+            <summary>Use my own Spotify developer app</summary>
+            <p>
+              Create a free app in the
+              <a href="https://developer.spotify.com/dashboard" target="_blank" rel="noopener">Spotify Developer Dashboard</a>
+              and register this exact Redirect URI in its settings
+              (character-for-character, trailing slash included):
+            </p>
+            <div class="row redirect-uri-row">
+              <code id="redirect-uri-display"></code>
+              <button id="copy-redirect-uri-btn" class="secondary" type="button">Copy</button>
+            </div>
+            <div class="row">
+              <input id="client-id-input" type="text" placeholder="Paste Client ID here" autocomplete="off" />
+              <button id="save-client-id-btn">Save</button>
+              <button id="clear-client-id-btn" class="secondary">Reset to default</button>
+            </div>
+            <p id="client-id-status" class="status"></p>
+          </details>
         </div>
-        <div class="row">
-          <input id="client-id-input" type="text" placeholder="Paste Client ID here" autocomplete="off" />
-          <button id="save-client-id-btn">Save</button>
-          <button id="clear-client-id-btn" class="secondary">Reset to default</button>
-        </div>
-        <p id="client-id-status" class="status"></p>
       </details>
     </section>
 
@@ -352,7 +355,7 @@
     </div>
   </main>
 
-  <div id="version-badge">v1.4.0</div>
+  <div id="version-badge">v1.4.1</div>
 
   <script type="module" src="/src/main.ts"></script>
 </body>
