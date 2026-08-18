@@ -112,6 +112,7 @@ import {
   type SpotifyTrackRef,
 } from './spotify';
 import { getPublicToken } from './publicToken';
+import { initStemSharing } from './stemSharingUi';
 
 // ---------- DOM hooks -----------------------------------------------------
 
@@ -195,6 +196,7 @@ const cratesStatus = el<HTMLElement>('crates-status');
 const cratesList = el<HTMLOListElement>('crates-list');
 
 redirectUriDisplay.textContent = REDIRECT_URI;
+initStemSharing();
 
 copyRedirectUriBtn.addEventListener('click', async () => {
   try {

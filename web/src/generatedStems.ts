@@ -24,6 +24,7 @@ export interface StemDirectoryHandle {
 export interface StemFileHandle {
   kind: 'file';
   name: string;
+  getFile?(): Promise<File>;
 }
 
 function rotateLeft(value: number, bits: number): number {
@@ -137,12 +138,12 @@ export function hasGeneratedStem(entry: NmlEntry, availablePaths: ReadonlySet<st
   return predicted !== null && availablePaths.has(predicted.toLowerCase());
 }
 
-/** Collect generated-sidecar paths without opening or reading any files. */
-export async function scanGeneratedStemHandle(
+/** Index generated sidecars by relative path without opening or reading files. */
+export async function indexGeneratedStemHandles(
   root: StemDirectoryHandle,
   onProgress?: (filesSeen: number) => void,
-): Promise<Set<string>> {
-  const paths = new Set<string>();
+): Promise<Map<string, StemFileHandle>> {
+  const files = new Map<string, StemFileHandle>();
   let seen = 0;
 
   async function walk(directory: StemDirectoryHandle, relativeDir: string): Promise<void> {
@@ -155,14 +156,22 @@ export async function scanGeneratedStemHandle(
       seen += 1;
       const path = relativeDir ? `${relativeDir}/${entry.name}` : entry.name;
       const normalized = normalizeGeneratedStemPath(path);
-      if (normalized) paths.add(normalized);
+      if (normalized) files.set(normalized, entry);
       if (onProgress && seen % 250 === 0) onProgress(seen);
     }
   }
 
   await walk(root, '');
   onProgress?.(seen);
-  return paths;
+  return files;
+}
+
+/** Collect generated-sidecar paths without opening or reading any files. */
+export async function scanGeneratedStemHandle(
+  root: StemDirectoryHandle,
+  onProgress?: (filesSeen: number) => void,
+): Promise<Set<string>> {
+  return new Set((await indexGeneratedStemHandles(root, onProgress)).keys());
 }
 
 /** Collect generated-sidecar paths from a legacy webkitdirectory selection. */

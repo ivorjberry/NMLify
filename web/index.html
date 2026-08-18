@@ -10,9 +10,29 @@
   <main>
     <header>
       <h1>NMLify</h1>
-      <p class="tagline">Convert a Spotify playlist into a Traktor crate (.nml), entirely in your browser.</p>
+      <p class="tagline">Build Traktor crates and share generated stems, entirely in your browser.</p>
     </header>
 
+    <nav class="app-tabs" role="tablist" aria-label="NMLify tools">
+      <button
+        id="playlist-tab-btn"
+        class="app-tab active"
+        type="button"
+        role="tab"
+        aria-controls="playlist-builder-tab"
+        aria-selected="true"
+      >Playlist Builder</button>
+      <button
+        id="stem-sharing-tab-btn"
+        class="app-tab"
+        type="button"
+        role="tab"
+        aria-controls="stem-sharing-tab"
+        aria-selected="false"
+      >Stem Sharing</button>
+    </nav>
+
+    <div id="playlist-builder-tab" class="tab-panel" role="tabpanel" aria-labelledby="playlist-tab-btn">
     <section id="config-section" class="card">
       <div class="auth-header">
         <h2>1. Spotify access</h2>
@@ -252,9 +272,87 @@
         <ol id="crates-list" class="crates-list"></ol>
       </details>
     </section>
+    </div>
+
+    <div
+      id="stem-sharing-tab"
+      class="tab-panel hidden"
+      role="tabpanel"
+      aria-labelledby="stem-sharing-tab-btn"
+    >
+      <section class="card">
+        <h2>Share Traktor-generated stems</h2>
+        <p>
+          Create a portable package containing generated stem sidecars, an NML playlist,
+          and a verified manifest—or install a received package into this computer's
+          generated-stems folder.
+        </p>
+        <p class="hint">
+          Original music files are not included. The recipient must have matching originals
+          and may need to relocate them after importing the NML. Only share audio you have
+          permission to distribute.
+        </p>
+        <p id="stem-sharing-unsupported" class="status warn hidden">
+          Stem Sharing requires a Chromium-based browser with folder read/write access.
+        </p>
+      </section>
+
+      <section class="card">
+        <h2>Export a stem package</h2>
+        <div class="sharing-step">
+          <h3>1. Load the source collection</h3>
+          <input id="share-collection-input" type="file" accept=".nml" />
+          <p id="share-collection-status" class="status"></p>
+        </div>
+
+        <div class="sharing-step">
+          <h3>2. Choose Traktor's generated stems folder</h3>
+          <button id="share-source-folder-btn" type="button">Choose generated stems folder…</button>
+          <p id="share-source-status" class="status"></p>
+        </div>
+
+        <div class="sharing-step">
+          <h3>3. Select stems to export</h3>
+          <p id="share-match-summary" class="status">
+            Load a collection and choose its generated stems folder.
+          </p>
+          <div class="row">
+            <button id="share-select-all-btn" type="button" class="secondary" disabled>Select all</button>
+            <button id="share-select-none-btn" type="button" class="secondary" disabled>Select none</button>
+          </div>
+          <ol id="share-match-list" class="stem-share-list"></ol>
+        </div>
+
+        <div class="sharing-step">
+          <h3>4. Write the package</h3>
+          <div class="row">
+            <label for="share-package-name">Package name</label>
+            <input id="share-package-name" type="text" />
+            <button id="share-export-btn" type="button" disabled>Choose destination and export…</button>
+          </div>
+          <p id="share-export-status" class="status"></p>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Install a received stem package</h2>
+        <div class="sharing-step">
+          <h3>1. Choose the received package folder</h3>
+          <button id="share-package-folder-btn" type="button">Choose package folder…</button>
+          <p id="share-package-status" class="status"></p>
+        </div>
+        <div class="sharing-step">
+          <h3>2. Install into Traktor's generated stems folder</h3>
+          <button id="share-install-btn" type="button" disabled>
+            Choose generated stems folder and install…
+          </button>
+          <p id="share-install-status" class="status"></p>
+        </div>
+      </section>
+    </div>
   </main>
 
-  <div id="version-badge">v1.3.1</div>
+  <div id="version-badge">v1.4.0</div>
 
   <script type="module" src="/src/main.ts"></script>
 </body>
