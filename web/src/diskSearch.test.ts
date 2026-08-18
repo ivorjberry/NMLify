@@ -6,6 +6,7 @@ import {
   collectAudioFilesFromHandle,
   diskMatchToEntry,
   fuzzyMatchFiles,
+  indexAudioFileHandles,
   locationFromRelativePath,
   parseFilename,
   scanFileList,
@@ -401,6 +402,15 @@ describe('collectAudioFilesFromHandle', () => {
     const result = await collectAudioFilesFromHandle(root, 'D:\\Music');
     expect(result).toHaveLength(1);
     expect(result[0]!.relativeDir).toBe('');
+  });
+
+  it('retains file handles when indexing originals for stem sharing', async () => {
+    const audio = file('track.mp3');
+    const root = dir('Music', [dir('Artist', [audio]), file('notes.txt')]);
+    const result = await indexAudioFileHandles(root);
+    expect(result).toEqual([
+      { relativeDir: 'Artist', filename: 'track.mp3', handle: audio },
+    ]);
   });
 
   it('invokes onProgress with the running count and a final tally', async () => {

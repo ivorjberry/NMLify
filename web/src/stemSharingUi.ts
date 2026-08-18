@@ -3,13 +3,20 @@ import {
   type StemDirectoryHandle,
   type StemFileHandle,
 } from './generatedStems';
+import {
+  indexAudioFileHandles,
+  type IndexedAudioFileHandle,
+  type WalkableDirectoryHandle,
+} from './diskSearch';
 import { buildNmlPlaylist, loadCollection, sanitizePlaylistFilename, type NmlEntry } from './nml';
 import {
+  buildStemShareExportPlan,
   buildStemSharePlan,
+  createRecipientEntries,
   createStemShareManifest,
   parseStemShareManifest,
   type StemShareManifest,
-  type StemSharePlanItem,
+  type StemShareExportItem,
 } from './stemSharing';
 import {
   copyFileToPath,
@@ -39,6 +46,10 @@ function asStemDirectory(handle: FileSystemDirectoryHandle): StemDirectoryHandle
   return handle as unknown as StemDirectoryHandle;
 }
 
+function asWalkableDirectory(handle: FileSystemDirectoryHandle): WalkableDirectoryHandle {
+  return handle as unknown as WalkableDirectoryHandle;
+}
+
 function asShareDirectory(handle: FileSystemDirectoryHandle): ShareDirectoryHandle {
   return handle as unknown as ShareDirectoryHandle;
 }
@@ -57,11 +68,11 @@ function packageInstructions(packageName: string, count: number): string {
     'To install with NMLify:',
     '1. Open the Stem Sharing tab.',
     '2. Choose this package folder under Install a received package.',
-    "3. Choose Traktor's configured Generated Stems folder.",
-    '4. Install the sidecars.',
-    '5. Import stem-share.nml into Traktor and relocate original tracks if needed.',
+    '3. Enter the absolute path where Traktor will find the copied originals.',
+    "4. Choose that originals folder, then choose Traktor's Generated Stems folder.",
+    '5. Import stem-share-ready.nml from the originals folder into Traktor.',
     '',
-    'The original music files are not included.',
+    'This package includes the original music files. Share only audio you may distribute.',
   ].join('\n');
 }
 
@@ -70,6 +81,10 @@ export function initStemSharing(): void {
   const stemSharingTabBtn = el<HTMLButtonElement>('stem-sharing-tab-btn');
   const playlistPanel = el<HTMLElement>('playlist-builder-tab');
   const sharingPanel = el<HTMLElement>('stem-sharing-tab');
+  const exportTabBtn = el<HTMLButtonElement>('share-export-tab-btn');
+  const importTabBtn = el<HTMLButtonElement>('share-import-tab-btn');
+  const exportPanel = el<HTMLElement>('share-export-panel');
+  const importPanel = el<HTMLElement>('share-import-panel');
 
   function showTab(tab: 'playlist' | 'sharing'): void {
     const sharing = tab === 'sharing';
@@ -83,12 +98,26 @@ export function initStemSharing(): void {
   playlistTabBtn.addEventListener('click', () => showTab('playlist'));
   stemSharingTabBtn.addEventListener('click', () => showTab('sharing'));
 
+  function showSharingTab(tab: 'export' | 'import'): void {
+    const importing = tab === 'import';
+    exportPanel.classList.toggle('hidden', importing);
+    importPanel.classList.toggle('hidden', !importing);
+    exportTabBtn.classList.toggle('active', !importing);
+    importTabBtn.classList.toggle('active', importing);
+    exportTabBtn.setAttribute('aria-selected', String(!importing));
+    importTabBtn.setAttribute('aria-selected', String(importing));
+  }
+  exportTabBtn.addEventListener('click', () => showSharingTab('export'));
+  importTabBtn.addEventListener('click', () => showSharingTab('import'));
+
   const supported = typeof window !== 'undefined' && 'showDirectoryPicker' in window;
   const unsupported = el<HTMLElement>('stem-sharing-unsupported');
   const exportCollectionInput = el<HTMLInputElement>('share-collection-input');
   const exportCollectionStatus = el<HTMLElement>('share-collection-status');
   const sourceFolderBtn = el<HTMLButtonElement>('share-source-folder-btn');
   const sourceStatus = el<HTMLElement>('share-source-status');
+  const originalsFolderBtn = el<HTMLButtonElement>('share-originals-folder-btn');
+  const originalsStatus = el<HTMLElement>('share-originals-status');
   const selectAllBtn = el<HTMLButtonElement>('share-select-all-btn');
   const selectNoneBtn = el<HTMLButtonElement>('share-select-none-btn');
   const matchSummary = el<HTMLElement>('share-match-summary');
@@ -99,21 +128,26 @@ export function initStemSharing(): void {
 
   const packageFolderBtn = el<HTMLButtonElement>('share-package-folder-btn');
   const packageStatus = el<HTMLElement>('share-package-status');
+  const recipientRootInput = el<HTMLInputElement>('share-recipient-root-path');
   const installBtn = el<HTMLButtonElement>('share-install-btn');
   const installStatus = el<HTMLElement>('share-install-status');
 
   let collection: NmlEntry[] | null = null;
   let sourceFiles = new Map<string, StemFileHandle>();
-  let plan: StemSharePlanItem[] = [];
+  let originalFiles: IndexedAudioFileHandle[] = [];
+  let stemCount = 0;
+  let plan: StemShareExportItem[] = [];
   let selectedPaths = new Set<string>();
   let packageDirectory: ShareDirectoryHandle | null = null;
   let receivedManifest: StemShareManifest | null = null;
+  let receivedCollection: NmlEntry[] | null = null;
 
   packageNameInput.value = defaultPackageName();
 
   if (!supported) {
     unsupported.classList.remove('hidden');
     sourceFolderBtn.disabled = true;
+    originalsFolderBtn.disabled = true;
     exportBtn.disabled = true;
     packageFolderBtn.disabled = true;
     installBtn.disabled = true;
@@ -126,7 +160,11 @@ export function initStemSharing(): void {
   }
 
   function renderPlan(resetSelection: boolean): void {
-    plan = collection ? buildStemSharePlan(collection, new Set(sourceFiles.keys())) : [];
+    const stemPlan = collection
+      ? buildStemSharePlan(collection, new Set(sourceFiles.keys()))
+      : [];
+    stemCount = stemPlan.length;
+    plan = buildStemShareExportPlan(stemPlan, originalFiles);
     if (resetSelection) {
       selectedPaths = new Set(plan.map((item) => item.sidecarPath));
     } else {
@@ -163,11 +201,19 @@ export function initStemSharing(): void {
 
   function renderSummary(): void {
     if (!collection || sourceFiles.size === 0) {
-      matchSummary.textContent = 'Load a collection and choose its generated stems folder.';
+      matchSummary.textContent =
+        'Load a collection, choose its generated stems folder, and add the original music.';
+      return;
+    }
+    if (originalFiles.length === 0) {
+      matchSummary.textContent =
+        `Matched ${stemCount.toLocaleString()} generated stem${stemCount === 1 ? '' : 's'}. ` +
+        'Add folders containing their original music files.';
       return;
     }
     matchSummary.textContent =
-      `Matched ${plan.length.toLocaleString()} generated stem${plan.length === 1 ? '' : 's'}; ` +
+      `Matched originals for ${plan.length.toLocaleString()} of ${stemCount.toLocaleString()} ` +
+      `generated stem${stemCount === 1 ? '' : 's'}; ` +
       `${selectedPaths.size.toLocaleString()} selected for export.`;
   }
 
@@ -224,6 +270,40 @@ export function initStemSharing(): void {
     }
   });
 
+  originalsFolderBtn.addEventListener('click', async () => {
+    if (!supported) return;
+    let handle: FileSystemDirectoryHandle;
+    try {
+      handle = await (window as unknown as DirectoryPickerWindow).showDirectoryPicker({
+        mode: 'read',
+      });
+    } catch (err) {
+      if (isAbortError(err)) return;
+      originalsStatus.textContent =
+        err instanceof Error ? `Could not open folder: ${err.message}` : 'Could not open folder.';
+      originalsStatus.className = 'status err';
+      return;
+    }
+    originalsStatus.textContent = `Scanning ${handle.name}…`;
+    originalsStatus.className = 'status';
+    try {
+      const indexed = await indexAudioFileHandles(asWalkableDirectory(handle), (seen) => {
+        originalsStatus.textContent =
+          `Scanning ${handle.name}… ${seen.toLocaleString()} files seen`;
+      });
+      originalFiles.push(...indexed);
+      originalsStatus.textContent =
+        `Indexed ${originalFiles.length.toLocaleString()} original audio file` +
+        `${originalFiles.length === 1 ? '' : 's'} across selected folders.`;
+      originalsStatus.className = originalFiles.length > 0 ? 'status ok' : 'status warn';
+      renderPlan(true);
+    } catch (err) {
+      originalsStatus.textContent =
+        err instanceof Error ? `Could not scan folder: ${err.message}` : 'Could not scan folder.';
+      originalsStatus.className = 'status err';
+    }
+  });
+
   selectAllBtn.addEventListener('click', () => {
     selectedPaths = new Set(plan.map((item) => item.sidecarPath));
     renderPlan(false);
@@ -277,15 +357,18 @@ export function initStemSharing(): void {
       );
       let copied = 0;
       for (const item of selected) {
+        await copyFileToPath(item.originalFile.handle, packageRoot, item.originalPath);
         const source = sourceFiles.get(item.sidecarPath.toLowerCase());
         if (!source) throw new Error(`Source sidecar disappeared: ${item.sidecarPath}`);
         await copyFileToPath(source, packageRoot, `GeneratedStems/${item.sidecarPath}`);
         copied += 1;
         exportStatus.textContent =
-          `Copying generated stems… ${copied.toLocaleString()} of ${selected.length.toLocaleString()}`;
+          `Copying originals and generated stems… ${copied.toLocaleString()} of ` +
+          selected.length.toLocaleString();
       }
       exportStatus.textContent =
-        `Exported ${copied.toLocaleString()} generated stem${copied === 1 ? '' : 's'} to ` +
+        `Exported ${copied.toLocaleString()} original and generated stem pair` +
+        `${copied === 1 ? '' : 's'} to ` +
         `"${destination.name}\\${packageName}".`;
       exportStatus.className = 'status ok';
     } catch (err) {
@@ -314,20 +397,27 @@ export function initStemSharing(): void {
     try {
       const directory = asShareDirectory(handle);
       const manifest = parseStemShareManifest(await readTextAtPath(directory, 'manifest.json'));
-      await getFileAtPath(directory, 'stem-share.nml');
+      const importedCollection = loadCollection(
+        await readTextAtPath(directory, 'stem-share.nml'),
+      );
       for (const item of manifest.entries) {
         await getFileAtPath(directory, `GeneratedStems/${item.sidecarPath}`);
+        if (item.originalPath) await getFileAtPath(directory, item.originalPath);
       }
+      const includesOriginals = manifest.entries.every((item) => item.originalPath);
       packageDirectory = directory;
       receivedManifest = manifest;
-      packageStatus.textContent =
-        `Loaded "${handle.name}" with ${manifest.entries.length.toLocaleString()} generated ` +
-        `stem${manifest.entries.length === 1 ? '' : 's'}.`;
-      packageStatus.className = 'status ok';
+      receivedCollection = importedCollection;
+      packageStatus.textContent = includesOriginals
+        ? `Loaded "${handle.name}" with ${manifest.entries.length.toLocaleString()} original and ` +
+          `generated stem pair${manifest.entries.length === 1 ? '' : 's'}.`
+        : `Loaded legacy package "${handle.name}" without original music files.`;
+      packageStatus.className = includesOriginals ? 'status ok' : 'status warn';
       installBtn.disabled = false;
     } catch (err) {
       packageDirectory = null;
       receivedManifest = null;
+      receivedCollection = null;
       installBtn.disabled = true;
       packageStatus.textContent =
         err instanceof Error ? `Invalid package: ${err.message}` : 'Invalid package.';
@@ -336,16 +426,32 @@ export function initStemSharing(): void {
   });
 
   installBtn.addEventListener('click', async () => {
-    if (!packageDirectory || !receivedManifest) return;
-    let destination: FileSystemDirectoryHandle;
+    if (!packageDirectory || !receivedManifest || !receivedCollection) return;
+    const includesOriginals = receivedManifest.entries.every((item) => item.originalPath);
+    const recipientRoot = recipientRootInput.value.trim();
+    if (includesOriginals && !recipientRoot) {
+      installStatus.textContent = 'Enter the absolute Traktor path for the originals folder.';
+      installStatus.className = 'status err';
+      recipientRootInput.focus();
+      return;
+    }
+    let originalsDestination: FileSystemDirectoryHandle | null = null;
+    let stemsDestination: FileSystemDirectoryHandle;
     try {
-      destination = await (window as unknown as DirectoryPickerWindow).showDirectoryPicker({
+      if (includesOriginals) {
+        originalsDestination =
+          await (window as unknown as DirectoryPickerWindow).showDirectoryPicker({
+            mode: 'readwrite',
+          });
+      }
+      stemsDestination = await (window as unknown as DirectoryPickerWindow).showDirectoryPicker({
         mode: 'readwrite',
       });
     } catch (err) {
       if (isAbortError(err)) return;
-      installStatus.textContent =
-        err instanceof Error ? `Could not open stems folder: ${err.message}` : 'Could not open stems folder.';
+      installStatus.textContent = err instanceof Error
+        ? `Could not open destination folder: ${err.message}`
+        : 'Could not open destination folder.';
       installStatus.className = 'status err';
       return;
     }
@@ -353,22 +459,49 @@ export function initStemSharing(): void {
     installBtn.disabled = true;
     installStatus.className = 'status';
     try {
+      const rewrittenEntries = includesOriginals
+        ? createRecipientEntries(receivedCollection, receivedManifest, recipientRoot)
+        : null;
       let copied = 0;
       for (const item of receivedManifest.entries) {
-        const source = await getFileAtPath(
+        if (item.originalPath && originalsDestination) {
+          const originalSource = await getFileAtPath(packageDirectory, item.originalPath);
+          await copyFileToPath(
+            originalSource,
+            asShareDirectory(originalsDestination),
+            item.originalPath.slice('Originals/'.length),
+          );
+        }
+        const stemSource = await getFileAtPath(
           packageDirectory,
           `GeneratedStems/${item.sidecarPath}`,
         );
-        await copyFileToPath(source, asShareDirectory(destination), item.sidecarPath);
+        await copyFileToPath(
+          stemSource,
+          asShareDirectory(stemsDestination),
+          item.sidecarPath,
+        );
         copied += 1;
         installStatus.textContent =
-          `Installing generated stems… ${copied.toLocaleString()} of ` +
+          `Installing ${includesOriginals ? 'originals and ' : ''}generated stems… ` +
+          `${copied.toLocaleString()} of ` +
           receivedManifest.entries.length.toLocaleString();
       }
-      installStatus.textContent =
-        `Installed ${copied.toLocaleString()} generated stem${copied === 1 ? '' : 's'} into ` +
-        `"${destination.name}". Import stem-share.nml from the package into Traktor, then ` +
-        'relocate any missing original tracks.';
+      if (originalsDestination && rewrittenEntries) {
+        await writeFileAtPath(
+          asShareDirectory(originalsDestination),
+          'stem-share-ready.nml',
+          buildNmlPlaylist('Shared Stems', rewrittenEntries),
+        );
+        installStatus.textContent =
+          `Installed ${copied.toLocaleString()} original and generated stem pair` +
+          `${copied === 1 ? '' : 's'}. Import stem-share-ready.nml from ` +
+          `"${originalsDestination.name}" into Traktor.`;
+      } else {
+        installStatus.textContent =
+          `Installed ${copied.toLocaleString()} generated stem${copied === 1 ? '' : 's'}. ` +
+          'This legacy package has no originals; import stem-share.nml from the package.';
+      }
       installStatus.className = 'status ok';
     } catch (err) {
       installStatus.textContent =
