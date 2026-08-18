@@ -148,9 +148,10 @@ their original music files:
    `manifest.json`, `stem-share.nml`, and installation instructions.
 
 On the receiving computer, open **Stem Sharing**, choose the package, and
-enter the absolute path where Traktor will see the originals. NMLify copies the
-originals and generated sidecars to separately selected destinations and writes
-`stem-share-ready.nml` beside the originals with recipient-specific locations.
+choose an originals destination. Enter that same folder's absolute path as
+Traktor sees it—the browser grants folder access but cannot reveal the path.
+Install the originals to create `stem-share-ready.nml`, then separately install
+the sidecars into Traktor's generated stems folder.
 
 Folder export and installation require a Chromium-based browser with the File
 System Access API. All processing remains local.

@@ -340,7 +340,7 @@ a { color: var(--accent); }
 #share-recipient-root-path {
   display: block;
   width: 100%;
-  margin-top: 6px;
+  margin: 6px 0 10px;
 }
 .stem-share-list {
   max-height: 420px;

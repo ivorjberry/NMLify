@@ -381,25 +381,38 @@
           <p id="share-package-status" class="status"></p>
         </div>
         <div class="sharing-step">
-          <h3>2. Set the originals destination</h3>
-          <label for="share-recipient-root-path">Absolute path Traktor will use</label>
+          <h3>2. Install the original tracks</h3>
+          <p class="hint">
+            First choose the folder where NMLify should copy the originals. The browser grants
+            access to that folder but hides its full path, so enter the path separately exactly
+            as Traktor sees it.
+          </p>
+          <button id="share-originals-destination-btn" type="button" disabled>
+            Choose originals destination folder…
+          </button>
+          <p id="share-originals-destination-status" class="status"></p>
+          <label for="share-recipient-root-path">Traktor path for that same folder</label>
           <input
             id="share-recipient-root-path"
             type="text"
             placeholder="D:\Music\Shared Stems"
             autocomplete="off"
           />
-          <p class="hint">
-            Enter the absolute path for the originals folder you will choose next. Installation
-            then asks for that folder followed by Traktor's generated stems folder.
-          </p>
+          <button id="share-install-originals-btn" type="button" disabled>
+            Install originals and create ready NML
+          </button>
+          <p id="share-originals-install-status" class="status"></p>
         </div>
         <div class="sharing-step">
-          <h3>3. Install originals and generated stems</h3>
-          <button id="share-install-btn" type="button" disabled>
-            Choose destination folders and install…
+          <h3>3. Install the generated stems</h3>
+          <p class="hint">
+            Choose Traktor's configured generated stems folder, usually
+            <code>Music\Traktor\Stems</code>.
+          </p>
+          <button id="share-install-stems-btn" type="button" disabled>
+            Choose generated stems folder and install stems…
           </button>
-          <p id="share-install-status" class="status"></p>
+          <p id="share-stems-install-status" class="status"></p>
         </div>
       </section>
     </div>
