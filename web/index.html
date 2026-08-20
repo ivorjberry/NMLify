@@ -10,7 +10,7 @@
   <main>
     <header>
       <h1>NMLify</h1>
-      <p class="tagline">Build Traktor crates and share generated stems, entirely in your browser.</p>
+      <p class="tagline">Build Traktor crates and manage your collection, entirely in your browser.</p>
     </header>
 
     <nav class="app-tabs" role="tablist" aria-label="NMLify tools">
@@ -29,7 +29,7 @@
         role="tab"
         aria-controls="stem-sharing-tab"
         aria-selected="false"
-      >Stem Sharing</button>
+      >Traktor Utilities</button>
     </nav>
 
     <div id="playlist-builder-tab" class="tab-panel" role="tabpanel" aria-labelledby="playlist-tab-btn">
@@ -284,6 +284,74 @@
       aria-labelledby="stem-sharing-tab-btn"
     >
       <section class="card">
+        <h2>Traktor Utilities</h2>
+        <p>Create collection-based playlists and manage portable generated-stem packages.</p>
+        <nav class="utility-tabs" role="tablist" aria-label="Traktor utilities">
+          <button
+            id="stem-library-tab-btn"
+            class="utility-tab active"
+            type="button"
+            role="tab"
+            aria-controls="stem-library-utility"
+            aria-selected="true"
+          >Stem Library</button>
+          <button
+            id="stem-share-utility-tab-btn"
+            class="utility-tab"
+            type="button"
+            role="tab"
+            aria-controls="stem-sharing-utility"
+            aria-selected="false"
+          >Share Stems</button>
+        </nav>
+      </section>
+
+      <section
+        id="stem-library-utility"
+        class="card"
+        role="tabpanel"
+        aria-labelledby="stem-library-tab-btn"
+      >
+        <h2>Create an All Stems playlist</h2>
+        <p>
+          Build a Traktor playlist containing packaged stem files and tracks with verified
+          generated stem sidecars.
+        </p>
+        <div class="sharing-step">
+          <h3>1. Load your collection</h3>
+          <input id="stem-library-collection-input" type="file" accept=".nml" />
+          <p id="stem-library-collection-status" class="status"></p>
+        </div>
+        <div class="sharing-step">
+          <h3>2. Connect the generated stems folder</h3>
+          <p class="hint">
+            Packaged stem files are detected from the collection alone. Connect Traktor's
+            generated stems folder to include generated sidecars too.
+          </p>
+          <button id="stem-library-folder-btn" type="button">
+            Choose generated stems folder…
+          </button>
+          <p id="stem-library-folder-status" class="status"></p>
+        </div>
+        <div class="sharing-step">
+          <h3>3. Download the playlist</h3>
+          <label class="stem-marker-option">
+            <input id="stem-library-marker-input" type="checkbox" checked />
+            Append <code>NMLIFY_STEM</code> to Comment 2 for Smartlist filtering
+          </label>
+          <p class="hint">
+            Existing Comment 2 text is preserved. The marker is added only to the exported
+            playlist entries.
+          </p>
+          <button id="stem-library-download-btn" type="button" disabled>
+            Download All Stems playlist
+          </button>
+          <p id="stem-library-status" class="status"></p>
+        </div>
+      </section>
+
+      <div id="stem-sharing-utility" class="hidden" role="tabpanel" aria-labelledby="stem-share-utility-tab-btn">
+      <section class="card">
         <h2>Share Traktor-generated stems</h2>
         <p>
           Create a portable package containing original tracks, generated stem sidecars,
@@ -449,6 +517,7 @@
           <p id="share-stems-install-status" class="status"></p>
         </div>
       </section>
+      </div>
     </div>
   </main>
 

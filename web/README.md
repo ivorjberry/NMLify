@@ -135,9 +135,17 @@ npm run preview  # serves the built bundle
 5. Click **Download playlist** to save the crate, then drop it into Traktor's
    Playlists section.
 
-### Share generated stems
+### Traktor utilities
 
-The **Stem Sharing** tab packages generated Traktor sidecars together with
+The **Traktor Utilities** tab includes a **Stem Library** tool that creates an
+`All Stems.nml` playlist from packaged stem entries and verified generated stem
+sidecars. It can optionally append `NMLIFY_STEM` to Comment 2 in the exported
+entries so the marker can be tested with Traktor Smartlists; existing Comment 2
+text is preserved.
+
+#### Share generated stems
+
+The **Share Stems** utility packages generated Traktor sidecars together with
 their original music files:
 
 1. Load the source `collection.nml`.

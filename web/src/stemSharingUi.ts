@@ -8,7 +8,9 @@ import {
   type IndexedAudioFileHandle,
   type WalkableDirectoryHandle,
 } from './diskSearch';
+import { triggerDownload } from './download';
 import { buildNmlPlaylist, loadCollection, sanitizePlaylistFilename, type NmlEntry } from './nml';
+import { buildAllStemEntries } from './stemLibrary';
 import {
   buildStemShareExportPlan,
   buildStemSharePlan,
@@ -82,6 +84,10 @@ export function initStemSharing(): void {
   const stemSharingTabBtn = el<HTMLButtonElement>('stem-sharing-tab-btn');
   const playlistPanel = el<HTMLElement>('playlist-builder-tab');
   const sharingPanel = el<HTMLElement>('stem-sharing-tab');
+  const stemLibraryTabBtn = el<HTMLButtonElement>('stem-library-tab-btn');
+  const stemShareUtilityTabBtn = el<HTMLButtonElement>('stem-share-utility-tab-btn');
+  const stemLibraryPanel = el<HTMLElement>('stem-library-utility');
+  const stemSharingUtilityPanel = el<HTMLElement>('stem-sharing-utility');
   const exportTabBtn = el<HTMLButtonElement>('share-export-tab-btn');
   const importTabBtn = el<HTMLButtonElement>('share-import-tab-btn');
   const exportPanel = el<HTMLElement>('share-export-panel');
@@ -99,6 +105,18 @@ export function initStemSharing(): void {
   playlistTabBtn.addEventListener('click', () => showTab('playlist'));
   stemSharingTabBtn.addEventListener('click', () => showTab('sharing'));
 
+  function showUtility(tab: 'library' | 'sharing'): void {
+    const sharing = tab === 'sharing';
+    stemLibraryPanel.classList.toggle('hidden', sharing);
+    stemSharingUtilityPanel.classList.toggle('hidden', !sharing);
+    stemLibraryTabBtn.classList.toggle('active', !sharing);
+    stemShareUtilityTabBtn.classList.toggle('active', sharing);
+    stemLibraryTabBtn.setAttribute('aria-selected', String(!sharing));
+    stemShareUtilityTabBtn.setAttribute('aria-selected', String(sharing));
+  }
+  stemLibraryTabBtn.addEventListener('click', () => showUtility('library'));
+  stemShareUtilityTabBtn.addEventListener('click', () => showUtility('sharing'));
+
   function showSharingTab(tab: 'export' | 'import'): void {
     const importing = tab === 'import';
     exportPanel.classList.toggle('hidden', importing);
@@ -112,6 +130,15 @@ export function initStemSharing(): void {
   importTabBtn.addEventListener('click', () => showSharingTab('import'));
 
   const supported = typeof window !== 'undefined' && 'showDirectoryPicker' in window;
+  const libraryCollectionInput =
+    el<HTMLInputElement>('stem-library-collection-input');
+  const libraryCollectionStatus =
+    el<HTMLElement>('stem-library-collection-status');
+  const libraryFolderBtn = el<HTMLButtonElement>('stem-library-folder-btn');
+  const libraryFolderStatus = el<HTMLElement>('stem-library-folder-status');
+  const libraryMarkerInput = el<HTMLInputElement>('stem-library-marker-input');
+  const libraryDownloadBtn = el<HTMLButtonElement>('stem-library-download-btn');
+  const libraryStatus = el<HTMLElement>('stem-library-status');
   const unsupported = el<HTMLElement>('stem-sharing-unsupported');
   const exportCollectionInput = el<HTMLInputElement>('share-collection-input');
   const exportCollectionStatus = el<HTMLElement>('share-collection-status');
@@ -140,6 +167,8 @@ export function initStemSharing(): void {
   const stemsInstallStatus = el<HTMLElement>('share-stems-install-status');
 
   let collection: NmlEntry[] | null = null;
+  let libraryCollection: NmlEntry[] | null = null;
+  let libraryStemPaths = new Set<string>();
   let sourceFiles = new Map<string, StemFileHandle>();
   let originalFiles: IndexedAudioFileHandle[] = [];
   let stemCount = 0;
@@ -153,6 +182,10 @@ export function initStemSharing(): void {
   packageNameInput.value = defaultPackageName();
 
   if (!supported) {
+    libraryFolderBtn.disabled = true;
+    libraryFolderStatus.textContent =
+      'Generated-stem folder scanning requires Chromium; packaged stems remain available.';
+    libraryFolderStatus.className = 'status warn';
     unsupported.classList.remove('hidden');
     sourceFolderBtn.disabled = true;
     originalsFolderBtn.disabled = true;
@@ -162,6 +195,96 @@ export function initStemSharing(): void {
     installOriginalsBtn.disabled = true;
     installStemsBtn.disabled = true;
   }
+
+  function updateLibraryState(): void {
+    const entries = libraryCollection
+      ? buildAllStemEntries(libraryCollection, libraryStemPaths, false)
+      : [];
+    libraryDownloadBtn.disabled = entries.length === 0;
+    if (!libraryCollection) {
+      libraryStatus.textContent = 'Load a collection to find stem-backed tracks.';
+      libraryStatus.className = 'status';
+      return;
+    }
+    libraryStatus.textContent =
+      `Found ${entries.length.toLocaleString()} stem-backed collection ` +
+      `entr${entries.length === 1 ? 'y' : 'ies'} for the playlist.`;
+    libraryStatus.className = entries.length > 0 ? 'status ok' : 'status warn';
+  }
+
+  libraryCollectionInput.addEventListener('change', async () => {
+    const file = libraryCollectionInput.files?.[0];
+    if (!file) return;
+    libraryCollectionStatus.textContent = `Reading ${file.name}…`;
+    libraryCollectionStatus.className = 'status';
+    try {
+      libraryCollection = loadCollection(await file.text());
+      libraryCollectionStatus.textContent =
+        `Loaded ${libraryCollection.length.toLocaleString()} collection entries from ${file.name}.`;
+      libraryCollectionStatus.className = 'status ok';
+    } catch (err) {
+      libraryCollection = null;
+      libraryCollectionStatus.textContent = err instanceof Error
+        ? `Could not load collection: ${err.message}`
+        : 'Could not load collection.';
+      libraryCollectionStatus.className = 'status err';
+    }
+    updateLibraryState();
+  });
+
+  libraryFolderBtn.addEventListener('click', async () => {
+    if (!supported) return;
+    let handle: FileSystemDirectoryHandle;
+    try {
+      handle = await (window as unknown as DirectoryPickerWindow).showDirectoryPicker({
+        mode: 'read',
+      });
+    } catch (err) {
+      if (isAbortError(err)) return;
+      libraryFolderStatus.textContent = err instanceof Error
+        ? `Could not open folder: ${err.message}`
+        : 'Could not open folder.';
+      libraryFolderStatus.className = 'status err';
+      return;
+    }
+    libraryFolderStatus.textContent = `Scanning ${handle.name}…`;
+    libraryFolderStatus.className = 'status';
+    try {
+      const files = await indexGeneratedStemHandles(asStemDirectory(handle), (seen) => {
+        libraryFolderStatus.textContent =
+          `Scanning ${handle.name}… ${seen.toLocaleString()} files seen`;
+      });
+      libraryStemPaths = new Set(files.keys());
+      libraryFolderStatus.textContent =
+        `Found ${libraryStemPaths.size.toLocaleString()} generated stem sidecar` +
+        `${libraryStemPaths.size === 1 ? '' : 's'}.`;
+      libraryFolderStatus.className = libraryStemPaths.size > 0 ? 'status ok' : 'status warn';
+      updateLibraryState();
+    } catch (err) {
+      libraryStemPaths = new Set();
+      libraryFolderStatus.textContent = err instanceof Error
+        ? `Could not scan folder: ${err.message}`
+        : 'Could not scan folder.';
+      libraryFolderStatus.className = 'status err';
+      updateLibraryState();
+    }
+  });
+
+  libraryDownloadBtn.addEventListener('click', () => {
+    if (!libraryCollection) return;
+    const entries = buildAllStemEntries(
+      libraryCollection,
+      libraryStemPaths,
+      libraryMarkerInput.checked,
+    );
+    if (entries.length === 0) return;
+    triggerDownload('All Stems.nml', buildNmlPlaylist('All Stems', entries));
+    libraryStatus.textContent =
+      `Downloaded All Stems.nml with ${entries.length.toLocaleString()} ` +
+      `entr${entries.length === 1 ? 'y' : 'ies'}` +
+      `${libraryMarkerInput.checked ? ' tagged in Comment 2.' : '.'}`;
+    libraryStatus.className = 'status ok';
+  });
 
   function updateExportButton(): void {
     exportBtn.disabled = !supported || selectedPaths.size === 0;
@@ -257,6 +380,7 @@ export function initStemSharing(): void {
       exportCollectionStatus.textContent =
         err instanceof Error ? `Could not load collection: ${err.message}` : 'Could not load collection.';
       exportCollectionStatus.className = 'status err';
+      updateLibraryState();
       renderPlan(true);
     }
   });

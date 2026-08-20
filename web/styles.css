@@ -49,7 +49,8 @@ h1 { margin: 0 0 4px; font-size: 1.6rem; }
   color: #08110b;
 }
 
-.sharing-tabs {
+.sharing-tabs,
+.utility-tabs {
   display: flex;
   gap: 6px;
   margin-top: 16px;
@@ -58,12 +59,14 @@ h1 { margin: 0 0 4px; font-size: 1.6rem; }
   border-radius: 8px;
   background: #11151c;
 }
-.sharing-tab {
+.sharing-tab,
+.utility-tab {
   flex: 1 1 0;
   background: transparent;
   color: var(--muted);
 }
-.sharing-tab.active {
+.sharing-tab.active,
+.utility-tab.active {
   background: var(--accent);
   color: #08110b;
 }
@@ -363,6 +366,12 @@ a { color: var(--accent); }
   display: block;
   width: 100%;
   margin: 6px 0 10px;
+}
+.stem-marker-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
 }
 .stem-share-list {
   max-height: 420px;

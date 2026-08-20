@@ -53,6 +53,7 @@ import {
   type WalkableDirectoryHandle,
 } from './diskSearch';
 import { readTagsFromBlob } from './diskTags';
+import { triggerDownload } from './download';
 import {
   addSource as addSourceRecord,
   type DiskSourceKind,
@@ -2109,19 +2110,6 @@ function clampRatio(value: number): number {
 function clampTopN(value: number): number {
   if (!Number.isFinite(value)) return 1;
   return Math.min(20, Math.max(1, Math.round(value)));
-}
-
-function triggerDownload(filename: string, content: string): void {
-  const blob = new Blob([content], { type: 'application/xml;charset=utf-8' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  // Revoke on the next tick so the browser has time to start the download.
-  setTimeout(() => URL.revokeObjectURL(url), 0);
 }
 
 // ---------- Backups ------------------------------------------------------
