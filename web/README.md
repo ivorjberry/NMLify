@@ -143,6 +143,11 @@ sidecars. It can optionally append `NMLIFY_STEM` to Comment 2 in the exported
 entries so the marker can be tested with Traktor Smartlists; existing Comment 2
 text is preserved.
 
+The **Reconcile Stems** utility compares a collection with the generated-stems
+folder and reports orphaned sidecars, duplicate `AUDIO_ID` mappings, and marked
+stems whose expected sidecars are missing. It is read-only and can download a
+text report. Collection backup history also lives under **Traktor Utilities**.
+
 #### Share generated stems
 
 The **Share Stems** utility packages generated Traktor sidecars together with

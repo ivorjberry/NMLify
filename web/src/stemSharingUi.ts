@@ -12,6 +12,11 @@ import { triggerDownload } from './download';
 import { buildNmlPlaylist, loadCollection, sanitizePlaylistFilename, type NmlEntry } from './nml';
 import { buildAllStemEntries } from './stemLibrary';
 import {
+  formatStemReconciliationReport,
+  reconcileGeneratedStems,
+  type StemReconciliationReport,
+} from './stemReconciliation';
+import {
   buildStemShareExportPlan,
   buildStemSharePlan,
   createRecipientEntries,
@@ -85,9 +90,15 @@ export function initStemSharing(): void {
   const playlistPanel = el<HTMLElement>('playlist-builder-tab');
   const sharingPanel = el<HTMLElement>('stem-sharing-tab');
   const stemLibraryTabBtn = el<HTMLButtonElement>('stem-library-tab-btn');
+  const stemReconciliationTabBtn =
+    el<HTMLButtonElement>('stem-reconciliation-tab-btn');
   const stemShareUtilityTabBtn = el<HTMLButtonElement>('stem-share-utility-tab-btn');
+  const collectionBackupsTabBtn =
+    el<HTMLButtonElement>('collection-backups-tab-btn');
   const stemLibraryPanel = el<HTMLElement>('stem-library-utility');
+  const stemReconciliationPanel = el<HTMLElement>('stem-reconciliation-utility');
   const stemSharingUtilityPanel = el<HTMLElement>('stem-sharing-utility');
+  const collectionBackupsPanel = el<HTMLElement>('collection-backups-utility');
   const exportTabBtn = el<HTMLButtonElement>('share-export-tab-btn');
   const importTabBtn = el<HTMLButtonElement>('share-import-tab-btn');
   const exportPanel = el<HTMLElement>('share-export-panel');
@@ -105,17 +116,31 @@ export function initStemSharing(): void {
   playlistTabBtn.addEventListener('click', () => showTab('playlist'));
   stemSharingTabBtn.addEventListener('click', () => showTab('sharing'));
 
-  function showUtility(tab: 'library' | 'sharing'): void {
-    const sharing = tab === 'sharing';
-    stemLibraryPanel.classList.toggle('hidden', sharing);
-    stemSharingUtilityPanel.classList.toggle('hidden', !sharing);
-    stemLibraryTabBtn.classList.toggle('active', !sharing);
-    stemShareUtilityTabBtn.classList.toggle('active', sharing);
-    stemLibraryTabBtn.setAttribute('aria-selected', String(!sharing));
-    stemShareUtilityTabBtn.setAttribute('aria-selected', String(sharing));
+  function showUtility(tab: 'library' | 'reconciliation' | 'sharing' | 'backups'): void {
+    const utilities = [
+      { name: 'library', button: stemLibraryTabBtn, panel: stemLibraryPanel },
+      {
+        name: 'reconciliation',
+        button: stemReconciliationTabBtn,
+        panel: stemReconciliationPanel,
+      },
+      { name: 'sharing', button: stemShareUtilityTabBtn, panel: stemSharingUtilityPanel },
+      { name: 'backups', button: collectionBackupsTabBtn, panel: collectionBackupsPanel },
+    ] as const;
+    for (const utility of utilities) {
+      const active = utility.name === tab;
+      utility.panel.classList.toggle('hidden', !active);
+      utility.button.classList.toggle('active', active);
+      utility.button.setAttribute('aria-selected', String(active));
+    }
   }
   stemLibraryTabBtn.addEventListener('click', () => showUtility('library'));
+  stemReconciliationTabBtn.addEventListener(
+    'click',
+    () => showUtility('reconciliation'),
+  );
   stemShareUtilityTabBtn.addEventListener('click', () => showUtility('sharing'));
+  collectionBackupsTabBtn.addEventListener('click', () => showUtility('backups'));
 
   function showSharingTab(tab: 'export' | 'import'): void {
     const importing = tab === 'import';
@@ -139,6 +164,20 @@ export function initStemSharing(): void {
   const libraryMarkerInput = el<HTMLInputElement>('stem-library-marker-input');
   const libraryDownloadBtn = el<HTMLButtonElement>('stem-library-download-btn');
   const libraryStatus = el<HTMLElement>('stem-library-status');
+  const reconcileCollectionInput =
+    el<HTMLInputElement>('reconcile-collection-input');
+  const reconcileCollectionStatus =
+    el<HTMLElement>('reconcile-collection-status');
+  const reconcileFolderBtn = el<HTMLButtonElement>('reconcile-folder-btn');
+  const reconcileFolderStatus = el<HTMLElement>('reconcile-folder-status');
+  const reconcileSummary = el<HTMLElement>('reconcile-summary');
+  const reconcileResults = el<HTMLElement>('reconcile-results');
+  const reconcileOrphans = el<HTMLOListElement>('reconcile-orphans');
+  const reconcileDuplicates = el<HTMLOListElement>('reconcile-duplicates');
+  const reconcileMissing = el<HTMLOListElement>('reconcile-missing');
+  const reconcileUnresolved = el<HTMLOListElement>('reconcile-unresolved');
+  const reconcileDownloadBtn =
+    el<HTMLButtonElement>('reconcile-download-btn');
   const unsupported = el<HTMLElement>('stem-sharing-unsupported');
   const exportCollectionInput = el<HTMLInputElement>('share-collection-input');
   const exportCollectionStatus = el<HTMLElement>('share-collection-status');
@@ -169,6 +208,10 @@ export function initStemSharing(): void {
   let collection: NmlEntry[] | null = null;
   let libraryCollection: NmlEntry[] | null = null;
   let libraryStemPaths = new Set<string>();
+  let reconciliationCollection: NmlEntry[] | null = null;
+  let reconciliationStemPaths = new Set<string>();
+  let reconciliationScanned = false;
+  let reconciliationReport: StemReconciliationReport | null = null;
   let sourceFiles = new Map<string, StemFileHandle>();
   let originalFiles: IndexedAudioFileHandle[] = [];
   let stemCount = 0;
@@ -186,6 +229,10 @@ export function initStemSharing(): void {
     libraryFolderStatus.textContent =
       'Generated-stem folder scanning requires Chromium; packaged stems remain available.';
     libraryFolderStatus.className = 'status warn';
+    reconcileFolderBtn.disabled = true;
+    reconcileFolderStatus.textContent =
+      'Stem reconciliation requires Chromium folder access.';
+    reconcileFolderStatus.className = 'status warn';
     unsupported.classList.remove('hidden');
     sourceFolderBtn.disabled = true;
     originalsFolderBtn.disabled = true;
@@ -284,6 +331,145 @@ export function initStemSharing(): void {
       `entr${entries.length === 1 ? 'y' : 'ies'}` +
       `${libraryMarkerInput.checked ? ' tagged in Comment 2.' : '.'}`;
     libraryStatus.className = 'status ok';
+  });
+
+  function renderReconciliationList(
+    list: HTMLOListElement,
+    items: readonly string[],
+  ): void {
+    list.replaceChildren();
+    if (items.length === 0) {
+      const empty = document.createElement('li');
+      empty.textContent = 'None found.';
+      empty.className = 'hint';
+      list.appendChild(empty);
+      return;
+    }
+    for (const item of items) {
+      const row = document.createElement('li');
+      row.textContent = item;
+      list.appendChild(row);
+    }
+  }
+
+  function updateReconciliation(): void {
+    if (!reconciliationCollection || !reconciliationScanned) {
+      reconciliationReport = null;
+      reconcileResults.classList.add('hidden');
+      reconcileDownloadBtn.disabled = true;
+      reconcileSummary.textContent =
+        'Load a collection and scan the generated stems folder.';
+      reconcileSummary.className = 'status';
+      return;
+    }
+
+    const report = reconcileGeneratedStems(
+      reconciliationCollection,
+      reconciliationStemPaths,
+    );
+    reconciliationReport = report;
+    const issueCount =
+      report.orphanedSidecars.length +
+      report.duplicateMappings.length +
+      report.missingMarkedSidecars.length +
+      report.unresolvedMarkedEntries.length;
+    reconcileSummary.textContent =
+      `Mapped ${report.mappedSidecars.toLocaleString()} of ` +
+      `${report.sidecarFiles.toLocaleString()} generated sidecars; ` +
+      `found ${issueCount.toLocaleString()} reconciliation issue` +
+      `${issueCount === 1 ? '' : 's'}.`;
+    reconcileSummary.className = issueCount === 0 ? 'status ok' : 'status warn';
+    reconcileResults.classList.remove('hidden');
+    reconcileDownloadBtn.disabled = false;
+
+    renderReconciliationList(reconcileOrphans, report.orphanedSidecars);
+    renderReconciliationList(
+      reconcileDuplicates,
+      report.duplicateMappings.map((duplicate) =>
+        `${duplicate.sidecarPath} — ${duplicate.entries
+          .map((entry) => `${entry.artist} - ${entry.title}`)
+          .join('; ')}`),
+    );
+    renderReconciliationList(
+      reconcileMissing,
+      report.missingMarkedSidecars.map((entry) =>
+        `${entry.artist} - ${entry.title} — ${entry.expectedPath}`),
+    );
+    renderReconciliationList(
+      reconcileUnresolved,
+      report.unresolvedMarkedEntries.map((entry) =>
+        `${entry.artist} - ${entry.title} — ${entry.location}`),
+    );
+  }
+
+  reconcileCollectionInput.addEventListener('change', async () => {
+    const file = reconcileCollectionInput.files?.[0];
+    if (!file) return;
+    reconcileCollectionStatus.textContent = `Reading ${file.name}…`;
+    reconcileCollectionStatus.className = 'status';
+    try {
+      reconciliationCollection = loadCollection(await file.text());
+      reconcileCollectionStatus.textContent =
+        `Loaded ${reconciliationCollection.length.toLocaleString()} collection entries ` +
+        `from ${file.name}.`;
+      reconcileCollectionStatus.className = 'status ok';
+    } catch (err) {
+      reconciliationCollection = null;
+      reconcileCollectionStatus.textContent = err instanceof Error
+        ? `Could not load collection: ${err.message}`
+        : 'Could not load collection.';
+      reconcileCollectionStatus.className = 'status err';
+    }
+    updateReconciliation();
+  });
+
+  reconcileFolderBtn.addEventListener('click', async () => {
+    if (!supported) return;
+    let handle: FileSystemDirectoryHandle;
+    try {
+      handle = await (window as unknown as DirectoryPickerWindow).showDirectoryPicker({
+        mode: 'read',
+      });
+    } catch (err) {
+      if (isAbortError(err)) return;
+      reconcileFolderStatus.textContent = err instanceof Error
+        ? `Could not open folder: ${err.message}`
+        : 'Could not open folder.';
+      reconcileFolderStatus.className = 'status err';
+      return;
+    }
+    reconcileFolderStatus.textContent = `Scanning ${handle.name}…`;
+    reconcileFolderStatus.className = 'status';
+    try {
+      const files = await indexGeneratedStemHandles(asStemDirectory(handle), (seen) => {
+        reconcileFolderStatus.textContent =
+          `Scanning ${handle.name}… ${seen.toLocaleString()} files seen`;
+      });
+      reconciliationStemPaths = new Set(files.keys());
+      reconciliationScanned = true;
+      reconcileFolderStatus.textContent =
+        `Found ${reconciliationStemPaths.size.toLocaleString()} generated stem sidecar` +
+        `${reconciliationStemPaths.size === 1 ? '' : 's'}.`;
+      reconcileFolderStatus.className =
+        reconciliationStemPaths.size > 0 ? 'status ok' : 'status warn';
+    } catch (err) {
+      reconciliationStemPaths = new Set();
+      reconciliationScanned = false;
+      reconcileFolderStatus.textContent = err instanceof Error
+        ? `Could not scan folder: ${err.message}`
+        : 'Could not scan folder.';
+      reconcileFolderStatus.className = 'status err';
+    }
+    updateReconciliation();
+  });
+
+  reconcileDownloadBtn.addEventListener('click', () => {
+    if (!reconciliationReport) return;
+    triggerDownload(
+      'NMLify Stem Reconciliation.txt',
+      formatStemReconciliationReport(reconciliationReport),
+      'text/plain;charset=utf-8',
+    );
   });
 
   function updateExportButton(): void {

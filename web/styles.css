@@ -70,6 +70,12 @@ h1 { margin: 0 0 4px; font-size: 1.6rem; }
   background: var(--accent);
   color: #08110b;
 }
+.utility-tabs {
+  flex-wrap: wrap;
+}
+.utility-tab {
+  min-width: 130px;
+}
 
 .hint {
   color: var(--muted);
@@ -373,6 +379,18 @@ a { color: var(--accent); }
   gap: 8px;
   margin-bottom: 6px;
 }
+.reconciliation-list {
+  max-height: 260px;
+  margin: 6px 0 18px;
+  padding: 8px 8px 8px 32px;
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: #11151c;
+}
+.reconciliation-list li + li {
+  margin-top: 5px;
+}
 .stem-share-list {
   max-height: 420px;
   margin: 10px 0 0;
@@ -587,8 +605,7 @@ a { color: var(--accent); }
   font-size: 0.85rem;
 }
 
-/* Collapsible Step 6 / Step 7 cards */
-#backups-section > details > summary,
+/* Collapsible Crate History card */
 #crates-section > details > summary {
   cursor: pointer;
   list-style: none;
@@ -596,11 +613,9 @@ a { color: var(--accent); }
   align-items: center;
   gap: 8px;
 }
-#backups-section > details > summary::-webkit-details-marker,
 #crates-section > details > summary::-webkit-details-marker {
   display: none;
 }
-#backups-section > details > summary::before,
 #crates-section > details > summary::before {
   content: "▸";
   color: var(--muted);
@@ -608,11 +623,9 @@ a { color: var(--accent); }
   transition: transform 120ms ease;
   display: inline-block;
 }
-#backups-section > details[open] > summary::before,
 #crates-section > details[open] > summary::before {
   transform: rotate(90deg);
 }
-#backups-section > details > summary > h2,
 #crates-section > details > summary > h2 {
   display: inline;
   margin: 0;

@@ -237,29 +237,9 @@
       </div>
     </section>
 
-    <section id="backups-section" class="card">
-      <details id="backups-details">
-        <summary><h2>5. Collection backups</h2></summary>
-        <p>
-          Each time you load a <code>collection.nml</code>, NMLify saves a
-          compressed snapshot here. If Traktor corrupts your collection
-          during a playlist import, download the most recent snapshot and
-          replace <code>collection.nml</code> in your Traktor folder to
-          roll back.
-        </p>
-        <p class="hint">
-          Snapshots live in this browser only — they're never uploaded.
-          We keep the most recent 10 and prune older ones automatically.
-          Reloading the same file does not create a duplicate.
-        </p>
-        <p id="backups-status" class="status"></p>
-        <ol id="backups-list" class="backups-list"></ol>
-      </details>
-    </section>
-
     <section id="crates-section" class="card">
       <details id="crates-details">
-        <summary><h2>6. Crate history</h2></summary>
+        <summary><h2>5. Crate history</h2></summary>
         <p>
           Every crate you download is also saved here so you can grab it
           again later — even after closing the tab. Handy when you
@@ -296,6 +276,14 @@
             aria-selected="true"
           >Stem Library</button>
           <button
+            id="stem-reconciliation-tab-btn"
+            class="utility-tab"
+            type="button"
+            role="tab"
+            aria-controls="stem-reconciliation-utility"
+            aria-selected="false"
+          >Reconcile Stems</button>
+          <button
             id="stem-share-utility-tab-btn"
             class="utility-tab"
             type="button"
@@ -303,6 +291,14 @@
             aria-controls="stem-sharing-utility"
             aria-selected="false"
           >Share Stems</button>
+          <button
+            id="collection-backups-tab-btn"
+            class="utility-tab"
+            type="button"
+            role="tab"
+            aria-controls="collection-backups-utility"
+            aria-selected="false"
+          >Backups</button>
         </nav>
       </section>
 
@@ -348,6 +344,79 @@
           </button>
           <p id="stem-library-status" class="status"></p>
         </div>
+      </section>
+
+      <section
+        id="stem-reconciliation-utility"
+        class="card hidden"
+        role="tabpanel"
+        aria-labelledby="stem-reconciliation-tab-btn"
+      >
+        <h2>Reconcile generated stems</h2>
+        <p>
+          Compare a collection with Traktor's generated stems folder. This report is
+          read-only and does not delete or modify files.
+        </p>
+        <div class="sharing-step">
+          <h3>1. Load your collection</h3>
+          <input id="reconcile-collection-input" type="file" accept=".nml" />
+          <p id="reconcile-collection-status" class="status"></p>
+        </div>
+        <div class="sharing-step">
+          <h3>2. Scan the generated stems folder</h3>
+          <button id="reconcile-folder-btn" type="button">
+            Choose generated stems folder…
+          </button>
+          <p id="reconcile-folder-status" class="status"></p>
+        </div>
+        <div class="sharing-step">
+          <h3>3. Review the report</h3>
+          <p class="hint">
+            Missing sidecars are reported only for tracks marked
+            <code>NMLIFY_STEM</code>. A collection alone cannot indicate whether an
+            unmarked track was intended to have generated stems.
+          </p>
+          <p id="reconcile-summary" class="status">
+            Load a collection and scan the generated stems folder.
+          </p>
+          <div id="reconcile-results" class="hidden">
+            <h3>Orphaned sidecars</h3>
+            <p class="hint">Files that no collection entry maps to through AUDIO_ID.</p>
+            <ol id="reconcile-orphans" class="reconciliation-list"></ol>
+            <h3>Duplicate mappings</h3>
+            <p class="hint">Sidecar paths predicted by more than one collection entry.</p>
+            <ol id="reconcile-duplicates" class="reconciliation-list"></ol>
+            <h3>Marked stems missing sidecars</h3>
+            <ol id="reconcile-missing" class="reconciliation-list"></ol>
+            <h3>Marked stems with unusable AUDIO_ID</h3>
+            <ol id="reconcile-unresolved" class="reconciliation-list"></ol>
+          </div>
+          <button id="reconcile-download-btn" type="button" disabled>
+            Download reconciliation report
+          </button>
+        </div>
+      </section>
+
+      <section
+        id="collection-backups-utility"
+        class="card hidden"
+        role="tabpanel"
+        aria-labelledby="collection-backups-tab-btn"
+      >
+        <h2>Collection backups</h2>
+        <p>
+          Each time you load a <code>collection.nml</code> in Playlist Builder,
+          NMLify saves a compressed snapshot here. If Traktor corrupts your
+          collection during a playlist import, download the most recent snapshot
+          and replace <code>collection.nml</code> in your Traktor folder to roll back.
+        </p>
+        <p class="hint">
+          Snapshots live in this browser only — they're never uploaded.
+          We keep the most recent 10 and prune older ones automatically.
+          Reloading the same file does not create a duplicate.
+        </p>
+        <p id="backups-status" class="status"></p>
+        <ol id="backups-list" class="backups-list"></ol>
       </section>
 
       <div id="stem-sharing-utility" class="hidden" role="tabpanel" aria-labelledby="stem-share-utility-tab-btn">

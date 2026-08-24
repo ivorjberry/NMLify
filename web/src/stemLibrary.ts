@@ -12,10 +12,7 @@ function entryKey(entry: NmlEntry): string {
 function withStemMarker(entry: NmlEntry): NmlEntry {
   const info = entry.INFO ?? {};
   const existing = typeof info['@COMMENT2'] === 'string' ? info['@COMMENT2'].trim() : '';
-  const hasMarker = existing
-    .split(/\s+/)
-    .some((token) => token.toUpperCase() === STEM_COMMENT_MARKER);
-  if (hasMarker) return entry;
+  if (hasStemCommentMarker(entry)) return entry;
 
   return {
     ...entry,
@@ -24,6 +21,13 @@ function withStemMarker(entry: NmlEntry): NmlEntry {
       '@COMMENT2': existing ? `${existing} ${STEM_COMMENT_MARKER}` : STEM_COMMENT_MARKER,
     },
   };
+}
+
+export function hasStemCommentMarker(entry: NmlEntry): boolean {
+  const value = entry.INFO?.['@COMMENT2'];
+  return typeof value === 'string' && value
+    .split(/\s+/)
+    .some((token) => token.toUpperCase() === STEM_COMMENT_MARKER);
 }
 
 /** Build a de-duplicated playlist of packaged and verified generated stems. */
