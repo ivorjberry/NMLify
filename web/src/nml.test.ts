@@ -6,6 +6,7 @@ import { XMLParser } from 'fast-xml-parser';
 
 import {
   buildNmlPlaylist,
+  buildNmlPlaylistFolder,
   getBitrateKbps,
   getPlayCount,
   isStemEntry,
@@ -181,6 +182,18 @@ describe('buildNmlPlaylist', () => {
   it('starts with an XML declaration', () => {
     const xml = buildNmlPlaylist('X', [makeEntry('A', 'B', 'c.mp3')]);
     expect(xml.startsWith('<?xml')).toBe(true);
+  });
+
+  it('builds a folder containing multiple review playlists', () => {
+    const xml = buildNmlPlaylistFolder('Duplicate Review', [
+      { name: 'Group 1', entries: [makeEntry('A', 'Artist', 'a.mp3')] },
+      { name: 'Group 2', entries: [makeEntry('B', 'Artist', 'b.mp3')] },
+    ]);
+    const root = PARSER.parse(xml).NML.PLAYLISTS.NODE[0];
+    expect(root['@TYPE']).toBe('FOLDER');
+    expect(root.SUBNODES['@COUNT']).toBe('2');
+    expect(root.SUBNODES.NODE.map((node: Record<string, unknown>) => node['@NAME']))
+      .toEqual(['Group 1', 'Group 2']);
   });
 });
 

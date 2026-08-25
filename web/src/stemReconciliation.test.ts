@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import type { NmlEntry } from './nml';
 import {
   formatStemReconciliationReport,
+  recoverOrphansFromBackups,
   reconcileGeneratedStems,
 } from './stemReconciliation';
 
@@ -58,5 +59,21 @@ describe('reconcileGeneratedStems', () => {
   it('formats a readable report', () => {
     const report = reconcileGeneratedStems([], new Set(['001/orphan.stem.mp4']));
     expect(formatStemReconciliationReport(report)).toContain('Orphaned sidecars (1)');
+  });
+
+  it('recovers orphan mappings from the newest matching backup', () => {
+    const oldEntry = entry('old.m4a', { '@AUDIO_ID': AUDIO_ID });
+    const newerEntry = entry('newer.m4a', { '@AUDIO_ID': AUDIO_ID });
+    const result = recoverOrphansFromBackups([SIDECAR], [
+      { filename: 'old.nml', timestamp: 1, entries: [oldEntry] },
+      { filename: 'new.nml', timestamp: 2, entries: [newerEntry] },
+    ]);
+    expect(result.recovered).toEqual([{
+      sidecarPath: SIDECAR,
+      entry: newerEntry,
+      backupFilename: 'new.nml',
+      backupTimestamp: 2,
+    }]);
+    expect(result.unresolvedPaths).toEqual([]);
   });
 });

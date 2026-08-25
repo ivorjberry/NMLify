@@ -146,7 +146,14 @@ text is preserved.
 The **Reconcile Stems** utility compares a collection with the generated-stems
 folder and reports orphaned sidecars, duplicate `AUDIO_ID` mappings, and marked
 stems whose expected sidecars are missing. It is read-only and can download a
-text report. Collection backup history also lives under **Traktor Utilities**.
+text report. It can search saved collection backups for orphan mappings and
+create an **Orphan Recovery** playlist that preserves the recovered `AUDIO_ID`.
+
+The same utility can find conservative duplicate candidates using collection
+location, `AUDIO_ID`, normalized artist/title metadata, duration, and bitrate
+context. It exports a Traktor playlist folder with one review playlist per
+duplicate group plus a detailed text report. Collection backup history also
+lives under **Traktor Utilities**.
 
 #### Share generated stems
 

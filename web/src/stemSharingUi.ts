@@ -4,16 +4,34 @@ import {
   type StemFileHandle,
 } from './generatedStems';
 import {
+  isBackupsSupported,
+  listBackups,
+  restoreBackup,
+} from './backups';
+import {
   indexAudioFileHandles,
   type IndexedAudioFileHandle,
   type WalkableDirectoryHandle,
 } from './diskSearch';
 import { triggerDownload } from './download';
-import { buildNmlPlaylist, loadCollection, sanitizePlaylistFilename, type NmlEntry } from './nml';
+import {
+  buildNmlPlaylist,
+  buildNmlPlaylistFolder,
+  loadCollection,
+  sanitizePlaylistFilename,
+  type NmlEntry,
+} from './nml';
+import {
+  findDuplicateReviewGroups,
+  formatDuplicateReviewReport,
+  type DuplicateReviewGroup,
+} from './duplicateReview';
 import { buildAllStemEntries } from './stemLibrary';
 import {
   formatStemReconciliationReport,
+  recoverOrphansFromBackups,
   reconcileGeneratedStems,
+  type OrphanRecoveryResult,
   type StemReconciliationReport,
 } from './stemReconciliation';
 import {
@@ -178,6 +196,19 @@ export function initStemSharing(): void {
   const reconcileUnresolved = el<HTMLOListElement>('reconcile-unresolved');
   const reconcileDownloadBtn =
     el<HTMLButtonElement>('reconcile-download-btn');
+  const reconcileSearchBackupsBtn =
+    el<HTMLButtonElement>('reconcile-search-backups-btn');
+  const reconcileRecoveryDownloadBtn =
+    el<HTMLButtonElement>('reconcile-recovery-download-btn');
+  const reconcileRecoveryStatus =
+    el<HTMLElement>('reconcile-recovery-status');
+  const duplicateAnalyzeBtn = el<HTMLButtonElement>('duplicate-analyze-btn');
+  const duplicateSummary = el<HTMLElement>('duplicate-summary');
+  const duplicateGroupsList = el<HTMLOListElement>('duplicate-groups');
+  const duplicatePlaylistsDownloadBtn =
+    el<HTMLButtonElement>('duplicate-playlists-download-btn');
+  const duplicateReportDownloadBtn =
+    el<HTMLButtonElement>('duplicate-report-download-btn');
   const unsupported = el<HTMLElement>('stem-sharing-unsupported');
   const exportCollectionInput = el<HTMLInputElement>('share-collection-input');
   const exportCollectionStatus = el<HTMLElement>('share-collection-status');
@@ -212,6 +243,8 @@ export function initStemSharing(): void {
   let reconciliationStemPaths = new Set<string>();
   let reconciliationScanned = false;
   let reconciliationReport: StemReconciliationReport | null = null;
+  let orphanRecovery: OrphanRecoveryResult | null = null;
+  let duplicateGroups: DuplicateReviewGroup[] = [];
   let sourceFiles = new Map<string, StemFileHandle>();
   let originalFiles: IndexedAudioFileHandle[] = [];
   let stemCount = 0;
@@ -353,10 +386,14 @@ export function initStemSharing(): void {
   }
 
   function updateReconciliation(): void {
+    orphanRecovery = null;
+    reconcileRecoveryDownloadBtn.disabled = true;
+    reconcileRecoveryStatus.textContent = '';
     if (!reconciliationCollection || !reconciliationScanned) {
       reconciliationReport = null;
       reconcileResults.classList.add('hidden');
       reconcileDownloadBtn.disabled = true;
+      reconcileSearchBackupsBtn.disabled = true;
       reconcileSummary.textContent =
         'Load a collection and scan the generated stems folder.';
       reconcileSummary.className = 'status';
@@ -381,6 +418,13 @@ export function initStemSharing(): void {
     reconcileSummary.className = issueCount === 0 ? 'status ok' : 'status warn';
     reconcileResults.classList.remove('hidden');
     reconcileDownloadBtn.disabled = false;
+    reconcileSearchBackupsBtn.disabled =
+      report.orphanedSidecars.length === 0 || !isBackupsSupported();
+    if (report.orphanedSidecars.length > 0 && !isBackupsSupported()) {
+      reconcileRecoveryStatus.textContent =
+        'Saved collection backup search is unavailable in this browser.';
+      reconcileRecoveryStatus.className = 'status warn';
+    }
 
     renderReconciliationList(reconcileOrphans, report.orphanedSidecars);
     renderReconciliationList(
@@ -420,6 +464,7 @@ export function initStemSharing(): void {
         : 'Could not load collection.';
       reconcileCollectionStatus.className = 'status err';
     }
+    resetDuplicateReview();
     updateReconciliation();
   });
 
@@ -468,6 +513,134 @@ export function initStemSharing(): void {
     triggerDownload(
       'NMLify Stem Reconciliation.txt',
       formatStemReconciliationReport(reconciliationReport),
+      'text/plain;charset=utf-8',
+    );
+  });
+
+  reconcileSearchBackupsBtn.addEventListener('click', async () => {
+    if (!reconciliationReport || reconciliationReport.orphanedSidecars.length === 0) return;
+    reconcileSearchBackupsBtn.disabled = true;
+    reconcileRecoveryStatus.textContent = 'Loading saved collection backups…';
+    reconcileRecoveryStatus.className = 'status';
+    try {
+      const backups = await listBackups();
+      const collections = [];
+      let loaded = 0;
+      for (const backup of backups) {
+        const restored = await restoreBackup(backup.id);
+        collections.push({
+          filename: restored.filename,
+          timestamp: restored.timestamp,
+          entries: loadCollection(restored.xml),
+        });
+        loaded += 1;
+        reconcileRecoveryStatus.textContent =
+          `Searching collection backups… ${loaded} of ${backups.length}`;
+      }
+      orphanRecovery = recoverOrphansFromBackups(
+        reconciliationReport.orphanedSidecars,
+        collections,
+      );
+      reconcileRecoveryDownloadBtn.disabled = orphanRecovery.recovered.length === 0;
+      reconcileRecoveryStatus.textContent =
+        `Recovered ${orphanRecovery.recovered.length.toLocaleString()} orphan mapping` +
+        `${orphanRecovery.recovered.length === 1 ? '' : 's'} from ${backups.length} backup` +
+        `${backups.length === 1 ? '' : 's'}; ` +
+        `${orphanRecovery.unresolvedPaths.length.toLocaleString()} remain unresolved.`;
+      reconcileRecoveryStatus.className =
+        orphanRecovery.recovered.length > 0 ? 'status ok' : 'status warn';
+    } catch (err) {
+      orphanRecovery = null;
+      reconcileRecoveryDownloadBtn.disabled = true;
+      reconcileRecoveryStatus.textContent = err instanceof Error
+        ? `Could not search backups: ${err.message}`
+        : 'Could not search backups.';
+      reconcileRecoveryStatus.className = 'status err';
+    } finally {
+      reconcileSearchBackupsBtn.disabled =
+        !reconciliationReport ||
+        reconciliationReport.orphanedSidecars.length === 0 ||
+        !isBackupsSupported();
+    }
+  });
+
+  reconcileRecoveryDownloadBtn.addEventListener('click', () => {
+    if (!orphanRecovery || orphanRecovery.recovered.length === 0) return;
+    triggerDownload(
+      'NMLify Orphan Recovery.nml',
+      buildNmlPlaylist(
+        'NMLify Orphan Recovery',
+        orphanRecovery.recovered.map((item) => item.entry),
+      ),
+    );
+  });
+
+  function resetDuplicateReview(): void {
+    duplicateGroups = [];
+    duplicateGroupsList.replaceChildren();
+    duplicateGroupsList.classList.add('hidden');
+    duplicatePlaylistsDownloadBtn.disabled = true;
+    duplicateReportDownloadBtn.disabled = true;
+    duplicateSummary.textContent = '';
+    duplicateAnalyzeBtn.disabled = reconciliationCollection === null;
+  }
+
+  duplicateAnalyzeBtn.addEventListener('click', async () => {
+    if (!reconciliationCollection) return;
+    duplicateAnalyzeBtn.disabled = true;
+    duplicateSummary.textContent = 'Analyzing collection metadata…';
+    duplicateSummary.className = 'status';
+    await new Promise<void>((resolve) => setTimeout(resolve, 0));
+    try {
+      duplicateGroups = findDuplicateReviewGroups(reconciliationCollection);
+      renderReconciliationList(
+        duplicateGroupsList,
+        duplicateGroups.map((group) => {
+          const first = group.entries[0]!;
+          return `Group ${group.id} [${group.confidence}] — ${first.artist} - ` +
+            `${first.title} — ${group.entries.length} files — ${group.reasons.join('; ')}`;
+        }),
+      );
+      duplicateGroupsList.classList.remove('hidden');
+      duplicateSummary.textContent =
+        `Found ${duplicateGroups.length.toLocaleString()} duplicate review group` +
+        `${duplicateGroups.length === 1 ? '' : 's'}.`;
+      duplicateSummary.className = duplicateGroups.length > 0 ? 'status warn' : 'status ok';
+      duplicatePlaylistsDownloadBtn.disabled = duplicateGroups.length === 0;
+      duplicateReportDownloadBtn.disabled = duplicateGroups.length === 0;
+    } catch (err) {
+      duplicateGroups = [];
+      duplicateSummary.textContent = err instanceof Error
+        ? `Duplicate analysis failed: ${err.message}`
+        : 'Duplicate analysis failed.';
+      duplicateSummary.className = 'status err';
+    } finally {
+      duplicateAnalyzeBtn.disabled = reconciliationCollection === null;
+    }
+  });
+
+  duplicatePlaylistsDownloadBtn.addEventListener('click', () => {
+    if (duplicateGroups.length === 0) return;
+    const playlists = duplicateGroups.map((group) => {
+      const first = group.entries[0]!;
+      const name = `${String(group.id).padStart(2, '0')} ${first.artist} - ${first.title} ` +
+        `[${group.confidence}]`;
+      return {
+        name: name.slice(0, 120),
+        entries: group.entries.map((item) => item.entry),
+      };
+    });
+    triggerDownload(
+      'NMLify Duplicate Review.nml',
+      buildNmlPlaylistFolder('NMLify Duplicate Review', playlists),
+    );
+  });
+
+  duplicateReportDownloadBtn.addEventListener('click', () => {
+    if (duplicateGroups.length === 0) return;
+    triggerDownload(
+      'NMLify Duplicate Review.txt',
+      formatDuplicateReviewReport(duplicateGroups),
       'text/plain;charset=utf-8',
     );
   });
@@ -567,6 +740,7 @@ export function initStemSharing(): void {
         err instanceof Error ? `Could not load collection: ${err.message}` : 'Could not load collection.';
       exportCollectionStatus.className = 'status err';
       updateLibraryState();
+      resetDuplicateReview();
       renderPlan(true);
     }
   });

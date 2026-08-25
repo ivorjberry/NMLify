@@ -24,6 +24,24 @@ export interface StemReconciliationReport {
   unresolvedMarkedEntries: ReconciliationEntry[];
 }
 
+export interface ReconciliationBackup {
+  filename: string;
+  timestamp: number;
+  entries: readonly NmlEntry[];
+}
+
+export interface RecoveredOrphan {
+  sidecarPath: string;
+  entry: NmlEntry;
+  backupFilename: string;
+  backupTimestamp: number;
+}
+
+export interface OrphanRecoveryResult {
+  recovered: RecoveredOrphan[];
+  unresolvedPaths: string[];
+}
+
 function describeEntry(entry: NmlEntry, expectedPath: string | null): ReconciliationEntry {
   const location = entry.LOCATION;
   return {
@@ -79,6 +97,36 @@ export function reconcileGeneratedStems(
     duplicateMappings,
     missingMarkedSidecars,
     unresolvedMarkedEntries,
+  };
+}
+
+/** Match orphaned sidecars to their newest known entries in collection backups. */
+export function recoverOrphansFromBackups(
+  orphanedPaths: readonly string[],
+  backups: readonly ReconciliationBackup[],
+): OrphanRecoveryResult {
+  const unresolved = new Set(orphanedPaths.map((path) => path.toLowerCase()));
+  const originalPaths = new Map(orphanedPaths.map((path) => [path.toLowerCase(), path]));
+  const recovered: RecoveredOrphan[] = [];
+
+  for (const backup of [...backups].sort((a, b) => b.timestamp - a.timestamp)) {
+    if (unresolved.size === 0) break;
+    for (const entry of backup.entries) {
+      const predicted = generatedStemPathForEntry(entry)?.toLowerCase();
+      if (!predicted || !unresolved.has(predicted)) continue;
+      recovered.push({
+        sidecarPath: originalPaths.get(predicted) ?? predicted,
+        entry,
+        backupFilename: backup.filename,
+        backupTimestamp: backup.timestamp,
+      });
+      unresolved.delete(predicted);
+    }
+  }
+
+  return {
+    recovered,
+    unresolvedPaths: [...unresolved].map((path) => originalPaths.get(path) ?? path).sort(),
   };
 }
 

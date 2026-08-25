@@ -96,23 +96,32 @@ export function sanitizePlaylistFilename(name: string): string {
   return cleaned || 'playlist';
 }
 
-/**
- * Build the full NML XML (HEAD + COLLECTION + SETS + PLAYLISTS) for a
- * playlist, returning the XML string. Pure — safe to call in the browser.
- */
-export function buildNmlPlaylist(playlistName: string, tracks: NmlEntry[]): string {
+function playlistNode(name: string, tracks: readonly NmlEntry[]): Record<string, unknown> {
   const keyEntries: { PRIMARYKEY: { '@TYPE': 'TRACK' | 'STEM'; '@KEY': string } }[] = [];
   for (const trackEntry of tracks) {
     const loc = trackEntry.LOCATION;
     if (!loc || loc['@VOLUME'] == null || loc['@DIR'] == null || loc['@FILE'] == null) {
-      // Mirror the Python writer which logs + skips malformed entries.
       continue;
     }
     const keyPath = `${loc['@VOLUME']}${loc['@DIR']}${loc['@FILE']}`;
     const keyType: 'TRACK' | 'STEM' = 'STEMS' in trackEntry ? 'STEM' : 'TRACK';
     keyEntries.push({ PRIMARYKEY: { '@TYPE': keyType, '@KEY': keyPath } });
   }
+  return {
+    '@TYPE': 'PLAYLIST',
+    '@NAME': name,
+    PLAYLIST: {
+      '@ENTRIES': String(keyEntries.length),
+      '@TYPE': 'LIST',
+      ENTRY: keyEntries,
+    },
+  };
+}
 
+function buildNmlDocument(
+  collectionEntries: readonly NmlEntry[],
+  playlistRoot: Record<string, unknown>,
+): string {
   const doc = {
     NML: {
       '@VERSION': '20',
@@ -121,23 +130,52 @@ export function buildNmlPlaylist(playlistName: string, tracks: NmlEntry[]): stri
         '@PROGRAM': 'Traktor Pro 4',
       },
       COLLECTION: {
-        '@ENTRIES': String(tracks.length),
-        ENTRY: tracks,
+        '@ENTRIES': String(collectionEntries.length),
+        ENTRY: collectionEntries,
       },
       SETS: { '@ENTRIES': '0' },
-      PLAYLISTS: {
-        NODE: {
-          '@TYPE': 'PLAYLIST',
-          '@NAME': playlistName,
-          PLAYLIST: {
-            '@ENTRIES': String(keyEntries.length),
-            '@TYPE': 'LIST',
-            ENTRY: keyEntries,
-          },
-        },
-      },
+      PLAYLISTS: { NODE: playlistRoot },
     },
   };
-
   return XML_DECLARATION + (BUILDER.build(doc) as string);
+}
+
+/**
+ * Build the full NML XML (HEAD + COLLECTION + SETS + PLAYLISTS) for a
+ * playlist, returning the XML string. Pure — safe to call in the browser.
+ */
+export function buildNmlPlaylist(playlistName: string, tracks: NmlEntry[]): string {
+  return buildNmlDocument(tracks, playlistNode(playlistName, tracks));
+}
+
+export interface NmlPlaylistDefinition {
+  name: string;
+  entries: readonly NmlEntry[];
+}
+
+/** Build an NML playlist folder containing multiple review playlists. */
+export function buildNmlPlaylistFolder(
+  folderName: string,
+  playlists: readonly NmlPlaylistDefinition[],
+): string {
+  const collectionEntries: NmlEntry[] = [];
+  const seenLocations = new Set<string>();
+  for (const playlist of playlists) {
+    for (const entry of playlist.entries) {
+      const loc = entry.LOCATION;
+      const key = `${loc?.['@VOLUME'] ?? ''}${loc?.['@DIR'] ?? ''}${loc?.['@FILE'] ?? ''}`
+        .toLowerCase();
+      if (!key || seenLocations.has(key)) continue;
+      seenLocations.add(key);
+      collectionEntries.push(entry);
+    }
+  }
+  return buildNmlDocument(collectionEntries, {
+    '@TYPE': 'FOLDER',
+    '@NAME': folderName,
+    SUBNODES: {
+      '@COUNT': String(playlists.length),
+      NODE: playlists.map((playlist) => playlistNode(playlist.name, playlist.entries)),
+    },
+  });
 }

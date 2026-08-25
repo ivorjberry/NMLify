@@ -383,6 +383,15 @@
             <h3>Orphaned sidecars</h3>
             <p class="hint">Files that no collection entry maps to through AUDIO_ID.</p>
             <ol id="reconcile-orphans" class="reconciliation-list"></ol>
+            <div class="row">
+              <button id="reconcile-search-backups-btn" type="button" disabled>
+                Search collection backups for orphan mappings…
+              </button>
+              <button id="reconcile-recovery-download-btn" type="button" disabled>
+                Download Orphan Recovery playlist
+              </button>
+            </div>
+            <p id="reconcile-recovery-status" class="status"></p>
             <h3>Duplicate mappings</h3>
             <p class="hint">Sidecar paths predicted by more than one collection entry.</p>
             <ol id="reconcile-duplicates" class="reconciliation-list"></ol>
@@ -394,6 +403,27 @@
           <button id="reconcile-download-btn" type="button" disabled>
             Download reconciliation report
           </button>
+        </div>
+        <div class="sharing-step">
+          <h3>4. Find duplicate tracks</h3>
+          <p class="hint">
+            This quick scan compares collection locations, AUDIO_ID values, normalized
+            artist/title metadata, and track duration. Different bitrates are shown
+            together when the recording appears to match.
+          </p>
+          <button id="duplicate-analyze-btn" type="button" disabled>
+            Find duplicate candidates
+          </button>
+          <p id="duplicate-summary" class="status"></p>
+          <ol id="duplicate-groups" class="reconciliation-list hidden"></ol>
+          <div class="row">
+            <button id="duplicate-playlists-download-btn" type="button" disabled>
+              Download grouped review playlists
+            </button>
+            <button id="duplicate-report-download-btn" type="button" disabled>
+              Download duplicate report
+            </button>
+          </div>
         </div>
       </section>
 
