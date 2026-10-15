@@ -44,6 +44,23 @@ const BUILDER = new XMLBuilder({
   suppressEmptyNode: false,
 });
 
+function stripFormattingWhitespace(value: unknown): void {
+  if (Array.isArray(value)) {
+    value.forEach(stripFormattingWhitespace);
+    return;
+  }
+  if (!value || typeof value !== 'object') return;
+
+  const record = value as Record<string, unknown>;
+  for (const [key, child] of Object.entries(record)) {
+    if (key === '#text' && typeof child === 'string' && child.trim() === '') {
+      delete record[key];
+    } else {
+      stripFormattingWhitespace(child);
+    }
+  }
+}
+
 /**
  * Parse a Traktor collection.nml XML string and return the list of <ENTRY>
  * dicts. Always returns a list (single ENTRY and missing COLLECTION both
@@ -55,8 +72,9 @@ export function loadCollection(xml: string): NmlEntry[] {
   const collection = nml?.COLLECTION as Record<string, unknown> | undefined;
   const entries = collection?.ENTRY;
   if (entries == null) return [];
-  if (Array.isArray(entries)) return entries as NmlEntry[];
-  return [entries as NmlEntry];
+  const normalized = Array.isArray(entries) ? entries as NmlEntry[] : [entries as NmlEntry];
+  normalized.forEach(stripFormattingWhitespace);
+  return normalized;
 }
 
 /**

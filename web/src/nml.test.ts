@@ -182,6 +182,16 @@ describe('buildNmlPlaylist', () => {
     const xml = buildNmlPlaylist('X', [makeEntry('A', 'B', 'c.mp3')]);
     expect(xml.startsWith('<?xml')).toBe(true);
   });
+
+  it('does not re-emit source formatting whitespace at the end of entries', () => {
+    const source =
+      '<NML><COLLECTION ENTRIES="1"><ENTRY TITLE="A" ARTIST="B">\n' +
+      '  <LOCATION DIR="/:Music/:" FILE="a.mp3" VOLUME="D:" />\n' +
+      '  <INFO BITRATE="320000" />\n' +
+      '</ENTRY></COLLECTION></NML>';
+    const output = buildNmlPlaylist('X', loadCollection(source));
+    expect(output).not.toMatch(/\n\s*\n\s*<\/ENTRY>/);
+  });
 });
 
 describe('writeNmlPlaylist', () => {
