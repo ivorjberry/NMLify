@@ -87,6 +87,8 @@ import {
 } from './crates';
 import {
   buildNmlPlaylist,
+  getBeatGridMarkerCount,
+  MULTIPLE_BEAT_GRID_THRESHOLD,
   getBitrateKbps,
   getPlayCount,
   isStemEntry,
@@ -1256,6 +1258,7 @@ function renderCandidate(view: ReviewView, groupIndex: number, candidateIndex: n
   const bitrateKbps = match.display ? null : getBitrateKbps(entry);
   const isStem = !match.display && isStemEntry(entry);
   const hasGeneratedSidecar = !match.display && generatedStemEntries.has(entry);
+  const gridMarkers = match.display ? 0 : getBeatGridMarkerCount(entry);
 
   const li = document.createElement('li');
   li.className = 'review-candidate';
@@ -1286,10 +1289,14 @@ function renderCandidate(view: ReviewView, groupIndex: number, candidateIndex: n
     bitrateKbps !== null
       ? ` <span class="file-detail">${bitrateKbps} kbps</span>`
       : '';
-  const stemHtml = isStem ? ' <span class="file-detail">STEM file</span>' : '';
+  const stemHtml = isStem ? ' <span class="flag-badge flag-stem">STEM file</span>' : '';
   const generatedStemHtml = hasGeneratedSidecar
-    ? ' <span class="file-detail">Generated stem</span>'
+    ? ' <span class="flag-badge flag-stem">Generated stem</span>'
     : '';
+  const beatGridHtml =
+    gridMarkers >= MULTIPLE_BEAT_GRID_THRESHOLD
+      ? ` <span class="flag-badge flag-grid" title="Variable beat grid: ${gridMarkers} grid markers">${gridMarkers} beat grids</span>`
+      : '';
   text.innerHTML =
     `<strong>${escapeHtml(primary)}</strong> ` +
     `<span class="score">score ${match.score}</span>` +
@@ -1297,6 +1304,7 @@ function renderCandidate(view: ReviewView, groupIndex: number, candidateIndex: n
     bitrateHtml +
     stemHtml +
     generatedStemHtml +
+    beatGridHtml +
     `<br><span class="path">${escapeHtml(pathLine)}</span>`;
   label.appendChild(text);
 

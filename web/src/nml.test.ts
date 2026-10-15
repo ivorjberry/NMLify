@@ -7,8 +7,10 @@ import { XMLParser } from 'fast-xml-parser';
 import {
   buildNmlPlaylist,
   buildNmlPlaylistFolder,
+  getBeatGridMarkerCount,
   getBitrateKbps,
   getPlayCount,
+  hasMultipleBeatGrids,
   isStemEntry,
   loadCollection,
   type NmlEntry,
@@ -35,6 +37,39 @@ function makeEntry(title: string, artist: string, fileName: string, stem = false
 }
 
 let tmpDir: string;
+
+describe('beat grid markers', () => {
+  const entryXml = (cues: string) =>
+    `<NML><COLLECTION ENTRIES="1"><ENTRY TITLE="A"><LOCATION DIR="/:" FILE="a.mp3" VOLUME="D:"/>${cues}</ENTRY></COLLECTION></NML>`;
+  const cue = (type: string) => `<CUE_V2 NAME="x" TYPE="${type}" START="1" HOTCUE="-1"/>`;
+
+  it('counts none when there are no cues', () => {
+    const [entry] = loadCollection(entryXml(''));
+    expect(getBeatGridMarkerCount(entry!)).toBe(0);
+    expect(hasMultipleBeatGrids(entry!)).toBe(false);
+  });
+
+  it('does not flag one or two grid markers', () => {
+    const [one] = loadCollection(entryXml(cue('4')));
+    const [two] = loadCollection(entryXml(cue('4') + cue('4')));
+    expect(getBeatGridMarkerCount(one!)).toBe(1);
+    expect(hasMultipleBeatGrids(one!)).toBe(false);
+    expect(getBeatGridMarkerCount(two!)).toBe(2);
+    expect(hasMultipleBeatGrids(two!)).toBe(false);
+  });
+
+  it('ignores cue points, loops and other non-grid types', () => {
+    const [entry] = loadCollection(entryXml(cue('0') + cue('5') + cue('4') + cue('1')));
+    expect(getBeatGridMarkerCount(entry!)).toBe(1);
+    expect(hasMultipleBeatGrids(entry!)).toBe(false);
+  });
+
+  it('flags three or more grid markers', () => {
+    const [entry] = loadCollection(entryXml(cue('4') + cue('0') + cue('4') + cue('4')));
+    expect(getBeatGridMarkerCount(entry!)).toBe(3);
+    expect(hasMultipleBeatGrids(entry!)).toBe(true);
+  });
+});
 
 beforeEach(async () => {
   tmpDir = await mkdtemp(join(tmpdir(), 'crate-nml-'));

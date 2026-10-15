@@ -313,6 +313,24 @@ a { color: var(--accent); }
   font-weight: 400;
   margin-left: 6px;
 }
+.review-candidate-text .flag-badge {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  border: 1px solid currentcolor;
+  font-size: 0.78rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.review-candidate-text .flag-stem {
+  color: var(--ok);
+  background: rgb(106 210 143 / 12%);
+}
+.review-candidate-text .flag-grid {
+  color: var(--warn);
+  background: rgb(243 183 58 / 12%);
+}
 .review-candidate-text .path {
   color: var(--muted);
   font-family: ui-monospace, Menlo, Consolas, monospace;
