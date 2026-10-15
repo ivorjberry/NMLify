@@ -135,9 +135,29 @@ npm run preview  # serves the built bundle
 5. Click **Download playlist** to save the crate, then drop it into Traktor's
    Playlists section.
 
-### Share generated stems
+### Traktor utilities
 
-The **Stem Sharing** tab packages generated Traktor sidecars together with
+The **Traktor Utilities** tab includes a **Stem Library** tool that creates an
+`All Stems.nml` playlist from packaged stem entries and verified generated stem
+sidecars. It can optionally append `NMLIFY_STEM` to Comment 2 in the exported
+entries so the marker can be tested with Traktor Smartlists; existing Comment 2
+text is preserved.
+
+The **Reconcile Stems** utility compares a collection with the generated-stems
+folder and reports orphaned sidecars, duplicate `AUDIO_ID` mappings, and marked
+stems whose expected sidecars are missing. It is read-only and can download a
+text report. It can search saved collection backups for orphan mappings and
+create an **Orphan Recovery** playlist that preserves the recovered `AUDIO_ID`.
+
+The same utility can find conservative duplicate candidates using collection
+location, `AUDIO_ID`, normalized artist/title metadata, duration, and bitrate
+context. It exports a Traktor playlist folder with one review playlist per
+duplicate group plus a detailed text report. Collection backup history also
+lives under **Traktor Utilities**.
+
+#### Share generated stems
+
+The **Share Stems** utility packages generated Traktor sidecars together with
 their original music files:
 
 1. Load the source `collection.nml`.

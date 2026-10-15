@@ -4,11 +4,36 @@ import {
   type StemFileHandle,
 } from './generatedStems';
 import {
+  isBackupsSupported,
+  listBackups,
+  restoreBackup,
+} from './backups';
+import {
   indexAudioFileHandles,
   type IndexedAudioFileHandle,
   type WalkableDirectoryHandle,
 } from './diskSearch';
-import { buildNmlPlaylist, loadCollection, sanitizePlaylistFilename, type NmlEntry } from './nml';
+import { triggerDownload } from './download';
+import {
+  buildNmlPlaylist,
+  buildNmlPlaylistFolder,
+  loadCollection,
+  sanitizePlaylistFilename,
+  type NmlEntry,
+} from './nml';
+import {
+  findDuplicateReviewGroups,
+  formatDuplicateReviewReport,
+  type DuplicateReviewGroup,
+} from './duplicateReview';
+import { buildAllStemEntries } from './stemLibrary';
+import {
+  formatStemReconciliationReport,
+  recoverOrphansFromBackups,
+  reconcileGeneratedStems,
+  type OrphanRecoveryResult,
+  type StemReconciliationReport,
+} from './stemReconciliation';
 import {
   buildStemShareExportPlan,
   buildStemSharePlan,
@@ -82,6 +107,16 @@ export function initStemSharing(): void {
   const stemSharingTabBtn = el<HTMLButtonElement>('stem-sharing-tab-btn');
   const playlistPanel = el<HTMLElement>('playlist-builder-tab');
   const sharingPanel = el<HTMLElement>('stem-sharing-tab');
+  const stemLibraryTabBtn = el<HTMLButtonElement>('stem-library-tab-btn');
+  const stemReconciliationTabBtn =
+    el<HTMLButtonElement>('stem-reconciliation-tab-btn');
+  const stemShareUtilityTabBtn = el<HTMLButtonElement>('stem-share-utility-tab-btn');
+  const collectionBackupsTabBtn =
+    el<HTMLButtonElement>('collection-backups-tab-btn');
+  const stemLibraryPanel = el<HTMLElement>('stem-library-utility');
+  const stemReconciliationPanel = el<HTMLElement>('stem-reconciliation-utility');
+  const stemSharingUtilityPanel = el<HTMLElement>('stem-sharing-utility');
+  const collectionBackupsPanel = el<HTMLElement>('collection-backups-utility');
   const exportTabBtn = el<HTMLButtonElement>('share-export-tab-btn');
   const importTabBtn = el<HTMLButtonElement>('share-import-tab-btn');
   const exportPanel = el<HTMLElement>('share-export-panel');
@@ -99,6 +134,32 @@ export function initStemSharing(): void {
   playlistTabBtn.addEventListener('click', () => showTab('playlist'));
   stemSharingTabBtn.addEventListener('click', () => showTab('sharing'));
 
+  function showUtility(tab: 'library' | 'reconciliation' | 'sharing' | 'backups'): void {
+    const utilities = [
+      { name: 'library', button: stemLibraryTabBtn, panel: stemLibraryPanel },
+      {
+        name: 'reconciliation',
+        button: stemReconciliationTabBtn,
+        panel: stemReconciliationPanel,
+      },
+      { name: 'sharing', button: stemShareUtilityTabBtn, panel: stemSharingUtilityPanel },
+      { name: 'backups', button: collectionBackupsTabBtn, panel: collectionBackupsPanel },
+    ] as const;
+    for (const utility of utilities) {
+      const active = utility.name === tab;
+      utility.panel.classList.toggle('hidden', !active);
+      utility.button.classList.toggle('active', active);
+      utility.button.setAttribute('aria-selected', String(active));
+    }
+  }
+  stemLibraryTabBtn.addEventListener('click', () => showUtility('library'));
+  stemReconciliationTabBtn.addEventListener(
+    'click',
+    () => showUtility('reconciliation'),
+  );
+  stemShareUtilityTabBtn.addEventListener('click', () => showUtility('sharing'));
+  collectionBackupsTabBtn.addEventListener('click', () => showUtility('backups'));
+
   function showSharingTab(tab: 'export' | 'import'): void {
     const importing = tab === 'import';
     exportPanel.classList.toggle('hidden', importing);
@@ -112,6 +173,42 @@ export function initStemSharing(): void {
   importTabBtn.addEventListener('click', () => showSharingTab('import'));
 
   const supported = typeof window !== 'undefined' && 'showDirectoryPicker' in window;
+  const libraryCollectionInput =
+    el<HTMLInputElement>('stem-library-collection-input');
+  const libraryCollectionStatus =
+    el<HTMLElement>('stem-library-collection-status');
+  const libraryFolderBtn = el<HTMLButtonElement>('stem-library-folder-btn');
+  const libraryFolderStatus = el<HTMLElement>('stem-library-folder-status');
+  const libraryMarkerInput = el<HTMLInputElement>('stem-library-marker-input');
+  const libraryDownloadBtn = el<HTMLButtonElement>('stem-library-download-btn');
+  const libraryStatus = el<HTMLElement>('stem-library-status');
+  const reconcileCollectionInput =
+    el<HTMLInputElement>('reconcile-collection-input');
+  const reconcileCollectionStatus =
+    el<HTMLElement>('reconcile-collection-status');
+  const reconcileFolderBtn = el<HTMLButtonElement>('reconcile-folder-btn');
+  const reconcileFolderStatus = el<HTMLElement>('reconcile-folder-status');
+  const reconcileSummary = el<HTMLElement>('reconcile-summary');
+  const reconcileResults = el<HTMLElement>('reconcile-results');
+  const reconcileOrphans = el<HTMLOListElement>('reconcile-orphans');
+  const reconcileDuplicates = el<HTMLOListElement>('reconcile-duplicates');
+  const reconcileMissing = el<HTMLOListElement>('reconcile-missing');
+  const reconcileUnresolved = el<HTMLOListElement>('reconcile-unresolved');
+  const reconcileDownloadBtn =
+    el<HTMLButtonElement>('reconcile-download-btn');
+  const reconcileSearchBackupsBtn =
+    el<HTMLButtonElement>('reconcile-search-backups-btn');
+  const reconcileRecoveryDownloadBtn =
+    el<HTMLButtonElement>('reconcile-recovery-download-btn');
+  const reconcileRecoveryStatus =
+    el<HTMLElement>('reconcile-recovery-status');
+  const duplicateAnalyzeBtn = el<HTMLButtonElement>('duplicate-analyze-btn');
+  const duplicateSummary = el<HTMLElement>('duplicate-summary');
+  const duplicateGroupsList = el<HTMLOListElement>('duplicate-groups');
+  const duplicatePlaylistsDownloadBtn =
+    el<HTMLButtonElement>('duplicate-playlists-download-btn');
+  const duplicateReportDownloadBtn =
+    el<HTMLButtonElement>('duplicate-report-download-btn');
   const unsupported = el<HTMLElement>('stem-sharing-unsupported');
   const exportCollectionInput = el<HTMLInputElement>('share-collection-input');
   const exportCollectionStatus = el<HTMLElement>('share-collection-status');
@@ -140,6 +237,14 @@ export function initStemSharing(): void {
   const stemsInstallStatus = el<HTMLElement>('share-stems-install-status');
 
   let collection: NmlEntry[] | null = null;
+  let libraryCollection: NmlEntry[] | null = null;
+  let libraryStemPaths = new Set<string>();
+  let reconciliationCollection: NmlEntry[] | null = null;
+  let reconciliationStemPaths = new Set<string>();
+  let reconciliationScanned = false;
+  let reconciliationReport: StemReconciliationReport | null = null;
+  let orphanRecovery: OrphanRecoveryResult | null = null;
+  let duplicateGroups: DuplicateReviewGroup[] = [];
   let sourceFiles = new Map<string, StemFileHandle>();
   let originalFiles: IndexedAudioFileHandle[] = [];
   let stemCount = 0;
@@ -153,6 +258,14 @@ export function initStemSharing(): void {
   packageNameInput.value = defaultPackageName();
 
   if (!supported) {
+    libraryFolderBtn.disabled = true;
+    libraryFolderStatus.textContent =
+      'Generated-stem folder scanning requires Chromium; packaged stems remain available.';
+    libraryFolderStatus.className = 'status warn';
+    reconcileFolderBtn.disabled = true;
+    reconcileFolderStatus.textContent =
+      'Stem reconciliation requires Chromium folder access.';
+    reconcileFolderStatus.className = 'status warn';
     unsupported.classList.remove('hidden');
     sourceFolderBtn.disabled = true;
     originalsFolderBtn.disabled = true;
@@ -162,6 +275,375 @@ export function initStemSharing(): void {
     installOriginalsBtn.disabled = true;
     installStemsBtn.disabled = true;
   }
+
+  function updateLibraryState(): void {
+    const entries = libraryCollection
+      ? buildAllStemEntries(libraryCollection, libraryStemPaths, false)
+      : [];
+    libraryDownloadBtn.disabled = entries.length === 0;
+    if (!libraryCollection) {
+      libraryStatus.textContent = 'Load a collection to find stem-backed tracks.';
+      libraryStatus.className = 'status';
+      return;
+    }
+    libraryStatus.textContent =
+      `Found ${entries.length.toLocaleString()} stem-backed collection ` +
+      `entr${entries.length === 1 ? 'y' : 'ies'} for the playlist.`;
+    libraryStatus.className = entries.length > 0 ? 'status ok' : 'status warn';
+  }
+
+  libraryCollectionInput.addEventListener('change', async () => {
+    const file = libraryCollectionInput.files?.[0];
+    if (!file) return;
+    libraryCollectionStatus.textContent = `Reading ${file.name}…`;
+    libraryCollectionStatus.className = 'status';
+    try {
+      libraryCollection = loadCollection(await file.text());
+      libraryCollectionStatus.textContent =
+        `Loaded ${libraryCollection.length.toLocaleString()} collection entries from ${file.name}.`;
+      libraryCollectionStatus.className = 'status ok';
+    } catch (err) {
+      libraryCollection = null;
+      libraryCollectionStatus.textContent = err instanceof Error
+        ? `Could not load collection: ${err.message}`
+        : 'Could not load collection.';
+      libraryCollectionStatus.className = 'status err';
+    }
+    updateLibraryState();
+  });
+
+  libraryFolderBtn.addEventListener('click', async () => {
+    if (!supported) return;
+    let handle: FileSystemDirectoryHandle;
+    try {
+      handle = await (window as unknown as DirectoryPickerWindow).showDirectoryPicker({
+        mode: 'read',
+      });
+    } catch (err) {
+      if (isAbortError(err)) return;
+      libraryFolderStatus.textContent = err instanceof Error
+        ? `Could not open folder: ${err.message}`
+        : 'Could not open folder.';
+      libraryFolderStatus.className = 'status err';
+      return;
+    }
+    libraryFolderStatus.textContent = `Scanning ${handle.name}…`;
+    libraryFolderStatus.className = 'status';
+    try {
+      const files = await indexGeneratedStemHandles(asStemDirectory(handle), (seen) => {
+        libraryFolderStatus.textContent =
+          `Scanning ${handle.name}… ${seen.toLocaleString()} files seen`;
+      });
+      libraryStemPaths = new Set(files.keys());
+      libraryFolderStatus.textContent =
+        `Found ${libraryStemPaths.size.toLocaleString()} generated stem sidecar` +
+        `${libraryStemPaths.size === 1 ? '' : 's'}.`;
+      libraryFolderStatus.className = libraryStemPaths.size > 0 ? 'status ok' : 'status warn';
+      updateLibraryState();
+    } catch (err) {
+      libraryStemPaths = new Set();
+      libraryFolderStatus.textContent = err instanceof Error
+        ? `Could not scan folder: ${err.message}`
+        : 'Could not scan folder.';
+      libraryFolderStatus.className = 'status err';
+      updateLibraryState();
+    }
+  });
+
+  libraryDownloadBtn.addEventListener('click', () => {
+    if (!libraryCollection) return;
+    const entries = buildAllStemEntries(
+      libraryCollection,
+      libraryStemPaths,
+      libraryMarkerInput.checked,
+    );
+    if (entries.length === 0) return;
+    triggerDownload('All Stems.nml', buildNmlPlaylist('All Stems', entries));
+    libraryStatus.textContent =
+      `Downloaded All Stems.nml with ${entries.length.toLocaleString()} ` +
+      `entr${entries.length === 1 ? 'y' : 'ies'}` +
+      `${libraryMarkerInput.checked ? ' tagged in Comment 2.' : '.'}`;
+    libraryStatus.className = 'status ok';
+  });
+
+  function renderReconciliationList(
+    list: HTMLOListElement,
+    items: readonly string[],
+  ): void {
+    list.replaceChildren();
+    if (items.length === 0) {
+      const empty = document.createElement('li');
+      empty.textContent = 'None found.';
+      empty.className = 'hint';
+      list.appendChild(empty);
+      return;
+    }
+    for (const item of items) {
+      const row = document.createElement('li');
+      row.textContent = item;
+      list.appendChild(row);
+    }
+  }
+
+  function updateReconciliation(): void {
+    orphanRecovery = null;
+    reconcileRecoveryDownloadBtn.disabled = true;
+    reconcileRecoveryStatus.textContent = '';
+    if (!reconciliationCollection || !reconciliationScanned) {
+      reconciliationReport = null;
+      reconcileResults.classList.add('hidden');
+      reconcileDownloadBtn.disabled = true;
+      reconcileSearchBackupsBtn.disabled = true;
+      reconcileSummary.textContent =
+        'Load a collection and scan the generated stems folder.';
+      reconcileSummary.className = 'status';
+      return;
+    }
+
+    const report = reconcileGeneratedStems(
+      reconciliationCollection,
+      reconciliationStemPaths,
+    );
+    reconciliationReport = report;
+    const issueCount =
+      report.orphanedSidecars.length +
+      report.duplicateMappings.length +
+      report.missingMarkedSidecars.length +
+      report.unresolvedMarkedEntries.length;
+    reconcileSummary.textContent =
+      `Mapped ${report.mappedSidecars.toLocaleString()} of ` +
+      `${report.sidecarFiles.toLocaleString()} generated sidecars; ` +
+      `found ${issueCount.toLocaleString()} reconciliation issue` +
+      `${issueCount === 1 ? '' : 's'}.`;
+    reconcileSummary.className = issueCount === 0 ? 'status ok' : 'status warn';
+    reconcileResults.classList.remove('hidden');
+    reconcileDownloadBtn.disabled = false;
+    reconcileSearchBackupsBtn.disabled =
+      report.orphanedSidecars.length === 0 || !isBackupsSupported();
+    if (report.orphanedSidecars.length > 0 && !isBackupsSupported()) {
+      reconcileRecoveryStatus.textContent =
+        'Saved collection backup search is unavailable in this browser.';
+      reconcileRecoveryStatus.className = 'status warn';
+    }
+
+    renderReconciliationList(reconcileOrphans, report.orphanedSidecars);
+    renderReconciliationList(
+      reconcileDuplicates,
+      report.duplicateMappings.map((duplicate) =>
+        `${duplicate.sidecarPath} — ${duplicate.entries
+          .map((entry) => `${entry.artist} - ${entry.title}`)
+          .join('; ')}`),
+    );
+    renderReconciliationList(
+      reconcileMissing,
+      report.missingMarkedSidecars.map((entry) =>
+        `${entry.artist} - ${entry.title} — ${entry.expectedPath}`),
+    );
+    renderReconciliationList(
+      reconcileUnresolved,
+      report.unresolvedMarkedEntries.map((entry) =>
+        `${entry.artist} - ${entry.title} — ${entry.location}`),
+    );
+  }
+
+  reconcileCollectionInput.addEventListener('change', async () => {
+    const file = reconcileCollectionInput.files?.[0];
+    if (!file) return;
+    reconcileCollectionStatus.textContent = `Reading ${file.name}…`;
+    reconcileCollectionStatus.className = 'status';
+    try {
+      reconciliationCollection = loadCollection(await file.text());
+      reconcileCollectionStatus.textContent =
+        `Loaded ${reconciliationCollection.length.toLocaleString()} collection entries ` +
+        `from ${file.name}.`;
+      reconcileCollectionStatus.className = 'status ok';
+    } catch (err) {
+      reconciliationCollection = null;
+      reconcileCollectionStatus.textContent = err instanceof Error
+        ? `Could not load collection: ${err.message}`
+        : 'Could not load collection.';
+      reconcileCollectionStatus.className = 'status err';
+    }
+    resetDuplicateReview();
+    updateReconciliation();
+  });
+
+  reconcileFolderBtn.addEventListener('click', async () => {
+    if (!supported) return;
+    let handle: FileSystemDirectoryHandle;
+    try {
+      handle = await (window as unknown as DirectoryPickerWindow).showDirectoryPicker({
+        mode: 'read',
+      });
+    } catch (err) {
+      if (isAbortError(err)) return;
+      reconcileFolderStatus.textContent = err instanceof Error
+        ? `Could not open folder: ${err.message}`
+        : 'Could not open folder.';
+      reconcileFolderStatus.className = 'status err';
+      return;
+    }
+    reconcileFolderStatus.textContent = `Scanning ${handle.name}…`;
+    reconcileFolderStatus.className = 'status';
+    try {
+      const files = await indexGeneratedStemHandles(asStemDirectory(handle), (seen) => {
+        reconcileFolderStatus.textContent =
+          `Scanning ${handle.name}… ${seen.toLocaleString()} files seen`;
+      });
+      reconciliationStemPaths = new Set(files.keys());
+      reconciliationScanned = true;
+      reconcileFolderStatus.textContent =
+        `Found ${reconciliationStemPaths.size.toLocaleString()} generated stem sidecar` +
+        `${reconciliationStemPaths.size === 1 ? '' : 's'}.`;
+      reconcileFolderStatus.className =
+        reconciliationStemPaths.size > 0 ? 'status ok' : 'status warn';
+    } catch (err) {
+      reconciliationStemPaths = new Set();
+      reconciliationScanned = false;
+      reconcileFolderStatus.textContent = err instanceof Error
+        ? `Could not scan folder: ${err.message}`
+        : 'Could not scan folder.';
+      reconcileFolderStatus.className = 'status err';
+    }
+    updateReconciliation();
+  });
+
+  reconcileDownloadBtn.addEventListener('click', () => {
+    if (!reconciliationReport) return;
+    triggerDownload(
+      'NMLify Stem Reconciliation.txt',
+      formatStemReconciliationReport(reconciliationReport),
+      'text/plain;charset=utf-8',
+    );
+  });
+
+  reconcileSearchBackupsBtn.addEventListener('click', async () => {
+    if (!reconciliationReport || reconciliationReport.orphanedSidecars.length === 0) return;
+    reconcileSearchBackupsBtn.disabled = true;
+    reconcileRecoveryStatus.textContent = 'Loading saved collection backups…';
+    reconcileRecoveryStatus.className = 'status';
+    try {
+      const backups = await listBackups();
+      const collections = [];
+      let loaded = 0;
+      for (const backup of backups) {
+        const restored = await restoreBackup(backup.id);
+        collections.push({
+          filename: restored.filename,
+          timestamp: restored.timestamp,
+          entries: loadCollection(restored.xml),
+        });
+        loaded += 1;
+        reconcileRecoveryStatus.textContent =
+          `Searching collection backups… ${loaded} of ${backups.length}`;
+      }
+      orphanRecovery = recoverOrphansFromBackups(
+        reconciliationReport.orphanedSidecars,
+        collections,
+      );
+      reconcileRecoveryDownloadBtn.disabled = orphanRecovery.recovered.length === 0;
+      reconcileRecoveryStatus.textContent =
+        `Recovered ${orphanRecovery.recovered.length.toLocaleString()} orphan mapping` +
+        `${orphanRecovery.recovered.length === 1 ? '' : 's'} from ${backups.length} backup` +
+        `${backups.length === 1 ? '' : 's'}; ` +
+        `${orphanRecovery.unresolvedPaths.length.toLocaleString()} remain unresolved.`;
+      reconcileRecoveryStatus.className =
+        orphanRecovery.recovered.length > 0 ? 'status ok' : 'status warn';
+    } catch (err) {
+      orphanRecovery = null;
+      reconcileRecoveryDownloadBtn.disabled = true;
+      reconcileRecoveryStatus.textContent = err instanceof Error
+        ? `Could not search backups: ${err.message}`
+        : 'Could not search backups.';
+      reconcileRecoveryStatus.className = 'status err';
+    } finally {
+      reconcileSearchBackupsBtn.disabled =
+        !reconciliationReport ||
+        reconciliationReport.orphanedSidecars.length === 0 ||
+        !isBackupsSupported();
+    }
+  });
+
+  reconcileRecoveryDownloadBtn.addEventListener('click', () => {
+    if (!orphanRecovery || orphanRecovery.recovered.length === 0) return;
+    triggerDownload(
+      'NMLify Orphan Recovery.nml',
+      buildNmlPlaylist(
+        'NMLify Orphan Recovery',
+        orphanRecovery.recovered.map((item) => item.entry),
+      ),
+    );
+  });
+
+  function resetDuplicateReview(): void {
+    duplicateGroups = [];
+    duplicateGroupsList.replaceChildren();
+    duplicateGroupsList.classList.add('hidden');
+    duplicatePlaylistsDownloadBtn.disabled = true;
+    duplicateReportDownloadBtn.disabled = true;
+    duplicateSummary.textContent = '';
+    duplicateAnalyzeBtn.disabled = reconciliationCollection === null;
+  }
+
+  duplicateAnalyzeBtn.addEventListener('click', async () => {
+    if (!reconciliationCollection) return;
+    duplicateAnalyzeBtn.disabled = true;
+    duplicateSummary.textContent = 'Analyzing collection metadata…';
+    duplicateSummary.className = 'status';
+    await new Promise<void>((resolve) => setTimeout(resolve, 0));
+    try {
+      duplicateGroups = findDuplicateReviewGroups(reconciliationCollection);
+      renderReconciliationList(
+        duplicateGroupsList,
+        duplicateGroups.map((group) => {
+          const first = group.entries[0]!;
+          return `Group ${group.id} [${group.confidence}] — ${first.artist} - ` +
+            `${first.title} — ${group.entries.length} files — ${group.reasons.join('; ')}`;
+        }),
+      );
+      duplicateGroupsList.classList.remove('hidden');
+      duplicateSummary.textContent =
+        `Found ${duplicateGroups.length.toLocaleString()} duplicate review group` +
+        `${duplicateGroups.length === 1 ? '' : 's'}.`;
+      duplicateSummary.className = duplicateGroups.length > 0 ? 'status warn' : 'status ok';
+      duplicatePlaylistsDownloadBtn.disabled = duplicateGroups.length === 0;
+      duplicateReportDownloadBtn.disabled = duplicateGroups.length === 0;
+    } catch (err) {
+      duplicateGroups = [];
+      duplicateSummary.textContent = err instanceof Error
+        ? `Duplicate analysis failed: ${err.message}`
+        : 'Duplicate analysis failed.';
+      duplicateSummary.className = 'status err';
+    } finally {
+      duplicateAnalyzeBtn.disabled = reconciliationCollection === null;
+    }
+  });
+
+  duplicatePlaylistsDownloadBtn.addEventListener('click', () => {
+    if (duplicateGroups.length === 0) return;
+    const playlists = duplicateGroups.map((group) => {
+      const first = group.entries[0]!;
+      const name = `${String(group.id).padStart(2, '0')} ${first.artist} - ${first.title} ` +
+        `[${group.confidence}]`;
+      return {
+        name: name.slice(0, 120),
+        entries: group.entries.map((item) => item.entry),
+      };
+    });
+    triggerDownload(
+      'NMLify Duplicate Review.nml',
+      buildNmlPlaylistFolder('NMLify Duplicate Review', playlists),
+    );
+  });
+
+  duplicateReportDownloadBtn.addEventListener('click', () => {
+    if (duplicateGroups.length === 0) return;
+    triggerDownload(
+      'NMLify Duplicate Review.txt',
+      formatDuplicateReviewReport(duplicateGroups),
+      'text/plain;charset=utf-8',
+    );
+  });
 
   function updateExportButton(): void {
     exportBtn.disabled = !supported || selectedPaths.size === 0;
@@ -257,6 +739,8 @@ export function initStemSharing(): void {
       exportCollectionStatus.textContent =
         err instanceof Error ? `Could not load collection: ${err.message}` : 'Could not load collection.';
       exportCollectionStatus.className = 'status err';
+      updateLibraryState();
+      resetDuplicateReview();
       renderPlan(true);
     }
   });
