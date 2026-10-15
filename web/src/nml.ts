@@ -104,6 +104,27 @@ export function isStemEntry(entry: NmlEntry): boolean {
   return 'STEMS' in entry;
 }
 
+/** Traktor stores beat grid markers as <CUE_V2 TYPE="4">; other TYPEs are cues/loops. */
+const GRID_CUE_TYPE = '4';
+
+/** Count beat grid markers (not cue points) on an entry. */
+export function getBeatGridMarkerCount(entry: NmlEntry): number {
+  const cues = entry.CUE_V2;
+  if (cues == null) return 0;
+  const list = Array.isArray(cues) ? cues : [cues];
+  return list.filter(
+    (cue) => cue != null && typeof cue === 'object' && (cue as Record<string, unknown>)['@TYPE'] === GRID_CUE_TYPE,
+  ).length;
+}
+
+/** Minimum grid markers to treat a beat grid as variable; 2 is often a single re-anchor. */
+export const MULTIPLE_BEAT_GRID_THRESHOLD = 3;
+
+/** Three or more grid markers indicates a variable (multi-anchor) beat grid. */
+export function hasMultipleBeatGrids(entry: NmlEntry): boolean {
+  return getBeatGridMarkerCount(entry) >= MULTIPLE_BEAT_GRID_THRESHOLD;
+}
+
 /**
  * Strip characters Windows / NTFS won't allow in filenames. Falls back to
  * "playlist" when the input collapses to an empty string.
