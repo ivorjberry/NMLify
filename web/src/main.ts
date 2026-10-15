@@ -1289,13 +1289,13 @@ function renderCandidate(view: ReviewView, groupIndex: number, candidateIndex: n
     bitrateKbps !== null
       ? ` <span class="file-detail">${bitrateKbps} kbps</span>`
       : '';
-  const stemHtml = isStem ? ' <span class="file-detail">STEM file</span>' : '';
+  const stemHtml = isStem ? ' <span class="flag-badge flag-stem">STEM file</span>' : '';
   const generatedStemHtml = hasGeneratedSidecar
-    ? ' <span class="file-detail">Generated stem</span>'
+    ? ' <span class="flag-badge flag-stem">Generated stem</span>'
     : '';
   const beatGridHtml =
     gridMarkers >= MULTIPLE_BEAT_GRID_THRESHOLD
-      ? ` <span class="file-detail" title="Variable beat grid: ${gridMarkers} grid markers">${gridMarkers} beat grids</span>`
+      ? ` <span class="flag-badge flag-grid" title="Variable beat grid: ${gridMarkers} grid markers">${gridMarkers} beat grids</span>`
       : '';
   text.innerHTML =
     `<strong>${escapeHtml(primary)}</strong> ` +
